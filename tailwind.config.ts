@@ -17,7 +17,6 @@ const config: Config = {
     },
     extend: {
       colors: {
-        'primary': '#ec6d13',
         'background-light': '#f8f7f6',
         'background-dark': '#221810',
         'card-dark': '#32241b',

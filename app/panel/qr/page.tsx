@@ -73,7 +73,7 @@ export default function QRPage() {
     
     const { error } = await supabase
       .from('restaurants')
-      .update({ qr_logo_bg_color: color })
+      .update({ qr_logo_bg_color: color } as never)
       .eq('id', restaurant.id)
     
     if (error) {

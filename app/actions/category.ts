@@ -36,7 +36,7 @@ export async function createCategory(data: {
       sort_order: data.sort_order,
       image_url: data.image_url || null,
       is_active: true
-    } as any)
+    } as never)
 
   if (error) {
     console.error('Error creating category:', error)
@@ -62,7 +62,7 @@ export async function updateCategory(id: string, data: {
       sort_order: data.sort_order,
       is_active: data.is_active,
       image_url: data.image_url
-    } as any)
+    } as never)
     .eq('id', id)
 
   if (error) {

@@ -59,7 +59,7 @@ export async function createProduct(data: {
 
   const { data: product, error } = await supabase
     .from('products')
-    .insert(data as any)
+    .insert(data as never)
     .select()
     .single()
 
@@ -87,7 +87,7 @@ export async function updateProduct(id: string, data: {
 
   const { data: product, error } = await supabase
     .from('products')
-    .update(data as any)
+    .update(data as never)
     .eq('id', id)
     .select()
     .single()

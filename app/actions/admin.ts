@@ -84,7 +84,7 @@ export async function getRestaurantStats(restaurantId: string) {
 
   // Get scan stats
   const { data: stats } = await supabase
-    .rpc('get_restaurant_scan_stats', { rest_id: restaurantId } as any)
+    .rpc('get_restaurant_scan_stats', { rest_id: restaurantId } as never)
     .maybeSingle()
 
   // Get category count
@@ -153,7 +153,13 @@ export async function updateSubscription(input: UpdateSubscriptionInput) {
     // Update existing subscription
     const result = await supabase
       .from('subscriptions')
-      .update(updateData as any)
+      .update({
+        ...(updateData.plan && { plan: updateData.plan }),
+        ...(updateData.status && { status: updateData.status }),
+        ...(updateData.current_period_start && { current_period_start: updateData.current_period_start }),
+        ...(updateData.current_period_end && { current_period_end: updateData.current_period_end }),
+        updated_at: new Date().toISOString()
+      } as never)
       .eq('restaurant_id', restaurantId)
     error = result.error
   } else {
@@ -162,8 +168,12 @@ export async function updateSubscription(input: UpdateSubscriptionInput) {
       .from('subscriptions')
       .insert({
         restaurant_id: restaurantId,
-        ...updateData
-      } as any)
+        plan: updateData.plan || 'free',
+        status: updateData.status || 'active',
+        ...(updateData.current_period_start && { current_period_start: updateData.current_period_start }),
+        ...(updateData.current_period_end && { current_period_end: updateData.current_period_end }),
+        updated_at: new Date().toISOString()
+      } as never)
     error = result.error
   }
 
@@ -187,7 +197,7 @@ export async function updateRestaurantStatus(restaurantId: string, isActive: boo
 
   const { error } = await supabase
     .from('restaurants')
-    .update({ is_active: isActive } as any)
+    .update({ is_active: isActive } as never)
     .eq('id', restaurantId)
 
   if (error) {

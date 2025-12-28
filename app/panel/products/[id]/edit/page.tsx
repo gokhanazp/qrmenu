@@ -32,10 +32,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         setError('Ürün bulunamadı')
       } else {
         setProduct(productResult.product)
-        setImageUrl(productResult.product.image_url || '')
+        setImageUrl((productResult.product as any).image_url || '')
 
-        if (restaurantResult.restaurant) {
-          const { categories: cats } = await getCategories((restaurantResult.restaurant as any).id)
+        if ((restaurantResult as any).restaurant) {
+          const { categories: cats } = await getCategories(((restaurantResult as any).restaurant as any).id)
           setCategories(cats || [])
         }
       }

@@ -58,7 +58,7 @@ export async function getRestaurantWithStats() {
 
   // Get scan stats
   const { data: stats } = await supabase
-    .rpc('get_restaurant_scan_stats', { rest_id: (restaurant as any).id } as any)
+    .rpc('get_restaurant_scan_stats', { rest_id: (restaurant as any).id } as never)
     .maybeSingle()
 
   // Get category count
@@ -138,10 +138,10 @@ export async function updateRestaurant(input: UpdateRestaurantInput) {
     }
   }
 
-  const { error } = (await supabase
+  const { error } = await supabase
     .from('restaurants')
-    .update(input as any)
-    .eq('id', (restaurant as any).id)) as any
+    .update(input as never)
+    .eq('id', (restaurant as any).id)
 
   if (error) {
     return { success: false, error: error.message }

@@ -35,23 +35,25 @@ export default async function AdminRestaurantDetailPage({
   const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/restorant/${rest.slug}`
 
   // Process scan events for chart (last 30 days)
-  const scansByDate: { [key: string]: number } = {}
-  const last30Days = Array.from({ length: 30 }, (_, i) => {
+  const scansByDate: { [key: string]: number} = {}
+  const last30Days: string[] = []
+  
+  for (let i = 0; i < 30; i++) {
     const date = new Date()
     date.setDate(date.getDate() - (29 - i))
-    return date.toISOString().split('T')[0]
-  })
+    const dateStr = date.toISOString().split('T')[0]
+    last30Days.push(dateStr)
+    scansByDate[dateStr] = 0
+  }
 
-  last30Days.forEach(date => {
-    scansByDate[date] = 0
-  })
-
-  scanEvents?.forEach((event: any) => {
-    const date = new Date(event.scanned_at).toISOString().split('T')[0]
-    if (scansByDate[date] !== undefined) {
-      scansByDate[date]++
-    }
-  })
+  if (scanEvents && Array.isArray(scanEvents)) {
+    (scanEvents as any[]).forEach((event: any) => {
+      const date = new Date(event.scanned_at).toISOString().split('T')[0]
+      if (scansByDate[date] !== undefined) {
+        scansByDate[date]++
+      }
+    })
+  }
 
   const maxScans = Math.max(...Object.values(scansByDate), 1)
 
@@ -133,28 +135,28 @@ export default async function AdminRestaurantDetailPage({
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-slate-600 mb-1">Bugün</p>
               <p className="text-3xl font-bold text-slate-900">
-                {stats.scans_today}
+                {(stats as any).scans_today}
               </p>
               <p className="text-xs text-slate-500 mt-1">görüntüleme</p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-slate-600 mb-1">Son 7 Gün</p>
               <p className="text-3xl font-bold text-slate-900">
-                {stats.scans_7d}
+                {(stats as any).scans_7d}
               </p>
               <p className="text-xs text-slate-500 mt-1">görüntüleme</p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-slate-600 mb-1">Son 30 Gün</p>
               <p className="text-3xl font-bold text-slate-900">
-                {stats.scans_30d}
+                {(stats as any).scans_30d}
               </p>
               <p className="text-xs text-slate-500 mt-1">görüntüleme</p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-slate-600 mb-1">Toplam</p>
               <p className="text-3xl font-bold text-slate-900">
-                {stats.scans_total}
+                {(stats as any).scans_total}
               </p>
               <p className="text-xs text-slate-500 mt-1">görüntüleme</p>
             </div>
@@ -195,7 +197,7 @@ export default async function AdminRestaurantDetailPage({
               </h2>
               <div className="text-center py-8">
                 <p className="text-4xl font-bold text-slate-900 mb-2">
-                  {counts.categories}
+                  {(counts as any).categories}
                 </p>
                 <p className="text-sm text-slate-600">Toplam Kategori</p>
               </div>
@@ -207,7 +209,7 @@ export default async function AdminRestaurantDetailPage({
               </h2>
               <div className="text-center py-8">
                 <p className="text-4xl font-bold text-slate-900 mb-2">
-                  {counts.products}
+                  {(counts as any).products}
                 </p>
                 <p className="text-sm text-slate-600">Toplam Ürün</p>
               </div>

@@ -25,7 +25,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
         setError('Kategori bulunamadı')
       } else {
         setCategory(result.category)
-        setImageUrl(result.category.image_url || '')
+        setImageUrl((result.category as any).image_url || '')
       }
       setIsLoading(false)
     }
