@@ -4,6 +4,20 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
+// Get the site URL with proper fallback
+function getSiteUrl(): string {
+  // Check for Vercel URL first (automatically set by Vercel)
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  // Then check for custom site URL
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  // Default fallback for local development
+  return 'http://localhost:3000'
+}
+
 export const metadata: Metadata = {
   title: {
     default: "QR Menü SaaS - Dijital Menü Yönetim Sistemi",
@@ -27,7 +41,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(getSiteUrl()),
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
