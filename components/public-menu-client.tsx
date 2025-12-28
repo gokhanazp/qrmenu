@@ -6,6 +6,8 @@ import { SearchModal } from './search-modal'
 interface PublicMenuClientProps {
   allProducts: any[]
   primaryColor: string
+  priceColor?: string
+  iconColor?: string
   backgroundColor: string
   surfaceColor: string
   textColor: string
@@ -15,6 +17,8 @@ interface PublicMenuClientProps {
 export function PublicMenuClient({
   allProducts,
   primaryColor,
+  priceColor,
+  iconColor,
   backgroundColor,
   surfaceColor,
   textColor,
@@ -38,6 +42,8 @@ export function PublicMenuClient({
       onClose={() => setIsSearchOpen(false)}
       products={allProducts}
       primaryColor={primaryColor}
+      priceColor={priceColor}
+      iconColor={iconColor}
       backgroundColor={backgroundColor}
       surfaceColor={surfaceColor}
       textColor={textColor}

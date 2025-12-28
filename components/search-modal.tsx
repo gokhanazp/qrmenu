@@ -10,6 +10,8 @@ interface SearchModalProps {
   onClose: () => void
   products: any[]
   primaryColor: string
+  priceColor?: string
+  iconColor?: string
   backgroundColor: string
   surfaceColor: string
   textColor: string
@@ -21,6 +23,8 @@ export function SearchModal({
   onClose,
   products,
   primaryColor,
+  priceColor,
+  iconColor,
   backgroundColor,
   surfaceColor,
   textColor,
@@ -110,7 +114,7 @@ export function SearchModal({
             <div className="flex items-center gap-3">
               <span
                 className="material-symbols-outlined"
-                style={{ color: primaryColor }}
+                style={{ color: iconColor || primaryColor }}
               >
                 search
               </span>
@@ -193,7 +197,7 @@ export function SearchModal({
                       )}
                       <p
                         className="text-sm font-bold mt-0.5"
-                        style={{ color: primaryColor }}
+                        style={{ color: priceColor || primaryColor }}
                       >
                         {formatCurrency(product.price)}
                       </p>
@@ -222,6 +226,7 @@ export function SearchModal({
             setSelectedProduct(null)
           }}
           primaryColor={primaryColor}
+          priceColor={priceColor}
           backgroundColor={backgroundColor}
           surfaceColor={surfaceColor}
           textColor={textColor}

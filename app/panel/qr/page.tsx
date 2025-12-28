@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import QRCodeDisplay from "@/components/qr-code-display"
 import { getRestaurant } from "@/app/actions/restaurant"
+import { createClient } from "@/lib/supabase/client"
 
 export default function QRPage() {
   const router = useRouter()
@@ -67,6 +68,22 @@ export default function QRPage() {
     alert('Link kopyalandı!')
   }
 
+  const handleSaveLogoBgColor = async (color: string) => {
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('restaurants')
+      .update({ qr_logo_bg_color: color })
+      .eq('id', restaurant.id)
+    
+    if (error) {
+      throw error
+    }
+    
+    // Update local state
+    setRestaurant({ ...restaurant, qr_logo_bg_color: color })
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -99,7 +116,13 @@ export default function QRPage() {
             </div>
 
             {/* QR Code */}
-            <QRCodeDisplay url={publicUrl} restaurantName={restaurant.name} />
+            <QRCodeDisplay
+              url={publicUrl}
+              restaurantName={restaurant.name}
+              logoUrl={restaurant.logo_url}
+              initialLogoBgColor={restaurant.qr_logo_bg_color || '#FFFFFF'}
+              onSaveLogoBgColor={handleSaveLogoBgColor}
+            />
 
             {/* URL Display */}
             <div className="mt-8 bg-slate-50 rounded-lg p-4">

@@ -8,6 +8,7 @@ interface PublicMenuBottomNavProps {
   backgroundColor: string
   surfaceColor: string
   textColor: string
+  iconColor?: string
 }
 
 export function PublicMenuBottomNav({
@@ -16,18 +17,8 @@ export function PublicMenuBottomNav({
   backgroundColor,
   surfaceColor,
   textColor,
+  iconColor,
 }: PublicMenuBottomNavProps) {
-  const handleHomeClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleMenuClick = () => {
-    const categoriesSection = document.querySelector('[data-section="categories"]')
-    if (categoriesSection) {
-      categoriesSection.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   return (
     <BottomNavigation
       restaurant={restaurant}
@@ -35,8 +26,7 @@ export function PublicMenuBottomNav({
       backgroundColor={backgroundColor}
       surfaceColor={surfaceColor}
       textColor={textColor}
-      onHomeClick={handleHomeClick}
-      onMenuClick={handleMenuClick}
+      iconColor={iconColor}
     />
   )
 }

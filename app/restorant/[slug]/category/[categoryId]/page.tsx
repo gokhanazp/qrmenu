@@ -45,6 +45,9 @@ export default async function CategoryDetailPage({
   const surfaceColor = rest.surface_color || '#f9fafb'
   const textColor = rest.text_color || '#111827'
   const primaryColor = rest.primary_color || '#FF6B35'
+  const priceColor = rest.price_color || '#ef4444'
+  const iconColor = rest.icon_color || '#111827'
+  const hamburgerBgColor = rest.hamburger_bg_color || '#ffffff'
   const layoutStyle = rest.layout_style || 'grid'
   const borderColor = textColor + '20' // 20% opacity
 
@@ -69,28 +72,34 @@ export default async function CategoryDetailPage({
             }}
           >
             <div className="flex items-center justify-between p-4 h-16">
-              <HamburgerMenu restaurant={rest} />
-              {rest.logo_url ? (
-                <Image
-                  src={rest.logo_url}
-                  alt={rest.name}
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto object-contain"
-                  priority
-                />
-              ) : (
-                <h1
-                  className="text-xl font-bold tracking-tight uppercase"
-                  style={{ color: primaryColor }}
-                >
-                  {rest.name}
-                </h1>
-              )}
+              <HamburgerMenu
+                restaurant={rest}
+                iconColor={iconColor}
+                hamburgerBgColor={hamburgerBgColor}
+              />
+              <Link href={`/restorant/${slug}`} className="flex items-center">
+                {rest.logo_url ? (
+                  <Image
+                    src={rest.logo_url}
+                    alt={rest.name}
+                    width={140}
+                    height={48}
+                    className="h-12 w-auto object-contain"
+                    priority
+                  />
+                ) : (
+                  <h1
+                    className="text-xl font-bold tracking-tight uppercase"
+                    style={{ color: primaryColor }}
+                  >
+                    {rest.name}
+                  </h1>
+                )}
+              </Link>
               <button
                 id="search-button"
                 className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
-                style={{ color: textColor }}
+                style={{ color: iconColor }}
                 aria-label="Ara"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
@@ -123,13 +132,13 @@ export default async function CategoryDetailPage({
           {/* Products */}
           <div className="mt-4 pb-24">
             <div className="flex items-center px-4 mb-3">
-              <span 
+              <span
                 className="material-symbols-outlined mr-2"
-                style={{ color: primaryColor }}
+                style={{ color: iconColor }}
               >
                 restaurant
               </span>
-              <h2 
+              <h2
                 className="text-lg font-bold"
                 style={{ color: textColor }}
               >
@@ -156,6 +165,7 @@ export default async function CategoryDetailPage({
                     key={product.id}
                     product={product}
                     primaryColor={primaryColor}
+                    priceColor={priceColor}
                     backgroundColor={backgroundColor}
                     surfaceColor={surfaceColor}
                     textColor={textColor}
@@ -172,6 +182,7 @@ export default async function CategoryDetailPage({
                     key={product.id}
                     product={product}
                     primaryColor={primaryColor}
+                    priceColor={priceColor}
                     backgroundColor={backgroundColor}
                     surfaceColor={surfaceColor}
                     textColor={textColor}
@@ -187,6 +198,8 @@ export default async function CategoryDetailPage({
         <PublicMenuClient
           allProducts={allProducts || []}
           primaryColor={primaryColor}
+          priceColor={priceColor}
+          iconColor={iconColor}
           backgroundColor={backgroundColor}
           surfaceColor={surfaceColor}
           textColor={textColor}
@@ -199,6 +212,7 @@ export default async function CategoryDetailPage({
           backgroundColor={backgroundColor}
           surfaceColor={surfaceColor}
           textColor={textColor}
+          iconColor={iconColor}
         />
     </div>
   )

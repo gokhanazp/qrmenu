@@ -29,10 +29,14 @@ export default function SettingsPage() {
     surface_color: '#f9fafb',
     text_color: '#111827',
     primary_color: '#FF6B35',
+    price_color: '#ef4444',
+    icon_color: '#111827',
+    hamburger_bg_color: '#ffffff',
     about_us: '',
     phone: '',
     email: '',
     address: '',
+    whatsapp: '',
     instagram: '',
     facebook: '',
     twitter: '',
@@ -68,10 +72,14 @@ export default function SettingsPage() {
           surface_color: rest.surface_color || '#f9fafb',
           text_color: rest.text_color || '#111827',
           primary_color: rest.primary_color || '#FF6B35',
+          price_color: rest.price_color || '#ef4444',
+          icon_color: rest.icon_color || '#111827',
+          hamburger_bg_color: rest.hamburger_bg_color || '#ffffff',
           about_us: rest.about_us || '',
           phone: rest.phone || '',
           email: rest.email || '',
           address: rest.address || '',
+          whatsapp: rest.whatsapp || '',
           instagram: rest.instagram || '',
           facebook: rest.facebook || '',
           twitter: rest.twitter || '',
@@ -292,6 +300,30 @@ export default function SettingsPage() {
                     <Input value={formData.primary_color} onChange={(e) => setFormData({ ...formData, primary_color: e.target.value })} placeholder="#FF6B35" className="flex-1" />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price_color">Fiyat Rengi</Label>
+                  <div className="flex gap-2">
+                    <input type="color" id="price_color" value={formData.price_color} onChange={(e) => setFormData({ ...formData, price_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
+                    <Input value={formData.price_color} onChange={(e) => setFormData({ ...formData, price_color: e.target.value })} placeholder="#ef4444" className="flex-1" />
+                  </div>
+                  <p className="text-xs text-gray-500">Ürün fiyatlarının rengi</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="icon_color">İkon Rengi</Label>
+                  <div className="flex gap-2">
+                    <input type="color" id="icon_color" value={formData.icon_color} onChange={(e) => setFormData({ ...formData, icon_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
+                    <Input value={formData.icon_color} onChange={(e) => setFormData({ ...formData, icon_color: e.target.value })} placeholder="#111827" className="flex-1" />
+                  </div>
+                  <p className="text-xs text-gray-500">Hamburger menü, arama ve diğer ikonların rengi</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hamburger_bg_color">Hamburger Menü Arka Plan</Label>
+                  <div className="flex gap-2">
+                    <input type="color" id="hamburger_bg_color" value={formData.hamburger_bg_color} onChange={(e) => setFormData({ ...formData, hamburger_bg_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
+                    <Input value={formData.hamburger_bg_color} onChange={(e) => setFormData({ ...formData, hamburger_bg_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
+                  </div>
+                  <p className="text-xs text-gray-500">Hamburger menü butonunun arka plan rengi</p>
+                </div>
               </div>
             </div>
           </div>
@@ -353,6 +385,11 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp">WhatsApp</Label>
+                <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder="+90 555 123 45 67" />
+                <p className="text-xs text-gray-500">Ülke kodu ile birlikte girin (örn: +90 555 123 45 67)</p>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="instagram">Instagram</Label>
                 <Input id="instagram" value={formData.instagram} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder="https://instagram.com/restoraniniz" />

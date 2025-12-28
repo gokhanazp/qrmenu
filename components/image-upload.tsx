@@ -26,6 +26,8 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null)
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlInput, setUrlInput] = useState('')
   const supabase = createClient()
   const uploadId = id || `image-upload-${Math.random().toString(36).substr(2, 9)}`
 
@@ -105,6 +107,27 @@ export function ImageUpload({
     onUploadComplete('')
   }
 
+  function handleUrlSubmit() {
+    if (!urlInput.trim()) {
+      alert('Lütfen geçerli bir URL girin')
+      return
+    }
+
+    // Basic URL validation
+    try {
+      new URL(urlInput)
+    } catch {
+      alert('Lütfen geçerli bir URL girin (örn: https://example.com/image.jpg)')
+      return
+    }
+
+    setPreview(urlInput)
+    onUploadComplete(urlInput)
+    setUrlInput('')
+    setShowUrlInput(false)
+    alert('URL başarıyla eklendi! Şimdi "Güncelle" butonuna basın.')
+  }
+
   return (
     <div className="space-y-4">
       <label className="block text-sm font-medium text-gray-700">
@@ -131,28 +154,79 @@ export function ImageUpload({
         </div>
       )}
 
-      <div className="flex items-center gap-4">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          disabled={uploading}
-          className="hidden"
-          id={uploadId}
-        />
-        <label htmlFor={uploadId}>
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            disabled={uploading}
+            className="hidden"
+            id={uploadId}
+          />
+          <label htmlFor={uploadId}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={uploading}
+              onClick={() => document.getElementById(uploadId)?.click()}
+              className="flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">upload_file</span>
+              {uploading ? 'Yükleniyor...' : preview ? 'Dosya Değiştir' : 'Dosya Seç'}
+            </Button>
+          </label>
+          
           <Button
             type="button"
             variant="outline"
+            onClick={() => setShowUrlInput(!showUrlInput)}
             disabled={uploading}
-            onClick={() => document.getElementById(uploadId)?.click()}
+            className="flex items-center gap-2"
           >
-            {uploading ? 'Yükleniyor...' : preview ? 'Fotoğrafı Değiştir' : 'Fotoğraf Seç'}
+            <span className="material-symbols-outlined text-lg">link</span>
+            URL ile Ekle
           </Button>
-        </label>
-        <p className="text-sm text-gray-500">
-          JPG, PNG veya WebP (Max 5MB)
-        </p>
+
+          <p className="text-sm text-gray-500">
+            JPG, PNG veya WebP (Max 5MB)
+          </p>
+        </div>
+
+        {showUrlInput && (
+          <div className="flex gap-2 p-4 bg-gray-50 rounded-lg border">
+            <input
+              type="url"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleUrlSubmit()
+                }
+              }}
+            />
+            <Button
+              type="button"
+              onClick={handleUrlSubmit}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Ekle
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowUrlInput(false)
+                setUrlInput('')
+              }}
+            >
+              İptal
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

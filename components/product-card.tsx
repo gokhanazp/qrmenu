@@ -8,6 +8,7 @@ import { ProductDetailModal } from './product-detail-modal'
 interface ProductCardProps {
   product: any
   primaryColor: string
+  priceColor?: string
   backgroundColor: string
   surfaceColor: string
   textColor: string
@@ -18,6 +19,7 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   primaryColor,
+  priceColor,
   backgroundColor,
   surfaceColor,
   textColor,
@@ -72,7 +74,7 @@ export function ProductCard({
             <div className="flex items-center justify-between">
               <p
                 className="text-xl font-bold"
-                style={{ color: primaryColor }}
+                style={{ color: priceColor || primaryColor }}
               >
                 {formatCurrency(product.price)}
               </p>
@@ -95,6 +97,7 @@ export function ProductCard({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           primaryColor={primaryColor}
+          priceColor={priceColor}
           backgroundColor={backgroundColor}
           surfaceColor={surfaceColor}
           textColor={textColor}
@@ -141,7 +144,7 @@ export function ProductCard({
             )}
             <p
               className="text-sm font-medium mt-1"
-              style={{ color: primaryColor }}
+              style={{ color: priceColor || primaryColor }}
             >
               {formatCurrency(product.price)}
             </p>
@@ -163,6 +166,7 @@ export function ProductCard({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           primaryColor={primaryColor}
+          priceColor={priceColor}
           backgroundColor={backgroundColor}
           surfaceColor={surfaceColor}
           textColor={textColor}
@@ -248,7 +252,7 @@ export function ProductCard({
           )}
           <p
             className={`${isDailySpecial ? 'text-lg' : 'text-base'} font-bold mt-1`}
-            style={{ color: primaryColor }}
+            style={{ color: priceColor || primaryColor }}
           >
             {formatCurrency(product.price)}
           </p>
@@ -275,6 +279,7 @@ export function ProductCard({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         primaryColor={primaryColor}
+        priceColor={priceColor}
         backgroundColor={backgroundColor}
         surfaceColor={surfaceColor}
         textColor={textColor}

@@ -9,6 +9,7 @@ interface ProductDetailModalProps {
   isOpen: boolean
   onClose: () => void
   primaryColor: string
+  priceColor?: string
   backgroundColor: string
   surfaceColor: string
   textColor: string
@@ -19,6 +20,7 @@ export function ProductDetailModal({
   isOpen,
   onClose,
   primaryColor,
+  priceColor,
   backgroundColor,
   surfaceColor,
   textColor
@@ -126,7 +128,7 @@ export function ProductDetailModal({
           {/* Price */}
           <p
             className="text-3xl font-bold mb-4"
-            style={{ color: primaryColor }}
+            style={{ color: priceColor || primaryColor }}
           >
             {formatCurrency(product.price)}
           </p>
