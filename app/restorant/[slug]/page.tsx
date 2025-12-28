@@ -318,7 +318,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const rest = restaurant as any
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const pageUrl = `${siteUrl}/restorant/${params.slug}`
   
   const title = `${rest.name} - Dijital Menü | QR Menü`

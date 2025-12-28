@@ -53,7 +53,7 @@ export default function QRPage() {
     )
   }
 
-  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/restorant/${restaurant.slug}`
+  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${restaurant.slug}`
 
   const handleDownload = () => {
     const canvas = document.querySelector('canvas')

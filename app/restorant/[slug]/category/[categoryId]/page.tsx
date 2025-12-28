@@ -231,7 +231,7 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
 
   const rest = restaurant as any
   const cat = category as any
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const pageUrl = `${siteUrl}/restorant/${params.slug}/category/${params.categoryId}`
   
   const title = `${cat.name} - ${rest.name} | Dijital Menü`

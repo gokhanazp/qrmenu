@@ -41,7 +41,7 @@ export default async function PanelPage() {
   }
 
   const { restaurant, subscription, stats, counts } = data
-  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/restorant/${(restaurant as any).slug}`
+  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${(restaurant as any).slug}`
 
   return (
     <div className="space-y-6">

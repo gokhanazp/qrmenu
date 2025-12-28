@@ -32,7 +32,7 @@ export default async function AdminRestaurantDetailPage({
 
   const rest = restaurant as any
   const subscription = rest.subscriptions?.[0]
-  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/restorant/${rest.slug}`
+  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${rest.slug}`
 
   // Process scan events for chart (last 30 days)
   const scansByDate: { [key: string]: number} = {}
