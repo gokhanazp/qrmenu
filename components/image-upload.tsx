@@ -28,8 +28,13 @@ export function ImageUpload({
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null)
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlInput, setUrlInput] = useState('')
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const uploadId = id || `image-upload-${Math.random().toString(36).substr(2, 9)}`
+
+  // Initialize Supabase client only on client-side
+  useEffect(() => {
+    setSupabase(createClient())
+  }, [])
 
   // Update preview when currentImageUrl changes
   useEffect(() => {
@@ -39,6 +44,12 @@ export function ImageUpload({
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Check if supabase client is ready
+    if (!supabase) {
+      alert('Yükleme servisi hazırlanıyor, lütfen tekrar deneyin')
+      return
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
