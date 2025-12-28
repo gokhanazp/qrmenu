@@ -8,14 +8,8 @@ import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 
-// Revalidate every 5 minutes for public menu pages
-export const revalidate = 300
-
-// Generate static params for popular restaurants at build time
-export async function generateStaticParams() {
-  // This will be populated at build time
-  return []
-}
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
 
 export default async function PublicMenuPage({ params }: { params: { slug: string } }) {
   const { slug } = params
