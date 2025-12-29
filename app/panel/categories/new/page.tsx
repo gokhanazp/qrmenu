@@ -90,6 +90,7 @@ export default function NewCategoryPage() {
           }}
           onUploadStart={() => setIsUploading(true)}
           label="Kategori Fotoğrafı"
+          recommendedSize="800x600 piksel (4:3 oran)"
         />
 
         <div>

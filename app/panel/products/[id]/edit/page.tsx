@@ -180,6 +180,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           }}
           onUploadStart={() => setIsUploading(true)}
           label="Ürün Fotoğrafı"
+          recommendedSize="600x600 piksel (1:1 kare)"
         />
 
         <div>

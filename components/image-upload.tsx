@@ -13,6 +13,26 @@ interface ImageUploadProps {
   onUploadStart?: () => void
   label?: string
   id?: string
+  recommendedSize?: string // Önerilen boyut bilgisi
+}
+
+// UUID benzeri benzersiz ID oluştur
+function generateUniqueId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}-${Math.random().toString(36).substring(2, 11)}`
+}
+
+// Storage URL'inden dosya yolunu çıkar
+function extractFilePathFromUrl(url: string, bucket: string): string | null {
+  try {
+    const urlObj = new URL(url)
+    const pathParts = urlObj.pathname.split(`/storage/v1/object/public/${bucket}/`)
+    if (pathParts.length > 1) {
+      return decodeURIComponent(pathParts[1])
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 export function ImageUpload({
@@ -22,9 +42,11 @@ export function ImageUpload({
   onUploadComplete,
   onUploadStart,
   label = 'Fotoğraf',
-  id
+  id,
+  recommendedSize
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null)
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlInput, setUrlInput] = useState('')
@@ -74,9 +96,18 @@ export function ImageUpload({
       }
       reader.readAsDataURL(file)
 
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${path}/${Date.now()}.${fileExt}`
+      // Generate unique filename with UUID to prevent conflicts
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const uniqueId = generateUniqueId()
+      const fileName = `${path}/${uniqueId}.${fileExt}`
+
+      // Delete old file if exists (from Supabase storage)
+      if (currentImageUrl && currentImageUrl.includes(bucket)) {
+        const oldFilePath = extractFilePathFromUrl(currentImageUrl, bucket)
+        if (oldFilePath) {
+          await supabase.storage.from(bucket).remove([oldFilePath])
+        }
+      }
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -110,12 +141,40 @@ export function ImageUpload({
   }
 
   async function handleRemove() {
-    if (!confirm('Fotoğrafı kaldırmak istediğinizden emin misiniz?')) {
+    if (!confirm('Fotoğrafı kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
       return
     }
 
-    setPreview(null)
-    onUploadComplete('')
+    // Check if supabase client is ready
+    if (!supabase) {
+      alert('Silme servisi hazırlanıyor, lütfen tekrar deneyin')
+      return
+    }
+
+    setDeleting(true)
+
+    try {
+      // Delete from Supabase storage if it's a Supabase URL
+      if (currentImageUrl && currentImageUrl.includes(bucket)) {
+        const filePath = extractFilePathFromUrl(currentImageUrl, bucket)
+        if (filePath) {
+          const { error } = await supabase.storage.from(bucket).remove([filePath])
+          if (error) {
+            console.error('Storage delete error:', error)
+            // Continue anyway to clear the reference
+          }
+        }
+      }
+
+      setPreview(null)
+      onUploadComplete('')
+      alert('Fotoğraf başarıyla silindi!')
+    } catch (error: any) {
+      console.error('Delete error:', error)
+      alert('Silme hatası: ' + (error.message || 'Bilinmeyen hata'))
+    } finally {
+      setDeleting(false)
+    }
   }
 
   function handleUrlSubmit() {
@@ -156,11 +215,19 @@ export function ImageUpload({
           <button
             type="button"
             onClick={handleRemove}
-            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"
+            disabled={deleting}
+            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            {deleting ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
           </button>
         </div>
       )}
@@ -199,9 +266,14 @@ export function ImageUpload({
             URL ile Ekle
           </Button>
 
-          <p className="text-sm text-gray-500">
-            JPG, PNG veya WebP (Max 5MB)
-          </p>
+          <div className="text-sm text-gray-500">
+            <p>JPG, PNG veya WebP (Max 5MB)</p>
+            {recommendedSize && (
+              <p className="text-xs text-blue-600 mt-1">
+                📐 Önerilen boyut: {recommendedSize}
+              </p>
+            )}
+          </div>
         </div>
 
         {showUrlInput && (

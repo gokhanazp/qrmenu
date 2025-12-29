@@ -64,39 +64,45 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
               borderBottom: `1px solid ${borderColor}`
             }}
           >
-            <div className="flex items-center justify-between p-4 h-16">
-              <HamburgerMenu
-                restaurant={rest}
-                iconColor={iconColor}
-                hamburgerBgColor={hamburgerBgColor}
-              />
-              <Link href={`/restorant/${slug}`} className="flex items-center">
+            <div className="flex items-center justify-between px-3" style={{ minHeight: '140px', paddingTop: '24px', paddingBottom: '24px' }}>
+              <div className="flex-shrink-0">
+                <HamburgerMenu
+                  restaurant={rest}
+                  iconColor={iconColor}
+                  hamburgerBgColor={hamburgerBgColor}
+                />
+              </div>
+              <Link href={`/restorant/${slug}`} className="flex items-center justify-center flex-1 mx-2">
                 {rest.logo_url ? (
-                  <Image
-                    src={rest.logo_url}
-                    alt={rest.name}
-                    width={140}
-                    height={48}
-                    className="h-12 w-auto object-contain"
-                    priority
-                  />
+                  <div className="relative" style={{ width: '280px', height: '100px' }}>
+                    <Image
+                      src={rest.logo_url}
+                      alt={rest.name}
+                      fill
+                      className="object-contain"
+                      priority
+                      sizes="280px"
+                    />
+                  </div>
                 ) : (
                   <h1
-                    className="text-xl font-bold tracking-tight uppercase"
+                    className="text-2xl font-bold tracking-tight uppercase text-center"
                     style={{ color: primaryColor }}
                   >
                     {rest.name}
                   </h1>
                 )}
               </Link>
-              <button
-                id="search-button"
-                className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
-                style={{ color: iconColor }}
-                aria-label="Ara"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
-              </button>
+              <div className="flex-shrink-0">
+                <button
+                  id="search-button"
+                  className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
+                  style={{ color: iconColor }}
+                  aria-label="Ara"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
+                </button>
+              </div>
             </div>
           </header>
 

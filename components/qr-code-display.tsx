@@ -104,35 +104,75 @@ export default function QRCodeDisplay({
             const centerX = size / 2
             const centerY = size / 2
             
-            // Logo container size
-            const containerWidth = availableSize * 0.28
-            const containerHeight = availableSize * 0.15
-            
-            // Calculate logo dimensions maintaining aspect ratio
+            // Logo oranını hesapla
             const imgAspect = img.width / img.height
+            
+            // Container boyutlarını logo oranına göre dinamik ayarla
+            const maxContainerWidth = availableSize * 0.32  // Maksimum genişlik
+            const maxContainerHeight = availableSize * 0.20 // Maksimum yükseklik
+            const padding = 12 // Logo etrafındaki boşluk
+            
+            let containerWidth: number
+            let containerHeight: number
             let logoWidth: number
             let logoHeight: number
             
-            const maxLogoWidth = containerWidth * 0.85
-            const maxLogoHeight = containerHeight * 0.70
-            
-            if (imgAspect > maxLogoWidth / maxLogoHeight) {
-              logoWidth = maxLogoWidth
-              logoHeight = maxLogoWidth / imgAspect
+            if (imgAspect > 1.5) {
+              // Yatay logo (geniş)
+              containerWidth = maxContainerWidth
+              logoWidth = containerWidth - padding * 2
+              logoHeight = logoWidth / imgAspect
+              containerHeight = logoHeight + padding * 2
+            } else if (imgAspect < 0.7) {
+              // Dikey logo (uzun)
+              containerHeight = maxContainerHeight * 1.3
+              logoHeight = containerHeight - padding * 2
+              logoWidth = logoHeight * imgAspect
+              containerWidth = logoWidth + padding * 2
             } else {
-              logoHeight = maxLogoHeight
-              logoWidth = maxLogoHeight * imgAspect
+              // Kare veya kareye yakın logo
+              const baseSize = availableSize * 0.22
+              if (imgAspect > 1) {
+                containerWidth = baseSize
+                logoWidth = containerWidth - padding * 2
+                logoHeight = logoWidth / imgAspect
+                containerHeight = logoHeight + padding * 2
+              } else {
+                containerHeight = baseSize
+                logoHeight = containerHeight - padding * 2
+                logoWidth = logoHeight * imgAspect
+                containerWidth = logoWidth + padding * 2
+              }
             }
             
-            // Container position
+            // Container pozisyonu (merkez)
             const containerX = centerX - containerWidth / 2
             const containerY = centerY - containerHeight / 2
             
-            // Draw white background for logo area
-            ctx.fillStyle = logoBgColor
-            ctx.fillRect(containerX, containerY, containerWidth, containerHeight)
+            // Yumuşak gölge efekti
+            ctx.save()
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.12)'
+            ctx.shadowBlur = 8
+            ctx.shadowOffsetX = 0
+            ctx.shadowOffsetY = 2
             
-            // Draw logo centered
+            // Yuvarlatılmış köşeli beyaz arka plan
+            const borderRadius = Math.min(containerWidth, containerHeight) * 0.12
+            ctx.fillStyle = logoBgColor
+            ctx.beginPath()
+            ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius)
+            ctx.fill()
+            
+            ctx.restore()
+            
+            // İnce çerçeve
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)'
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius)
+            ctx.stroke()
+            
+            // Logo'yu merkeze çiz
             const logoX = centerX - logoWidth / 2
             const logoY = centerY - logoHeight / 2
             
