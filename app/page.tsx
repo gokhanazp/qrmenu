@@ -181,6 +181,19 @@ export default function HomePage() {
     { icon: 'translate', title: 'Çoklu Dil', desc: 'Türkçe ve İngilizce dil desteği.', color: 'bg-blue-500' },
   ]
 
+  const testimonials = [
+    { name: 'Ahmet Kaya', role: 'Lezzet Durağı Sahibi', initials: 'AK', color: 'from-violet-500 to-fuchsia-500', text: 'QR Menü sayesinde müşterilerimiz artık menüyü telefonlarından kolayca görüntüleyebiliyor. Basılı menü maliyetlerinden kurtulduk!' },
+    { name: 'Mehmet Yılmaz', role: 'Pizza House Müdürü', initials: 'MY', color: 'from-cyan-500 to-blue-500', text: 'Menü güncellemelerini anında yapabiliyoruz. Fiyat değişikliklerini saniyeler içinde yansıtabilmek harika!' },
+    { name: 'Zeynep Demir', role: 'Cafe Mocha Sahibi', initials: 'ZD', color: 'from-emerald-500 to-teal-500', text: 'Müşteri deneyimimiz çok iyileşti. Özellikle yabancı turistler için çoklu dil desteği mükemmel çalışıyor.' },
+  ]
+
+  const faqs = [
+    { q: 'QR Menü nasıl çalışır?', a: 'Müşterileriniz masadaki QR kodu telefonlarıyla tarar ve menünüz anında ekranlarında görüntülenir. Uygulama indirmeye gerek yoktur.' },
+    { q: 'Menümü ne sıklıkla güncelleyebilirim?', a: 'İstediğiniz zaman, sınırsız güncelleme yapabilirsiniz. Fiyat değişiklikleri, yeni ürünler veya stok durumu anında yansır.' },
+    { q: 'Ücretsiz plan ne kadar süre geçerli?', a: 'Ücretsiz plan süresiz olarak geçerlidir. Temel özelliklerle başlayıp, işletmeniz büyüdükçe Pro veya İşletme planına geçebilirsiniz.' },
+    { q: 'Teknik destek alabilir miyim?', a: 'Evet! Tüm planlarımızda e-posta desteği sunuyoruz. Pro ve İşletme planlarında öncelikli destek ve canlı chat desteği mevcuttur.' },
+  ]
+
   return (
     <LocaleProvider>
       <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
@@ -220,6 +233,7 @@ export default function HomePage() {
           </div>
         </header>
 
+        {/* Hero Section */}
         <section className="relative min-h-screen flex flex-col pt-20 overflow-hidden">
           <InteractiveGrid />
           <div className="absolute inset-0 pointer-events-none">
@@ -227,64 +241,66 @@ export default function HomePage() {
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-[120px]" />
           </div>
           
-          <div className="relative z-10 flex-1 flex items-center">
+          <div className="relative z-10 flex-1 flex items-center py-12 lg:py-0">
             <div className="max-w-7xl mx-auto px-4 w-full">
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="text-center lg:text-left">
-                  <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div className="text-center lg:text-left order-2 lg:order-1">
+                  <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-6 lg:mb-8">
                     <span className="material-symbols-outlined text-violet-400 text-sm">restaurant</span>
                     <span className="text-sm text-white/80">Dijital Menü Sistemi</span>
                   </div>
                   
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-4 lg:mb-6 leading-tight">
                     <span className="text-white">Menünüzü</span><br />
                     <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-orange-400 bg-clip-text text-transparent">Dijitale</span><br />
                     <span className="text-white">Taşıyın</span>
                   </h1>
                   
-                  <p className="text-xl sm:text-2xl text-gray-400 mb-10 max-w-xl lg:mx-0 mx-auto">QR kod ile müşterilerinize modern bir menü deneyimi sunun.</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-400 mb-8 lg:mb-10 max-w-xl lg:mx-0 mx-auto">QR kod ile müşterilerinize modern bir menü deneyimi sunun.</p>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8 lg:mb-12">
                     <Link href="/auth/register">
-                      <Button size="lg" className="text-lg px-10 py-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 w-full sm:w-auto">Ücretsiz Başla</Button>
+                      <Button size="lg" className="text-base lg:text-lg px-8 lg:px-10 py-5 lg:py-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 w-full sm:w-auto">Ücretsiz Başla</Button>
                     </Link>
                     <Link href="#features">
-                      <Button size="lg" variant="outline" className="text-lg px-10 py-6 border-white/30 bg-white/5 hover:bg-white/15 w-full sm:w-auto text-white">Keşfet</Button>
+                      <Button size="lg" variant="outline" className="text-base lg:text-lg px-8 lg:px-10 py-5 lg:py-6 border-white/30 bg-white/5 hover:bg-white/15 w-full sm:w-auto text-white">Keşfet</Button>
                     </Link>
                   </div>
                   
-                  <div className="flex items-center justify-center lg:justify-start gap-8 sm:gap-12 flex-wrap">
-                    <div className="text-center"><div className="text-3xl font-bold">500+</div><div className="text-sm text-gray-400">Restoran</div></div>
-                    <div className="w-px h-12 bg-white/20 hidden sm:block" />
-                    <div className="text-center"><div className="text-3xl font-bold">50K+</div><div className="text-sm text-gray-400">Görüntüleme</div></div>
-                    <div className="w-px h-12 bg-white/20 hidden sm:block" />
-                    <div className="text-center"><div className="text-3xl font-bold">4.9</div><div className="text-sm text-gray-400">Puan</div></div>
+                  <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 lg:gap-12 flex-wrap">
+                    <div className="text-center"><div className="text-2xl lg:text-3xl font-bold">500+</div><div className="text-xs lg:text-sm text-gray-400">Restoran</div></div>
+                    <div className="w-px h-10 lg:h-12 bg-white/20" />
+                    <div className="text-center"><div className="text-2xl lg:text-3xl font-bold">50K+</div><div className="text-xs lg:text-sm text-gray-400">Görüntüleme</div></div>
+                    <div className="w-px h-10 lg:h-12 bg-white/20" />
+                    <div className="text-center"><div className="text-2xl lg:text-3xl font-bold">4.9</div><div className="text-xs lg:text-sm text-gray-400">Puan</div></div>
                   </div>
                 </div>
                 
-                <div className="hidden lg:flex justify-center items-center">
-                  <PhoneMockup />
+                <div className="flex justify-center items-center order-1 lg:order-2 mb-8 lg:mb-0">
+                  <div className="scale-75 sm:scale-90 lg:scale-100">
+                    <PhoneMockup />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="relative z-10 w-full mt-16 pb-8">
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-white/80 mb-2">Müşterilerimizin Menüleri</h3>
-              <p className="text-gray-400 text-sm">Gerçek restoranlardan örnekler</p>
+          <div className="relative z-10 w-full mt-8 lg:mt-16 pb-8">
+            <div className="text-center mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-semibold text-white/80 mb-2">Müşterilerimizin Menüleri</h3>
+              <p className="text-gray-400 text-xs lg:text-sm">Gerçek restoranlardan örnekler</p>
             </div>
             <div className="overflow-hidden">
-              <div className="flex gap-6" style={{ animation: 'marquee 30s linear infinite' }}>
+              <div className="flex gap-4 lg:gap-6" style={{ animation: 'marquee 30s linear infinite' }}>
                 {[...showcaseItems, ...showcaseItems, ...showcaseItems].map((item, i) => (
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 group cursor-pointer">
-                    <div className="relative w-[200px] h-[360px] bg-gradient-to-b from-gray-800 to-gray-900 rounded-[2rem] p-2 shadow-xl group-hover:shadow-violet-500/30 transition-all duration-300 group-hover:scale-105">
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10" />
-                      <div className="w-full h-full bg-[#0a0a0a] rounded-[1.5rem] overflow-hidden flex items-center justify-center">
-                        <span className="material-symbols-outlined text-violet-400 text-4xl">restaurant_menu</span>
+                    <div className="relative w-[140px] sm:w-[180px] lg:w-[200px] h-[250px] sm:h-[320px] lg:h-[360px] bg-gradient-to-b from-gray-800 to-gray-900 rounded-[1.5rem] lg:rounded-[2rem] p-2 shadow-xl group-hover:shadow-violet-500/30 transition-all duration-300 group-hover:scale-105">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 lg:w-16 h-3 lg:h-4 bg-black rounded-b-xl z-10" />
+                      <div className="w-full h-full bg-[#0a0a0a] rounded-[1.2rem] lg:rounded-[1.5rem] overflow-hidden flex items-center justify-center">
+                        <span className="material-symbols-outlined text-violet-400 text-3xl lg:text-4xl">restaurant_menu</span>
                       </div>
                     </div>
-                    <p className="text-center text-white/60 text-sm mt-3 group-hover:text-violet-400 transition-colors">{item.name}</p>
+                    <p className="text-center text-white/60 text-xs lg:text-sm mt-2 lg:mt-3 group-hover:text-violet-400 transition-colors">{item.name}</p>
                   </a>
                 ))}
               </div>
@@ -292,6 +308,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Features Section */}
         <section id="features" className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0f0f1a] to-[#0a0a0a]" />
           <div className="absolute inset-0 pointer-events-none">
@@ -324,6 +341,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* How It Works Section */}
         <section id="how-it-works" className="py-24 bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
@@ -360,6 +378,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
         <section id="pricing" className="py-24 bg-[#0f0f0f]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
@@ -402,6 +421,133 @@ export default function HomePage() {
                 </ul>
                 <Link href="/auth/register"><Button variant="outline" className="w-full border-white/20 hover:bg-white/10">Başla</Button></Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="py-24 bg-[#0a0a0a] relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-0 w-96 h-96 bg-violet-600/10 rounded-full blur-[150px]" />
+            <div className="absolute top-1/2 right-0 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-[150px]" />
+          </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-pink-500/10 border border-pink-500/20 rounded-full px-4 py-2 mb-6">
+                <span className="material-symbols-outlined text-pink-400 text-sm">format_quote</span>
+                <span className="text-sm text-pink-300">MÜŞTERİ YORUMLARI</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4">Müşterilerimiz <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">Ne Diyor?</span></h2>
+              <p className="text-gray-400 max-w-2xl mx-auto text-lg">Binlerce restoran sahibinin güvendiği platform.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <div key={i} className="bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-8 rounded-3xl border border-white/10 hover:border-pink-500/30 transition-all duration-300">
+                  <div className="flex items-center gap-1 mb-4">
+                    {[1,2,3,4,5].map(j => <span key={j} className="material-symbols-outlined text-yellow-400 text-lg">star</span>)}
+                  </div>
+                  <p className="text-gray-300 mb-6 leading-relaxed">&quot;{t.text}&quot;</p>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 bg-gradient-to-br ${t.color} rounded-full flex items-center justify-center text-white font-bold`}>{t.initials}</div>
+                    <div>
+                      <h4 className="font-semibold">{t.name}</h4>
+                      <p className="text-sm text-gray-400">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-20 bg-gradient-to-b from-[#0a0a0a] to-[#0f0f1a]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-white text-2xl lg:text-3xl">store</span>
+                </div>
+                <div className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">500+</div>
+                <p className="text-gray-400 text-sm lg:text-base">Aktif Restoran</p>
+              </div>
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-white text-2xl lg:text-3xl">visibility</span>
+                </div>
+                <div className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">1M+</div>
+                <p className="text-gray-400 text-sm lg:text-base">Menü Görüntüleme</p>
+              </div>
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-white text-2xl lg:text-3xl">qr_code_scanner</span>
+                </div>
+                <div className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">50K+</div>
+                <p className="text-gray-400 text-sm lg:text-base">QR Tarama</p>
+              </div>
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-white text-2xl lg:text-3xl">thumb_up</span>
+                </div>
+                <div className="text-3xl lg:text-4xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">99%</div>
+                <p className="text-gray-400 text-sm lg:text-base">Müşteri Memnuniyeti</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Partners Section */}
+        <section className="py-20 bg-[#0f0f1a]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-gray-400 text-lg">Güvenilir markalar tarafından tercih ediliyor</p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 lg:gap-16">
+              <div className="flex items-center gap-2 lg:gap-3 text-gray-500 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-3xl lg:text-4xl">restaurant</span>
+                <span className="text-lg lg:text-xl font-semibold">Lezzet Durağı</span>
+              </div>
+              <div className="flex items-center gap-2 lg:gap-3 text-gray-500 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-3xl lg:text-4xl">local_pizza</span>
+                <span className="text-lg lg:text-xl font-semibold">Pizza House</span>
+              </div>
+              <div className="flex items-center gap-2 lg:gap-3 text-gray-500 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-3xl lg:text-4xl">ramen_dining</span>
+                <span className="text-lg lg:text-xl font-semibold">Sushi Master</span>
+              </div>
+              <div className="flex items-center gap-2 lg:gap-3 text-gray-500 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-3xl lg:text-4xl">local_cafe</span>
+                <span className="text-lg lg:text-xl font-semibold">Cafe Mocha</span>
+              </div>
+              <div className="flex items-center gap-2 lg:gap-3 text-gray-500 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-3xl lg:text-4xl">kebab_dining</span>
+                <span className="text-lg lg:text-xl font-semibold">Cebi Döner</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-24 bg-[#0a0a0a]">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
+                <span className="material-symbols-outlined text-blue-400 text-sm">help</span>
+                <span className="text-sm text-blue-300">SSS</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4">Sıkça Sorulan <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Sorular</span></h2>
+              <p className="text-gray-400 max-w-2xl mx-auto text-lg">Merak ettiğiniz her şeyin cevabı burada.</p>
+            </div>
+            <div className="space-y-4">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-white/5 rounded-2xl border border-white/10 p-6 hover:border-blue-500/30 transition-colors">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-blue-400">help_outline</span>
+                    {faq.q}
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed">{faq.a}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -456,7 +602,7 @@ export default function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="relative overflow-hidden">
+        <footer className="relative overflow-hidden bg-[#0a0a0a]">
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0f0f1a] to-[#0a0a0a]" />
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-600/10 rounded-full blur-[150px]" />
@@ -547,7 +693,7 @@ export default function HomePage() {
                       <span>SSL Güvenli</span>
                     </div>
                     <div className="w-px h-4 bg-white/20" />
-                    <p className="text-gray-500 text-sm">© 2026 QR Menü. Tüm hakları saklıdır.</p>
+                    <p className="text-gray-500 text-sm">© 2024 QR Menü. Tüm hakları saklıdır.</p>
                   </div>
                 </div>
               </div>

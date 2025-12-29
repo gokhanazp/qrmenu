@@ -25,77 +25,174 @@ export default function QRCodeDisplay({
 
   useEffect(() => {
     if (canvasRef.current) {
-      // Generate QR code
-      QRCode.toCanvas(
-        canvasRef.current,
-        url,
-        {
-          width: 400,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-          errorCorrectionLevel: 'H', // High error correction for logo overlay
-        },
-        (error: Error | null | undefined) => {
-          if (error) {
-            console.error(error)
-            return
-          }
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-          // If logo is enabled and exists, overlay it on the QR code
-          if (showLogo && logoUrl && canvasRef.current) {
-            const canvas = canvasRef.current
-            const ctx = canvas.getContext('2d')
-            if (!ctx) return
-
-            const img = new Image()
-            img.crossOrigin = 'anonymous'
-            img.onload = () => {
-              // Calculate logo container size (about 20% of QR code size)
-              const containerSize = canvas.width * 0.2
-              const padding = 8
+      // Generate QR code data
+      QRCode.toDataURL(url, {
+        errorCorrectionLevel: 'H',
+        margin: 0,
+        width: 1000,
+      }).then(() => {
+        // Get QR code matrix
+        const qr = QRCode.create(url, { errorCorrectionLevel: 'H' })
+        const modules = qr.modules
+        const moduleCount = modules.size
+        
+        // Canvas settings
+        const size = 400
+        const margin = 20
+        const availableSize = size - margin * 2
+        const moduleSize = availableSize / moduleCount
+        const dotRadius = moduleSize * 0.4 // Dot radius for rounded look
+        
+        canvas.width = size
+        canvas.height = size
+        
+        // Clear canvas with white background
+        ctx.fillStyle = '#FFFFFF'
+        ctx.fillRect(0, 0, size, size)
+        
+        // Calculate center area for logo (approximately 25% of QR code)
+        const centerAreaSize = moduleCount * 0.28
+        const centerStart = Math.floor((moduleCount - centerAreaSize) / 2)
+        const centerEnd = Math.ceil((moduleCount + centerAreaSize) / 2)
+        
+        // Draw QR code with dots style
+        ctx.fillStyle = '#000000'
+        
+        for (let row = 0; row < moduleCount; row++) {
+          for (let col = 0; col < moduleCount; col++) {
+            if (modules.get(row, col)) {
+              const x = margin + col * moduleSize + moduleSize / 2
+              const y = margin + row * moduleSize + moduleSize / 2
               
-              // Calculate logo dimensions to fit within container while maintaining aspect ratio
-              const imgAspect = img.width / img.height
-              let logoWidth = containerSize
-              let logoHeight = containerSize
+              // Check if this is a finder pattern (corner squares)
+              const isFinderPattern =
+                (row < 7 && col < 7) || // Top-left
+                (row < 7 && col >= moduleCount - 7) || // Top-right
+                (row >= moduleCount - 7 && col < 7) // Bottom-left
               
-              if (imgAspect > 1) {
-                // Landscape image
-                logoHeight = containerSize / imgAspect
-              } else {
-                // Portrait or square image
-                logoWidth = containerSize * imgAspect
+              // Skip center area for logo
+              const isInCenterArea =
+                row >= centerStart && row < centerEnd &&
+                col >= centerStart && col < centerEnd
+              
+              if (isInCenterArea && showLogo && logoUrl) {
+                continue // Skip drawing in center area
               }
               
-              // Center the logo
-              const x = (canvas.width - logoWidth) / 2
-              const y = (canvas.height - logoHeight) / 2
-
-              // Enable image smoothing for better quality
-              ctx.imageSmoothingEnabled = true
-              ctx.imageSmoothingQuality = 'high'
-
-              // Draw background circle for logo with selected color
-              ctx.fillStyle = logoBgColor
-              ctx.beginPath()
-              ctx.arc(canvas.width / 2, canvas.height / 2, containerSize / 2 + padding, 0, 2 * Math.PI)
-              ctx.fill()
-
-              // Draw logo with proper aspect ratio and high quality
-              ctx.drawImage(img, x, y, logoWidth, logoHeight)
+              if (isFinderPattern) {
+                // Draw finder patterns with special style (squares with rounded corners)
+                drawFinderPattern(ctx, row, col, moduleCount, margin, moduleSize)
+              } else {
+                // Draw regular modules as dots
+                ctx.beginPath()
+                ctx.arc(x, y, dotRadius, 0, Math.PI * 2)
+                ctx.fill()
+              }
             }
-            img.onerror = () => {
-              console.error('Logo yüklenemedi')
-            }
-            img.src = logoUrl
           }
         }
-      )
+        
+        // Draw logo if enabled
+        if (showLogo && logoUrl) {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            const centerX = size / 2
+            const centerY = size / 2
+            
+            // Logo container size
+            const containerWidth = availableSize * 0.28
+            const containerHeight = availableSize * 0.15
+            
+            // Calculate logo dimensions maintaining aspect ratio
+            const imgAspect = img.width / img.height
+            let logoWidth: number
+            let logoHeight: number
+            
+            const maxLogoWidth = containerWidth * 0.85
+            const maxLogoHeight = containerHeight * 0.70
+            
+            if (imgAspect > maxLogoWidth / maxLogoHeight) {
+              logoWidth = maxLogoWidth
+              logoHeight = maxLogoWidth / imgAspect
+            } else {
+              logoHeight = maxLogoHeight
+              logoWidth = maxLogoHeight * imgAspect
+            }
+            
+            // Container position
+            const containerX = centerX - containerWidth / 2
+            const containerY = centerY - containerHeight / 2
+            
+            // Draw white background for logo area
+            ctx.fillStyle = logoBgColor
+            ctx.fillRect(containerX, containerY, containerWidth, containerHeight)
+            
+            // Draw logo centered
+            const logoX = centerX - logoWidth / 2
+            const logoY = centerY - logoHeight / 2
+            
+            ctx.drawImage(img, logoX, logoY, logoWidth, logoHeight)
+          }
+          img.onerror = () => {
+            console.error('Logo yüklenemedi')
+          }
+          img.src = logoUrl
+        }
+      }).catch(console.error)
     }
   }, [url, showLogo, logoUrl, logoBgColor])
+
+  // Draw finder pattern (the three corner squares)
+  function drawFinderPattern(
+    ctx: CanvasRenderingContext2D,
+    row: number,
+    col: number,
+    moduleCount: number,
+    margin: number,
+    moduleSize: number
+  ) {
+    // Determine which finder pattern this belongs to
+    let patternRow = 0
+    let patternCol = 0
+    
+    if (row < 7 && col < 7) {
+      // Top-left
+      patternRow = row
+      patternCol = col
+    } else if (row < 7 && col >= moduleCount - 7) {
+      // Top-right
+      patternRow = row
+      patternCol = col - (moduleCount - 7)
+    } else if (row >= moduleCount - 7 && col < 7) {
+      // Bottom-left
+      patternRow = row - (moduleCount - 7)
+      patternCol = col
+    }
+    
+    const x = margin + col * moduleSize
+    const y = margin + row * moduleSize
+    
+    // Outer ring (positions 0 and 6)
+    if (patternRow === 0 || patternRow === 6 || patternCol === 0 || patternCol === 6) {
+      // Draw as rounded rectangle for outer edge
+      const radius = moduleSize * 0.3
+      ctx.beginPath()
+      ctx.roundRect(x, y, moduleSize, moduleSize, radius)
+      ctx.fill()
+    }
+    // Inner square (positions 2-4)
+    else if (patternRow >= 2 && patternRow <= 4 && patternCol >= 2 && patternCol <= 4) {
+      const radius = moduleSize * 0.3
+      ctx.beginPath()
+      ctx.roundRect(x, y, moduleSize, moduleSize, radius)
+      ctx.fill()
+    }
+  }
 
   const handleSaveColor = async () => {
     if (onSaveLogoBgColor) {
