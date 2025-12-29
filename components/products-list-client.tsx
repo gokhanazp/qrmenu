@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { DeleteButton } from '@/components/delete-button'
 import { formatCurrency } from '@/lib/utils/currency'
+import { updateProduct } from '@/app/actions/product'
 
 interface Category {
   id: string
@@ -30,6 +31,74 @@ interface Product {
 interface ProductsListClientProps {
   products: Product[]
   categories: Category[]
+}
+
+function InlinePrice({ product }: { product: Product }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [price, setPrice] = useState(product.price.toString())
+  const [isPending, startTransition] = useTransition()
+
+  const handleSave = () => {
+    const newPrice = parseFloat(price)
+    if (isNaN(newPrice) || newPrice < 0) {
+      setPrice(product.price.toString())
+      setIsEditing(false)
+      return
+    }
+
+    startTransition(async () => {
+      const result = await updateProduct(product.id, { price: newPrice })
+      if (result.error) {
+        setPrice(product.price.toString())
+        alert('Fiyat güncellenirken hata oluştu: ' + result.error)
+      }
+      setIsEditing(false)
+    })
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      setPrice(product.price.toString())
+      setIsEditing(false)
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-1">
+        <span className="text-orange-600 font-bold">₺</span>
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          onFocus={(e) => e.target.select()}
+          className="w-24 px-2 py-1 text-lg font-bold text-orange-600 border border-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+          autoFocus
+          disabled={isPending}
+          step="0.01"
+          min="0"
+        />
+        {isPending && (
+          <span className="material-symbols-outlined text-orange-500 animate-spin text-sm">sync</span>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <button
+      onClick={() => setIsEditing(true)}
+      className="text-xl font-bold text-orange-600 whitespace-nowrap hover:bg-orange-50 px-2 py-1 rounded transition-colors group flex items-center gap-1"
+      title="Fiyatı düzenlemek için tıklayın"
+    >
+      {formatCurrency(product.price)}
+      <span className="material-symbols-outlined text-sm opacity-0 group-hover:opacity-50 transition-opacity">edit</span>
+    </button>
+  )
 }
 
 export function ProductsListClient({ products, categories }: ProductsListClientProps) {
@@ -123,9 +192,7 @@ export function ProductsListClient({ products, categories }: ProductsListClientP
                           <p className="text-sm text-gray-600 line-clamp-2 mt-1">{product.description}</p>
                         )}
                       </div>
-                      <span className="text-xl font-bold text-orange-600 whitespace-nowrap">
-                        {formatCurrency(product.price)}
-                      </span>
+                      <InlinePrice product={product} />
                     </div>
 
                     {/* Category and Badges */}
