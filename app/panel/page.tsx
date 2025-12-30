@@ -43,8 +43,97 @@ export default async function PanelPage() {
   const { restaurant, subscription, stats, counts } = data
   const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${(restaurant as any).slug}`
 
+  // Kayıt tarihi ve kalan gün hesaplama
+  const createdAt = new Date((restaurant as any).created_at)
+  const registrationDate = createdAt.toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  
+  // 1 yıllık abonelik bitiş tarihi hesaplama
+  const subscriptionEndDate = new Date(createdAt)
+  subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1)
+  
+  // Kalan gün hesaplama
+  const today = new Date()
+  const timeDiff = subscriptionEndDate.getTime() - today.getTime()
+  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+  
+  // Uyarı seviyesi belirleme
+  const isExpired = daysRemaining <= 0
+  const isWarning = daysRemaining > 0 && daysRemaining <= 30
+  const isCaution = daysRemaining > 30 && daysRemaining <= 60
+
   return (
     <div className="space-y-6">
+      {/* Subscription Warning Banner */}
+      {(isExpired || isWarning || isCaution) && (
+        <div className={`rounded-2xl shadow-lg p-4 border ${
+          isExpired
+            ? 'bg-red-50 border-red-200'
+            : isWarning
+              ? 'bg-amber-50 border-amber-200'
+              : 'bg-yellow-50 border-yellow-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              isExpired
+                ? 'bg-red-100'
+                : isWarning
+                  ? 'bg-amber-100'
+                  : 'bg-yellow-100'
+            }`}>
+              <span className={`material-symbols-outlined ${
+                isExpired
+                  ? 'text-red-600'
+                  : isWarning
+                    ? 'text-amber-600'
+                    : 'text-yellow-600'
+              }`} style={{ fontSize: '28px' }}>
+                {isExpired ? 'error' : 'warning'}
+              </span>
+            </div>
+            <div className="flex-1">
+              <h3 className={`font-bold ${
+                isExpired
+                  ? 'text-red-800'
+                  : isWarning
+                    ? 'text-amber-800'
+                    : 'text-yellow-800'
+              }`}>
+                {isExpired
+                  ? 'Aboneliğiniz Sona Erdi!'
+                  : isWarning
+                    ? 'Aboneliğiniz Yakında Sona Erecek!'
+                    : 'Abonelik Hatırlatması'}
+              </h3>
+              <p className={`text-sm ${
+                isExpired
+                  ? 'text-red-600'
+                  : isWarning
+                    ? 'text-amber-600'
+                    : 'text-yellow-600'
+              }`}>
+                {isExpired
+                  ? 'Menünüz artık görüntülenemiyor. Lütfen aboneliğinizi yenileyin.'
+                  : `Aboneliğinizin bitmesine ${daysRemaining} gün kaldı. Yıllık ödemenizi yapmayı unutmayın.`}
+              </p>
+            </div>
+            <div className={`text-right ${
+              isExpired
+                ? 'text-red-700'
+                : isWarning
+                  ? 'text-amber-700'
+                  : 'text-yellow-700'
+            }`}>
+              <p className="text-2xl font-bold">{isExpired ? '0' : daysRemaining}</p>
+              <p className="text-xs">gün kaldı</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-xl p-8 text-white">
         <div className="flex items-center justify-between">
@@ -69,80 +158,135 @@ export default async function PanelPage() {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Grid - Görüntüleme İstatistikleri */}
+      <div className="grid grid-cols-3 gap-4">
         {/* Today's Scans */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
+        <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100 hover:shadow-xl transition-shadow group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
                 today
               </span>
             </div>
-            <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
               Bugün
             </span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">
+          <p className="text-2xl font-bold text-gray-900 mb-1">
             {stats.scans_today}
           </p>
-          <p className="text-sm text-gray-500">görüntüleme</p>
+          <p className="text-xs text-gray-500">görüntüleme</p>
         </div>
 
         {/* 7 Days Scans */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
+        <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100 hover:shadow-xl transition-shadow group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
                 calendar_month
               </span>
             </div>
-            <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
               7 Gün
             </span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">
+          <p className="text-2xl font-bold text-gray-900 mb-1">
             {stats.scans_7d}
           </p>
-          <p className="text-sm text-gray-500">görüntüleme</p>
+          <p className="text-xs text-gray-500">görüntüleme</p>
         </div>
 
         {/* Total Scans */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
+        <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100 hover:shadow-xl transition-shadow group">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
                 trending_up
               </span>
             </div>
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
               Toplam
             </span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">
+          <p className="text-2xl font-bold text-gray-900 mb-1">
             {stats.scans_total}
           </p>
-          <p className="text-sm text-gray-500">görüntüleme</p>
+          <p className="text-xs text-gray-500">görüntüleme</p>
         </div>
+      </div>
 
-        {/* Subscription */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
-                workspace_premium
+      {/* Subscription Card - Abonelik Bilgileri */}
+      <div className={`bg-white rounded-2xl shadow-lg p-6 border ${
+        isExpired ? 'border-red-300 bg-red-50/30' : isWarning ? 'border-amber-300 bg-amber-50/30' : 'border-gray-100'
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          {/* Sol: Plan ve Durum */}
+          <div className="flex items-center gap-4 flex-1">
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${
+              isExpired
+                ? 'bg-gradient-to-br from-red-500 to-red-600'
+                : 'bg-gradient-to-br from-amber-500 to-amber-600'
+            }`}>
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '28px' }}>
+                {isExpired ? 'timer_off' : 'workspace_premium'}
               </span>
             </div>
-            <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
-              Plan
-            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-2xl font-bold text-gray-900 capitalize">
+                  {(subscription as any)?.plan || 'free'}
+                </p>
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  isExpired ? 'text-red-600 bg-red-100' : isWarning ? 'text-amber-600 bg-amber-100' : 'text-green-600 bg-green-100'
+                }`}>
+                  {isExpired ? 'Süresi Doldu' : 'Aktif'}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">Yıllık Abonelik</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mb-1 capitalize">
-            {(subscription as any)?.plan || 'free'}
-          </p>
-          <p className="text-sm text-gray-500 capitalize">
-            {(subscription as any)?.status || 'active'}
-          </p>
+
+          {/* Orta: Kalan Gün */}
+          <div className={`flex-shrink-0 rounded-xl px-6 py-3 text-center ${
+            isExpired
+              ? 'bg-red-100 border border-red-200'
+              : isWarning
+                ? 'bg-amber-100 border border-amber-200'
+                : 'bg-green-100 border border-green-200'
+          }`}>
+            <p className={`text-3xl font-bold ${
+              isExpired ? 'text-red-600' : isWarning ? 'text-amber-600' : 'text-green-600'
+            }`}>
+              {isExpired ? '0' : daysRemaining}
+            </p>
+            <p className={`text-xs font-medium ${
+              isExpired ? 'text-red-700' : isWarning ? 'text-amber-700' : 'text-green-700'
+            }`}>
+              gün kaldı
+            </p>
+          </div>
+
+          {/* Sağ: Tarihler */}
+          <div className="flex-1 bg-gray-50 rounded-xl p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="material-symbols-outlined text-green-600" style={{ fontSize: '16px' }}>event_available</span>
+                  <span className="text-xs text-gray-500">Kayıt Tarihi</span>
+                </div>
+                <p className="text-sm font-semibold text-gray-900">{registrationDate}</p>
+              </div>
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className={`material-symbols-outlined ${isExpired ? 'text-red-600' : 'text-amber-600'}`} style={{ fontSize: '16px' }}>event_busy</span>
+                  <span className="text-xs text-gray-500">Bitiş Tarihi</span>
+                </div>
+                <p className={`text-sm font-semibold ${isExpired ? 'text-red-600' : 'text-gray-900'}`}>
+                  {subscriptionEndDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

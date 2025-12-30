@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getPublicRestaurant, getCategoryWithProducts, getAllProducts, trackScanEvent } from '@/app/actions/public'
-import { headers } from 'next/headers'
+import { getPublicRestaurant, getCategoryWithProducts, getAllProducts } from '@/app/actions/public'
 import Image from 'next/image'
 import Link from 'next/link'
 import { HamburgerMenu } from '@/components/hamburger-menu'
@@ -32,12 +31,6 @@ export default async function CategoryDetailPage({
   if (!category) {
     notFound()
   }
-
-  // Track scan event
-  const headersList = await headers()
-  const userAgent = headersList.get('user-agent') || undefined
-  const referrer = headersList.get('referer') || undefined
-  await trackScanEvent((restaurant as any).id, userAgent, referrer)
 
   const rest = restaurant as any
   const cat = category as any

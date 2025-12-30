@@ -2,6 +2,24 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
+
+// Helper function to get impersonated restaurant ID
+async function getImpersonatedRestaurantId(): Promise<string | null> {
+  const cookieStore = await cookies()
+  const impersonationCookie = cookieStore.get('impersonating_restaurant')
+  
+  if (!impersonationCookie?.value) {
+    return null
+  }
+
+  try {
+    const data = JSON.parse(impersonationCookie.value)
+    return data.restaurantId || null
+  } catch {
+    return null
+  }
+}
 
 export async function getRestaurant() {
   const supabase = await createClient()
@@ -12,11 +30,31 @@ export async function getRestaurant() {
     return { error: 'Unauthorized' }
   }
 
-  const { data: restaurant, error } = await supabase
-    .from('restaurants')
-    .select('*')
-    .eq('owner_user_id', user.id)
-    .maybeSingle()
+  // Check if admin is impersonating a restaurant
+  const impersonatedRestaurantId = await getImpersonatedRestaurantId()
+  
+  let restaurant
+  let error
+
+  if (impersonatedRestaurantId) {
+    // Admin is impersonating - get the impersonated restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('id', impersonatedRestaurantId)
+      .maybeSingle()
+    restaurant = result.data
+    error = result.error
+  } else {
+    // Normal user - get their own restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('owner_user_id', user.id)
+      .maybeSingle()
+    restaurant = result.data
+    error = result.error
+  }
 
   if (error) {
     return { error: error.message }
@@ -34,12 +72,31 @@ export async function getRestaurantWithStats() {
     return { error: 'Unauthorized' }
   }
 
-  // Get restaurant
-  const { data: restaurant, error: restaurantError } = await supabase
-    .from('restaurants')
-    .select('*')
-    .eq('owner_user_id', user.id)
-    .maybeSingle()
+  // Check if admin is impersonating a restaurant
+  const impersonatedRestaurantId = await getImpersonatedRestaurantId()
+  
+  let restaurant
+  let restaurantError
+
+  if (impersonatedRestaurantId) {
+    // Admin is impersonating - get the impersonated restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('id', impersonatedRestaurantId)
+      .maybeSingle()
+    restaurant = result.data
+    restaurantError = result.error
+  } else {
+    // Normal user - get their own restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('owner_user_id', user.id)
+      .maybeSingle()
+    restaurant = result.data
+    restaurantError = result.error
+  }
 
   if (restaurantError) {
     return { error: restaurantError.message }
@@ -114,12 +171,28 @@ export async function updateRestaurant(input: UpdateRestaurantInput) {
     return { success: false, error: 'Unauthorized' }
   }
 
-  // Get restaurant
-  const { data: restaurant } = await supabase
-    .from('restaurants')
-    .select('id, slug')
-    .eq('owner_user_id', user.id)
-    .maybeSingle()
+  // Check if admin is impersonating a restaurant
+  const impersonatedRestaurantId = await getImpersonatedRestaurantId()
+  
+  let restaurant
+  
+  if (impersonatedRestaurantId) {
+    // Admin is impersonating - get the impersonated restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('id, slug')
+      .eq('id', impersonatedRestaurantId)
+      .maybeSingle()
+    restaurant = result.data
+  } else {
+    // Normal user - get their own restaurant
+    const result = await supabase
+      .from('restaurants')
+      .select('id, slug')
+      .eq('owner_user_id', user.id)
+      .maybeSingle()
+    restaurant = result.data
+  }
 
   if (!restaurant) {
     return { success: false, error: 'Restaurant not found' }

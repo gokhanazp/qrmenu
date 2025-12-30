@@ -146,15 +146,23 @@ export default async function AdminDashboardPage() {
       {/* Restaurants Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
         <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center">
-              <span className="material-symbols-outlined text-white" style={{ fontSize: '22px' }}>
-                list_alt
-              </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-white" style={{ fontSize: '22px' }}>
+                  list_alt
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">
+                Tüm Restoranlar
+              </h2>
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Tüm Restoranlar
-            </h2>
+            <Link href="/admin/restaurants/new">
+              <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+                <span className="material-symbols-outlined mr-2" style={{ fontSize: '20px' }}>add</span>
+                Yeni Restoran
+              </Button>
+            </Link>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -240,15 +248,26 @@ export default async function AdminDashboardPage() {
                       {new Date(restaurant.created_at).toLocaleDateString('tr-TR')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link
-                        href={`/admin/restaurants/${restaurant.id}`}
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold transition-colors"
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                          visibility
-                        </span>
-                        Detay
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/restaurants/${restaurant.id}`}
+                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                            visibility
+                          </span>
+                          Detay
+                        </Link>
+                        <Link
+                          href={`/admin/restaurants/${restaurant.id}/edit`}
+                          className="inline-flex items-center gap-1 text-orange-600 hover:text-orange-800 font-semibold transition-colors"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                            edit
+                          </span>
+                          Düzenle
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

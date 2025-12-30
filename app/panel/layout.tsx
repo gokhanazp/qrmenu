@@ -1,15 +1,34 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
+import { getImpersonationStatus, stopImpersonation } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { LocaleProvider, useLocale } from '@/lib/i18n/use-locale'
 import { LanguageSwitcher } from '@/components/language-switcher'
 
 function PanelLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { t } = useLocale()
+  const [impersonation, setImpersonation] = useState<{ isImpersonating: boolean; restaurant?: { restaurantName: string; restaurantId: string } } | null>(null)
+
+  useEffect(() => {
+    const checkImpersonation = async () => {
+      const status = await getImpersonationStatus()
+      setImpersonation(status)
+    }
+    checkImpersonation()
+  }, [])
+
+  const handleStopImpersonation = async () => {
+    const result = await stopImpersonation()
+    if (result.success && result.redirectUrl) {
+      router.push(result.redirectUrl)
+    }
+  }
 
   const navigation = [
     { name: t.panel.dashboard.title, href: '/panel', icon: 'home' },
@@ -26,8 +45,29 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Impersonation Banner */}
+      {impersonation?.isImpersonating && (
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-2 px-4 sticky top-0 z-[60]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>admin_panel_settings</span>
+              <span className="text-sm font-medium">
+                Admin olarak görüntülüyorsunuz: <strong>{impersonation.restaurant?.restaurantName}</strong>
+              </span>
+            </div>
+            <button
+              onClick={handleStopImpersonation}
+              className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
+              Admin Paneline Dön
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Navigation */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <header className={`bg-white/80 backdrop-blur-md border-b border-gray-200 sticky ${impersonation?.isImpersonating ? 'top-[44px]' : 'top-0'} z-50 shadow-sm`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">

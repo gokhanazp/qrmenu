@@ -5,6 +5,7 @@ import { getRestaurantStats } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { UpdateSubscriptionForm } from './update-subscription-form'
 import { ToggleRestaurantStatus } from './toggle-restaurant-status'
+import { ImpersonateButton } from './impersonate-button'
 
 export default async function AdminRestaurantDetailPage({
   params
@@ -77,6 +78,15 @@ export default async function AdminRestaurantDetailPage({
                   Restoran Detayları
                 </p>
               </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <ImpersonateButton restaurantId={rest.id} restaurantName={rest.name} />
+              <Link href={`/admin/restaurants/${rest.id}/edit`}>
+                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+                  <span className="material-symbols-outlined mr-2" style={{ fontSize: '20px' }}>edit</span>
+                  Düzenle
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -189,12 +199,20 @@ export default async function AdminRestaurantDetailPage({
             </div>
           </div>
 
-          {/* Menu Stats */}
+          {/* Menu Stats & Management */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                Kategoriler
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Kategoriler
+                </h2>
+                <Link href={`/admin/restaurants/${rest.id}/categories`}>
+                  <Button variant="outline" size="sm">
+                    <span className="material-symbols-outlined mr-1" style={{ fontSize: '18px' }}>visibility</span>
+                    Görüntüle
+                  </Button>
+                </Link>
+              </div>
               <div className="text-center py-8">
                 <p className="text-4xl font-bold text-slate-900 mb-2">
                   {(counts as any).categories}
@@ -204,15 +222,53 @@ export default async function AdminRestaurantDetailPage({
             </div>
 
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                Ürünler
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Ürünler
+                </h2>
+                <Link href={`/admin/restaurants/${rest.id}/products`}>
+                  <Button variant="outline" size="sm">
+                    <span className="material-symbols-outlined mr-1" style={{ fontSize: '18px' }}>visibility</span>
+                    Görüntüle
+                  </Button>
+                </Link>
+              </div>
               <div className="text-center py-8">
                 <p className="text-4xl font-bold text-slate-900 mb-2">
                   {(counts as any).products}
                 </p>
                 <p className="text-sm text-slate-600">Toplam Ürün</p>
               </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              Hızlı İşlemler
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <Link href={`/admin/restaurants/${rest.id}/categories`} className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-orange-300 hover:bg-orange-50 transition-colors">
+                <span className="material-symbols-outlined text-orange-500" style={{ fontSize: '28px' }}>category</span>
+                <div>
+                  <p className="font-medium text-slate-900">Kategorileri Yönet</p>
+                  <p className="text-sm text-slate-600">Kategori ekle, düzenle, sil</p>
+                </div>
+              </Link>
+              <Link href={`/admin/restaurants/${rest.id}/products`} className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                <span className="material-symbols-outlined text-blue-500" style={{ fontSize: '28px' }}>restaurant_menu</span>
+                <div>
+                  <p className="font-medium text-slate-900">Ürünleri Yönet</p>
+                  <p className="text-sm text-slate-600">Ürün ekle, düzenle, sil</p>
+                </div>
+              </Link>
+              <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 rounded-lg border border-slate-200 hover:border-green-300 hover:bg-green-50 transition-colors">
+                <span className="material-symbols-outlined text-green-500" style={{ fontSize: '28px' }}>open_in_new</span>
+                <div>
+                  <p className="font-medium text-slate-900">Menüyü Görüntüle</p>
+                  <p className="text-sm text-slate-600">Herkese açık menü sayfası</p>
+                </div>
+              </a>
             </div>
           </div>
 
