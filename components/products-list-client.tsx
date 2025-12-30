@@ -33,15 +33,23 @@ interface ProductsListClientProps {
   categories: Category[]
 }
 
-function InlinePrice({ product }: { product: Product }) {
+function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpdate: (id: string, newPrice: number) => void }) {
   const [isEditing, setIsEditing] = useState(false)
   const [price, setPrice] = useState(product.price.toString())
   const [isPending, startTransition] = useTransition()
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [displayPrice, setDisplayPrice] = useState(product.price)
 
   const handleSave = () => {
     const newPrice = parseFloat(price)
     if (isNaN(newPrice) || newPrice < 0) {
-      setPrice(product.price.toString())
+      setPrice(displayPrice.toString())
+      setIsEditing(false)
+      return
+    }
+
+    // Aynı fiyatsa kaydetme
+    if (newPrice === displayPrice) {
       setIsEditing(false)
       return
     }
@@ -49,8 +57,14 @@ function InlinePrice({ product }: { product: Product }) {
     startTransition(async () => {
       const result = await updateProduct(product.id, { price: newPrice })
       if (result.error) {
-        setPrice(product.price.toString())
+        setPrice(displayPrice.toString())
         alert('Fiyat güncellenirken hata oluştu: ' + result.error)
+      } else {
+        // Başarılı güncelleme
+        setDisplayPrice(newPrice)
+        onPriceUpdate(product.id, newPrice)
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
       }
       setIsEditing(false)
     })
@@ -60,7 +74,7 @@ function InlinePrice({ product }: { product: Product }) {
     if (e.key === 'Enter') {
       handleSave()
     } else if (e.key === 'Escape') {
-      setPrice(product.price.toString())
+      setPrice(displayPrice.toString())
       setIsEditing(false)
     }
   }
@@ -90,19 +104,34 @@ function InlinePrice({ product }: { product: Product }) {
   }
 
   return (
-    <button
-      onClick={() => setIsEditing(true)}
-      className="text-xl font-bold text-orange-600 whitespace-nowrap hover:bg-orange-50 px-2 py-1 rounded transition-colors group flex items-center gap-1"
-      title="Fiyatı düzenlemek için tıklayın"
-    >
-      {formatCurrency(product.price)}
-      <span className="material-symbols-outlined text-sm opacity-0 group-hover:opacity-50 transition-opacity">edit</span>
-    </button>
+    <div className="flex flex-col items-end">
+      <button
+        onClick={() => setIsEditing(true)}
+        className="text-xl font-bold text-orange-600 whitespace-nowrap hover:bg-orange-50 px-2 py-1 rounded transition-colors flex items-center gap-1"
+        title="Fiyatı düzenlemek için tıklayın"
+      >
+        {formatCurrency(displayPrice)}
+        <span className="material-symbols-outlined text-sm text-orange-400">edit</span>
+      </button>
+      {showSuccess && (
+        <span className="text-sm text-green-600 font-semibold flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full animate-pulse mt-1">
+          <span className="material-symbols-outlined text-sm">check_circle</span>
+          Güncellendi!
+        </span>
+      )}
+    </div>
   )
 }
 
-export function ProductsListClient({ products, categories }: ProductsListClientProps) {
+export function ProductsListClient({ products: initialProducts, categories }: ProductsListClientProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [products, setProducts] = useState(initialProducts)
+
+  const handlePriceUpdate = (productId: string, newPrice: number) => {
+    setProducts(prev => prev.map(p =>
+      p.id === productId ? { ...p, price: newPrice } : p
+    ))
+  }
 
   const filteredProducts = selectedCategory === 'all'
     ? products
@@ -192,7 +221,7 @@ export function ProductsListClient({ products, categories }: ProductsListClientP
                           <p className="text-sm text-gray-600 line-clamp-2 mt-1">{product.description}</p>
                         )}
                       </div>
-                      <InlinePrice product={product} />
+                      <InlinePrice product={product} onPriceUpdate={handlePriceUpdate} />
                     </div>
 
                     {/* Category and Badges */}
