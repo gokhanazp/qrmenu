@@ -12,12 +12,15 @@ import { useLocale } from '@/lib/i18n/use-locale'
 interface Category {
   id: string
   name: string
+  name_en?: string | null
 }
 
 interface Product {
   id: string
   name: string
+  name_en?: string | null
   description?: string
+  description_en?: string | null
   price: number
   image_url?: string
   is_active: boolean
@@ -26,6 +29,7 @@ interface Product {
   category_id: string
   categories?: {
     name: string
+    name_en?: string | null
   }
 }
 
@@ -157,6 +161,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
             </button>
             {categories.map((category) => {
               const count = products.filter(p => p.category_id === category.id).length
+              const categoryDisplayName = t.locale === 'en' && category.name_en ? category.name_en : category.name
               return (
                 <button
                   key={category.id}
@@ -167,7 +172,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {category.name} ({count})
+                  {categoryDisplayName} ({count})
                 </button>
               )
             })}
@@ -218,10 +223,18 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-lg text-gray-900 truncate">{product.name}</h3>
-                        {product.description && (
-                          <p className="text-sm text-gray-600 line-clamp-2 mt-1">{product.description}</p>
+                        <h3 className="font-bold text-lg text-gray-900 truncate">
+                          {t.locale === 'en' && product.name_en ? product.name_en : product.name}
+                        </h3>
+                        {t.locale === 'en' && product.name_en && (
+                          <p className="text-xs text-gray-400 truncate">{product.name}</p>
                         )}
+                        {(() => {
+                          const description = t.locale === 'en' && product.description_en ? product.description_en : product.description
+                          return description ? (
+                            <p className="text-sm text-gray-600 line-clamp-2 mt-1">{description}</p>
+                          ) : null
+                        })()}
                       </div>
                       <InlinePrice product={product} onPriceUpdate={handlePriceUpdate} t={t} />
                     </div>
@@ -231,7 +244,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                       {product.categories?.name && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
                           <span className="material-symbols-outlined text-sm">category</span>
-                          {product.categories.name}
+                          {t.locale === 'en' && product.categories.name_en ? product.categories.name_en : product.categories.name}
                         </span>
                       )}
                       {product.is_featured && (

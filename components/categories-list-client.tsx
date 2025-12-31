@@ -9,6 +9,7 @@ import { useLocale } from '@/lib/i18n/use-locale'
 interface Category {
   id: string
   name: string
+  name_en?: string | null
   image_url: string | null
   sort_order: number
   is_active: boolean
@@ -99,7 +100,16 @@ export function CategoriesListClient({ categories }: CategoriesListClientProps) 
 
                 {/* Category Info */}
                 <div className="p-4">
-                  <h3 className="font-bold text-xl text-gray-900 mb-4">{category.name}</h3>
+                  <h3 className="font-bold text-xl text-gray-900 mb-1">
+                    {t.locale === 'en' && category.name_en ? category.name_en : category.name}
+                  </h3>
+                  {t.locale === 'en' && category.name_en && (
+                    <p className="text-sm text-gray-500 mb-3">{category.name}</p>
+                  )}
+                  {t.locale !== 'en' && category.name_en && (
+                    <p className="text-sm text-gray-500 mb-3">EN: {category.name_en}</p>
+                  )}
+                  {!category.name_en && <div className="mb-4" />}
 
                   {/* Actions */}
                   <div className="flex gap-2">

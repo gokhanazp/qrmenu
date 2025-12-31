@@ -12,7 +12,8 @@ export async function getProducts(restaurantId: string) {
       *,
       categories (
         id,
-        name
+        name,
+        name_en
       )
     `)
     .eq('restaurant_id', restaurantId)

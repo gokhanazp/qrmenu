@@ -29,14 +29,15 @@ export default async function CategoriesPage() {
   const { categories } = await getCategories((restaurant as any).id)
 
   return (
-    <CategoriesListClient 
+    <CategoriesListClient
       categories={categories.map((cat: any) => ({
         id: cat.id,
         name: cat.name,
+        name_en: cat.name_en,
         image_url: cat.image_url,
         sort_order: cat.sort_order,
         is_active: cat.is_active,
-      }))} 
+      }))}
     />
   )
 }
