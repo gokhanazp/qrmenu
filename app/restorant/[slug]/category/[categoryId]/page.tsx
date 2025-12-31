@@ -11,9 +11,11 @@ import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 export const revalidate = 300
 
 export default async function CategoryDetailPage({
-  params
+  params,
+  searchParams
 }: {
   params: { slug: string; categoryId: string }
+  searchParams: { lang?: string }
 }) {
   const { slug, categoryId } = params
 
@@ -43,6 +45,30 @@ export default async function CategoryDetailPage({
   const hamburgerBgColor = rest.hamburger_bg_color || '#ffffff'
   const layoutStyle = rest.layout_style || 'grid'
   const borderColor = textColor + '20' // 20% opacity
+  const supportedLanguages = rest.supported_languages || ['tr']
+  
+  // Dil seçimi - URL parametresinden veya varsayılan
+  const currentLang = searchParams.lang && supportedLanguages.includes(searchParams.lang) 
+    ? searchParams.lang 
+    : supportedLanguages[0]
+  const isEnglish = currentLang === 'en'
+  
+  // Çeviri metinleri
+  const translations = {
+    tr: {
+      noProducts: 'Bu kategoride henüz ürün bulunmuyor',
+      search: 'Ara'
+    },
+    en: {
+      noProducts: 'No products in this category yet',
+      search: 'Search'
+    }
+  }
+  
+  const t = translations[isEnglish ? 'en' : 'tr']
+  
+  // Kategori ve ürün isimlerini dile göre ayarla
+  const categoryName = isEnglish && cat.name_en ? cat.name_en : cat.name
 
   return (
     <div
@@ -64,39 +90,53 @@ export default async function CategoryDetailPage({
               borderBottom: `1px solid ${borderColor}`
             }}
           >
-            <div className="flex items-center justify-between p-4 h-16">
-              <HamburgerMenu
-                restaurant={rest}
-                iconColor={iconColor}
-                hamburgerBgColor={hamburgerBgColor}
-              />
-              <Link href={`/restorant/${slug}`} className="flex items-center">
+            <div className="flex items-center px-3" style={{ minHeight: '80px', paddingTop: '12px', paddingBottom: '12px' }}>
+              {/* Sol: Hamburger Menü */}
+              <div className="flex-shrink-0 w-12">
+                <HamburgerMenu
+                  restaurant={rest}
+                  iconColor={iconColor}
+                  hamburgerBgColor={hamburgerBgColor}
+                  supportedLanguages={supportedLanguages}
+                  currentLang={currentLang}
+                  slug={slug}
+                />
+              </div>
+              
+              {/* Orta: Logo */}
+              <Link href={`/restorant/${slug}${isEnglish ? '?lang=en' : ''}`} className="flex items-center justify-center flex-1">
                 {rest.logo_url ? (
-                  <Image
-                    src={rest.logo_url}
-                    alt={rest.name}
-                    width={140}
-                    height={48}
-                    className="h-12 w-auto object-contain"
-                    priority
-                  />
+                  <div className="relative" style={{ width: '140px', height: '48px' }}>
+                    <Image
+                      src={rest.logo_url}
+                      alt={rest.name}
+                      fill
+                      className="object-contain"
+                      priority
+                      sizes="140px"
+                    />
+                  </div>
                 ) : (
                   <h1
-                    className="text-xl font-bold tracking-tight uppercase"
+                    className="text-xl font-bold tracking-tight uppercase text-center"
                     style={{ color: primaryColor }}
                   >
                     {rest.name}
                   </h1>
                 )}
               </Link>
-              <button
-                id="search-button"
-                className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
-                style={{ color: iconColor }}
-                aria-label="Ara"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
-              </button>
+              
+              {/* Sağ: Arama İkonu */}
+              <div className="flex-shrink-0 w-12 flex justify-end">
+                <button
+                  id="search-button"
+                  className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
+                  style={{ color: iconColor }}
+                  aria-label={t.search}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
+                </button>
+              </div>
             </div>
           </header>
 
@@ -106,7 +146,7 @@ export default async function CategoryDetailPage({
               <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={cat.image_url}
-                  alt={cat.name}
+                  alt={categoryName}
                   fill
                   className="object-cover"
                   priority
@@ -115,7 +155,7 @@ export default async function CategoryDetailPage({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 p-5 w-full">
                   <h2 className="text-white text-2xl font-bold leading-tight uppercase">
-                    {cat.name}
+                    {categoryName}
                   </h2>
                 </div>
               </div>
@@ -135,7 +175,7 @@ export default async function CategoryDetailPage({
                 className="text-lg font-bold"
                 style={{ color: textColor }}
               >
-                {cat.name}
+                {categoryName}
               </h2>
               <div 
                 className="h-px flex-1 ml-4"
@@ -148,7 +188,7 @@ export default async function CategoryDetailPage({
                 className="px-4 py-8 text-center"
                 style={{ color: textColor, opacity: 0.7 }}
               >
-                Bu kategoride henüz ürün bulunmuyor
+                {t.noProducts}
               </div>
             ) : layoutStyle === 'list' ? (
               // List Layout - Full width with large images
@@ -156,7 +196,11 @@ export default async function CategoryDetailPage({
                 {products.map((product: any) => (
                   <ProductCard
                     key={product.id}
-                    product={product}
+                    product={{
+                      ...product,
+                      name: isEnglish && product.name_en ? product.name_en : product.name,
+                      description: isEnglish && product.description_en ? product.description_en : product.description
+                    }}
                     primaryColor={primaryColor}
                     priceColor={priceColor}
                     backgroundColor={backgroundColor}
@@ -173,7 +217,11 @@ export default async function CategoryDetailPage({
                 {products.map((product: any) => (
                   <ProductCard
                     key={product.id}
-                    product={product}
+                    product={{
+                      ...product,
+                      name: isEnglish && product.name_en ? product.name_en : product.name,
+                      description: isEnglish && product.description_en ? product.description_en : product.description
+                    }}
                     primaryColor={primaryColor}
                     priceColor={priceColor}
                     backgroundColor={backgroundColor}
@@ -189,7 +237,11 @@ export default async function CategoryDetailPage({
         </div>
 
         <PublicMenuClient
-          allProducts={allProducts || []}
+          allProducts={(allProducts || []).map((product: any) => ({
+            ...product,
+            name: isEnglish && product.name_en ? product.name_en : product.name,
+            description: isEnglish && product.description_en ? product.description_en : product.description
+          }))}
           primaryColor={primaryColor}
           priceColor={priceColor}
           iconColor={iconColor}
@@ -206,6 +258,7 @@ export default async function CategoryDetailPage({
           surfaceColor={surfaceColor}
           textColor={textColor}
           iconColor={iconColor}
+          currentLang={currentLang}
         />
     </div>
   )

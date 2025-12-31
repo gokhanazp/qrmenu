@@ -213,6 +213,7 @@ interface CreateRestaurantInput {
   hamburger_bg_color?: string
   qr_logo_bg_color?: string
   plan?: 'free' | 'pro'
+  supported_languages?: string[]
 }
 
 export async function createRestaurantWithUser(input: CreateRestaurantInput) {
@@ -283,6 +284,7 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
       icon_color: input.icon_color || '#111827',
       hamburger_bg_color: input.hamburger_bg_color || '#ffffff',
       qr_logo_bg_color: input.qr_logo_bg_color || '#FFFFFF',
+      supported_languages: input.supported_languages || ['tr'],
       owner_user_id: newUser.user.id,
       is_active: true
     } as never)
@@ -338,6 +340,7 @@ interface UpdateRestaurantByAdminInput {
   hamburger_bg_color?: string
   qr_logo_bg_color?: string
   is_active?: boolean
+  supported_languages?: string[]
 }
 
 export async function updateRestaurantByAdmin(input: UpdateRestaurantByAdminInput) {
@@ -477,6 +480,7 @@ export async function updateRestaurantStatus(restaurantId: string, isActive: boo
 interface CreateCategoryByAdminInput {
   restaurantId: string
   name: string
+  name_en?: string
   image_url?: string
   sort_order?: number
   is_active?: boolean
@@ -495,6 +499,7 @@ export async function createCategoryByAdmin(input: CreateCategoryByAdminInput) {
     .insert({
       restaurant_id: input.restaurantId,
       name: input.name,
+      name_en: input.name_en || null,
       image_url: input.image_url || null,
       sort_order: input.sort_order || 0,
       is_active: input.is_active ?? true
@@ -512,6 +517,7 @@ export async function createCategoryByAdmin(input: CreateCategoryByAdminInput) {
 
 interface UpdateCategoryByAdminInput {
   name?: string
+  name_en?: string
   image_url?: string
   sort_order?: number
   is_active?: boolean
@@ -582,7 +588,9 @@ interface CreateProductByAdminInput {
   restaurantId: string
   category_id: string
   name: string
+  name_en?: string
   description?: string
+  description_en?: string
   price: number
   image_url?: string
   sort_order?: number
@@ -605,7 +613,9 @@ export async function createProductByAdmin(input: CreateProductByAdminInput) {
       restaurant_id: input.restaurantId,
       category_id: input.category_id,
       name: input.name,
+      name_en: input.name_en || null,
       description: input.description || null,
+      description_en: input.description_en || null,
       price: input.price,
       image_url: input.image_url || null,
       sort_order: input.sort_order || 0,
@@ -627,7 +637,9 @@ export async function createProductByAdmin(input: CreateProductByAdminInput) {
 interface UpdateProductByAdminInput {
   category_id?: string
   name?: string
+  name_en?: string
   description?: string
+  description_en?: string
   price?: number
   image_url?: string
   sort_order?: number
@@ -700,6 +712,7 @@ interface CategoryData {
   id: string
   restaurant_id: string
   name: string
+  name_en?: string
   image_url?: string
   sort_order: number
   is_active: boolean
@@ -710,7 +723,9 @@ interface ProductData {
   restaurant_id: string
   category_id?: string
   name: string
+  name_en?: string
   description?: string
+  description_en?: string
   price: number
   image_url?: string
   sort_order: number

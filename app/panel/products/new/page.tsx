@@ -7,27 +7,35 @@ import { useRouter } from 'next/navigation'
 import { createProduct } from '@/app/actions/product'
 import { getCategories } from '@/app/actions/category'
 import { getRestaurant } from '@/app/actions/restaurant'
+import { translateToEnglish } from '@/app/actions/translate'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
 import Link from 'next/link'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 export default function NewProductPage() {
   const router = useRouter()
+  const { t } = useLocale()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
   const [error, setError] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [categories, setCategories] = useState<any[]>([])
   const [restaurantId, setRestaurantId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
+  const [nameEn, setNameEn] = useState('')
+  const [descriptionEn, setDescriptionEn] = useState('')
 
   useEffect(() => {
     async function loadData() {
       const { restaurant } = await getRestaurant()
       if (restaurant) {
         setRestaurantId((restaurant as any).id)
+        setSupportedLanguages((restaurant as any).supported_languages || ['tr'])
         const { categories: cats } = await getCategories((restaurant as any).id)
         setCategories(cats || [])
       }
@@ -35,6 +43,39 @@ export default function NewProductPage() {
     }
     loadData()
   }, [])
+
+  const handleTranslate = async () => {
+    const nameInput = document.getElementById('name') as HTMLInputElement
+    const descInput = document.getElementById('description') as HTMLTextAreaElement
+    
+    if (!nameInput?.value) {
+      setError(t.panel.products.enterNameFirst)
+      return
+    }
+
+    setIsTranslating(true)
+    setError('')
+
+    try {
+      // Translate name
+      const nameResult = await translateToEnglish(nameInput.value)
+      if (nameResult.success && nameResult.translation) {
+        setNameEn(nameResult.translation)
+      }
+
+      // Translate description if exists
+      if (descInput?.value) {
+        const descResult = await translateToEnglish(descInput.value)
+        if (descResult.success && descResult.translation) {
+          setDescriptionEn(descResult.translation)
+        }
+      }
+    } catch (err) {
+      setError(t.panel.products.translationError)
+    } finally {
+      setIsTranslating(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -55,7 +96,9 @@ export default function NewProductPage() {
       restaurant_id: restaurantId,
       category_id: categoryId || null,
       name,
+      name_en: nameEn || null,
       description: description || null,
+      description_en: descriptionEn || null,
       price,
       image_url: imageUrl || null,
       sort_order: sortOrder,
@@ -76,7 +119,7 @@ export default function NewProductPage() {
   if (isLoading) {
     return (
       <div className="p-8">
-        <div className="text-center">Yükleniyor...</div>
+        <div className="text-center">{t.common.loading}</div>
       </div>
     )
   }
@@ -84,8 +127,8 @@ export default function NewProductPage() {
   return (
     <div className="p-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Yeni Ürün</h1>
-        <p className="text-gray-600 mt-1">Menünüze yeni ürün ekleyin</p>
+        <h1 className="text-3xl font-bold">{t.panel.products.add}</h1>
+        <p className="text-gray-600 mt-1">{t.panel.products.manageProducts}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
@@ -96,30 +139,88 @@ export default function NewProductPage() {
         )}
 
         <div>
-          <Label htmlFor="name">Ürün Adı *</Label>
+          <Label htmlFor="name">{t.panel.products.productName} (Türkçe) *</Label>
           <Input
             id="name"
             name="name"
             type="text"
             required
-            placeholder="Örn: Margherita Pizza"
+            placeholder={t.panel.products.productNamePlaceholder}
             className="mt-1"
           />
         </div>
 
         <div>
-          <Label htmlFor="description">Açıklama</Label>
+          <Label htmlFor="description">{t.panel.products.description} (Türkçe)</Label>
           <textarea
             id="description"
             name="description"
             rows={3}
-            placeholder="Ürün açıklaması..."
+            placeholder={t.panel.products.descriptionPlaceholder}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
+        {/* İngilizce Alanları - Sadece İngilizce destekleniyorsa göster */}
+        {supportedLanguages.includes('en') && (
+          <div className="border-t border-b border-blue-200 bg-blue-50 p-4 rounded-lg space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🇬🇧</span>
+                <h3 className="font-semibold text-blue-800">{t.panel.products.englishTranslation}</h3>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleTranslate}
+                disabled={isTranslating}
+                className="bg-white hover:bg-blue-100 border-blue-300"
+              >
+                {isTranslating ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2 text-sm">sync</span>
+                    {t.panel.products.translating}
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined mr-2 text-sm">translate</span>
+                    {t.panel.products.translateWithAI}
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            <div>
+              <Label htmlFor="name_en">Product Name (English)</Label>
+              <Input
+                id="name_en"
+                name="name_en"
+                type="text"
+                value={nameEn}
+                onChange={(e) => setNameEn(e.target.value)}
+                placeholder="e.g. Margherita Pizza"
+                className="mt-1 bg-white"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description_en">Description (English)</Label>
+              <textarea
+                id="description_en"
+                name="description_en"
+                rows={3}
+                value={descriptionEn}
+                onChange={(e) => setDescriptionEn(e.target.value)}
+                placeholder="Product description..."
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+              />
+            </div>
+          </div>
+        )}
+
         <div>
-          <Label htmlFor="price">Fiyat (TL) *</Label>
+          <Label htmlFor="price">{t.panel.products.price} (TL) *</Label>
           <Input
             id="price"
             name="price"
@@ -133,13 +234,13 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <Label htmlFor="category_id">Kategori</Label>
+          <Label htmlFor="category_id">{t.panel.products.category}</Label>
           <select
             id="category_id"
             name="category_id"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
-            <option value="">Kategori Seçin</option>
+            <option value="">{t.panel.products.selectCategory}</option>
             {categories.map((cat: any) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -147,7 +248,7 @@ export default function NewProductPage() {
             ))}
           </select>
           <p className="text-sm text-gray-500 mt-1">
-            Ürünü bir kategoriye atayabilirsiniz
+            {t.panel.products.categoryHelp}
           </p>
         </div>
 
@@ -160,12 +261,12 @@ export default function NewProductPage() {
             setIsUploading(false)
           }}
           onUploadStart={() => setIsUploading(true)}
-          label="Ürün Fotoğrafı"
+          label={t.panel.products.productImage}
           recommendedSize="600x600 piksel (1:1 kare)"
         />
 
         <div>
-          <Label htmlFor="sort_order">Sıra No *</Label>
+          <Label htmlFor="sort_order">{t.panel.products.sortOrder} *</Label>
           <Input
             id="sort_order"
             name="sort_order"
@@ -176,7 +277,7 @@ export default function NewProductPage() {
             className="mt-1"
           />
           <p className="text-sm text-gray-500 mt-1">
-            Ürünlerin menüde görüneceği sırayı belirler
+            {t.panel.products.sortOrderHelp}
           </p>
         </div>
 
@@ -190,7 +291,7 @@ export default function NewProductPage() {
               className="w-4 h-4 text-blue-600 rounded"
             />
             <Label htmlFor="is_active" className="cursor-pointer">
-              Aktif (Menüde göster)
+              {t.panel.products.isActive} ({t.panel.products.showInMenu})
             </Label>
           </div>
 
@@ -202,7 +303,7 @@ export default function NewProductPage() {
               className="w-4 h-4 text-blue-600 rounded"
             />
             <Label htmlFor="is_featured" className="cursor-pointer">
-              ⭐ Öne Çıkan (Ana sayfada göster)
+              ⭐ {t.panel.products.isFeatured} ({t.panel.products.showOnHomepage})
             </Label>
           </div>
 
@@ -214,18 +315,18 @@ export default function NewProductPage() {
               className="w-4 h-4 text-orange-600 rounded"
             />
             <Label htmlFor="is_daily_special" className="cursor-pointer">
-              🌟 Günün Menüsü (Özel bölümde göster)
+              🌟 {t.panel.products.dailySpecial} ({t.panel.products.showInSpecialSection})
             </Label>
           </div>
         </div>
 
         <div className="flex gap-4">
           <Button type="submit" disabled={isSubmitting || isUploading}>
-            {isUploading ? 'Fotoğraf yükleniyor...' : isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}
+            {isUploading ? t.panel.products.uploadingPhoto : isSubmitting ? t.panel.products.saving : t.panel.products.save}
           </Button>
           <Link href="/panel/products">
             <Button type="button" variant="outline">
-              İptal
+              {t.panel.products.cancel}
             </Button>
           </Link>
         </div>

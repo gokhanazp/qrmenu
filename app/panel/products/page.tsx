@@ -3,9 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getRestaurant } from '@/app/actions/restaurant'
 import { getProducts } from '@/app/actions/product'
 import { getCategories } from '@/app/actions/category'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { ProductsListClient } from '@/components/products-list-client'
+import { ProductsPageClient } from './products-page-client'
 
 export default async function ProductsPage() {
   const supabase = await createClient()
@@ -32,30 +30,5 @@ export default async function ProductsPage() {
   const { products } = await getProducts((restaurant as any).id)
   const { categories } = await getCategories((restaurant as any).id)
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-6">
-      {/* Header */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-20">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <span className="material-symbols-outlined text-3xl text-orange-500">restaurant_menu</span>
-                Ürünler
-              </h1>
-              <p className="text-sm text-gray-600 mt-1">Menü ürünlerinizi yönetin</p>
-            </div>
-            <Link href="/panel/products/new">
-              <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
-                <span className="material-symbols-outlined mr-2">add</span>
-                Yeni Ürün
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <ProductsListClient products={products} categories={categories} />
-    </div>
-  )
+  return <ProductsPageClient products={products} categories={categories} />
 }

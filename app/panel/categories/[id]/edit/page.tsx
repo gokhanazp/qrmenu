@@ -3,34 +3,74 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCategory, updateCategory } from '@/app/actions/category'
+import { getRestaurant } from '@/app/actions/restaurant'
+import { translateToEnglish } from '@/app/actions/translate'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
 import Link from 'next/link'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 export default function EditCategoryPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const { t } = useLocale()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [category, setCategory] = useState<any>(null)
   const [imageUrl, setImageUrl] = useState('')
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
+  const [nameEn, setNameEn] = useState('')
 
   useEffect(() => {
-    async function loadCategory() {
-      const result = await getCategory(params.id)
-      if (result.error || !result.category) {
-        setError('Kategori bulunamadı')
+    async function loadData() {
+      const [categoryResult, restaurantResult] = await Promise.all([
+        getCategory(params.id),
+        getRestaurant()
+      ])
+      
+      if (categoryResult.error || !categoryResult.category) {
+        setError(t.panel.categories.restaurantNotFound)
       } else {
-        setCategory(result.category)
-        setImageUrl((result.category as any).image_url || '')
+        setCategory(categoryResult.category)
+        setImageUrl((categoryResult.category as any).image_url || '')
+        setNameEn((categoryResult.category as any).name_en || '')
       }
+      
+      if ((restaurantResult as any).restaurant) {
+        setSupportedLanguages((restaurantResult as any).restaurant.supported_languages || ['tr'])
+      }
+      
       setIsLoading(false)
     }
-    loadCategory()
+    loadData()
   }, [params.id])
+
+  const handleTranslate = async () => {
+    const nameInput = document.getElementById('name') as HTMLInputElement
+    
+    if (!nameInput?.value) {
+      setError(t.panel.categories.enterNameFirst || 'Lütfen önce Türkçe kategori adını girin')
+      return
+    }
+
+    setIsTranslating(true)
+    setError('')
+
+    try {
+      const nameResult = await translateToEnglish(nameInput.value)
+      if (nameResult.success && nameResult.translation) {
+        setNameEn(nameResult.translation)
+      }
+    } catch (err) {
+      setError(t.panel.categories.translationError || 'Çeviri sırasında bir hata oluştu')
+    } finally {
+      setIsTranslating(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -44,6 +84,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
 
     const result = await updateCategory(params.id, {
       name,
+      name_en: nameEn || null,
       sort_order: sortOrder,
       is_active: isActive,
       image_url: imageUrl
@@ -61,7 +102,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
   if (isLoading) {
     return (
       <div className="p-8">
-        <div className="text-center">Yükleniyor...</div>
+        <div className="text-center">{t.common.loading}</div>
       </div>
     )
   }
@@ -69,7 +110,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
   if (!category) {
     return (
       <div className="p-8">
-        <div className="text-center text-red-600">{error || 'Kategori bulunamadı'}</div>
+        <div className="text-center text-red-600">{error || t.panel.categories.restaurantNotFound}</div>
       </div>
     )
   }
@@ -77,8 +118,8 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
   return (
     <div className="p-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Kategori Düzenle</h1>
-        <p className="text-gray-600 mt-1">Kategori bilgilerini güncelleyin</p>
+        <h1 className="text-3xl font-bold">{t.panel.categories.edit}</h1>
+        <p className="text-gray-600 mt-1">{t.panel.categories.updateCategory}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
@@ -89,17 +130,62 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
         )}
 
         <div>
-          <Label htmlFor="name">Kategori Adı *</Label>
+          <Label htmlFor="name">{t.panel.categories.categoryName} (Türkçe) *</Label>
           <Input
             id="name"
             name="name"
             type="text"
             required
             defaultValue={category.name}
-            placeholder="Örn: Ana Yemekler"
+            placeholder={t.panel.categories.categoryNamePlaceholder}
             className="mt-1"
           />
         </div>
+
+        {/* İngilizce Alanları - Sadece İngilizce destekleniyorsa göster */}
+        {supportedLanguages.includes('en') && (
+          <div className="border-t border-b border-blue-200 bg-blue-50 p-4 rounded-lg space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🇬🇧</span>
+                <h3 className="font-semibold text-blue-800">{t.panel.categories.englishTranslation || 'İngilizce Çeviri'}</h3>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleTranslate}
+                disabled={isTranslating}
+                className="bg-white hover:bg-blue-100 border-blue-300"
+              >
+                {isTranslating ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2 text-sm">sync</span>
+                    {t.panel.categories.translating || 'Çevriliyor...'}
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined mr-2 text-sm">translate</span>
+                    {t.panel.categories.translateWithAI || 'AI ile Çevir'}
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            <div>
+              <Label htmlFor="name_en">Category Name (English)</Label>
+              <Input
+                id="name_en"
+                name="name_en"
+                type="text"
+                value={nameEn}
+                onChange={(e) => setNameEn(e.target.value)}
+                placeholder="e.g. Main Dishes"
+                className="mt-1 bg-white"
+              />
+            </div>
+          </div>
+        )}
 
         <ImageUpload
           bucket="category-images"
@@ -110,12 +196,12 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
             setIsUploading(false)
           }}
           onUploadStart={() => setIsUploading(true)}
-          label="Kategori Fotoğrafı"
+          label={t.panel.categories.categoryImage}
           recommendedSize="800x600 piksel (4:3 oran)"
         />
 
         <div>
-          <Label htmlFor="sort_order">Sıra No *</Label>
+          <Label htmlFor="sort_order">{t.panel.categories.sortOrder} *</Label>
           <Input
             id="sort_order"
             name="sort_order"
@@ -126,7 +212,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
             className="mt-1"
           />
           <p className="text-sm text-gray-500 mt-1">
-            Kategorilerin menüde görüneceği sırayı belirler
+            {t.panel.categories.sortOrderHelp || 'Kategorilerin menüde görüneceği sırayı belirler'}
           </p>
         </div>
 
@@ -139,17 +225,17 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
             className="w-4 h-4 text-blue-600 rounded"
           />
           <Label htmlFor="is_active" className="cursor-pointer">
-            Aktif (Menüde göster)
+            {t.panel.categories.isActive} ({t.panel.categories.showInMenu || 'Menüde göster'})
           </Label>
         </div>
 
         <div className="flex gap-4">
           <Button type="submit" disabled={isSubmitting || isUploading}>
-            {isUploading ? 'Fotoğraf yükleniyor...' : isSubmitting ? 'Kaydediliyor...' : 'Güncelle'}
+            {isUploading ? t.panel.categories.uploadingPhoto || 'Fotoğraf yükleniyor...' : isSubmitting ? t.panel.categories.saving : t.panel.categories.updateCategory}
           </Button>
           <Link href="/panel/categories">
             <Button type="button" variant="outline">
-              İptal
+              {t.panel.categories.cancel}
             </Button>
           </Link>
         </div>

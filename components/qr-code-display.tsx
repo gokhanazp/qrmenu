@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import QRCode from "qrcode"
+import { useLocale } from "@/lib/i18n/use-locale"
 
 interface QRCodeDisplayProps {
   url: string
@@ -18,6 +19,7 @@ export default function QRCodeDisplay({
   initialLogoBgColor = '#FFFFFF',
   onSaveLogoBgColor
 }: QRCodeDisplayProps) {
+  const { t } = useLocale()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [showLogo, setShowLogo] = useState(!!logoUrl)
   const [logoBgColor, setLogoBgColor] = useState(initialLogoBgColor)
@@ -107,10 +109,10 @@ export default function QRCodeDisplay({
             // Logo oranını hesapla
             const imgAspect = img.width / img.height
             
-            // Container boyutlarını logo oranına göre dinamik ayarla
-            const maxContainerWidth = availableSize * 0.32  // Maksimum genişlik
-            const maxContainerHeight = availableSize * 0.20 // Maksimum yükseklik
-            const padding = 12 // Logo etrafındaki boşluk
+            // Container boyutlarını logo oranına göre dinamik ayarla - DAHA BÜYÜK
+            const maxContainerWidth = availableSize * 0.38  // Maksimum genişlik (artırıldı)
+            const maxContainerHeight = availableSize * 0.26 // Maksimum yükseklik (artırıldı)
+            const padding = 8 // Logo etrafındaki boşluk (azaltıldı)
             
             let containerWidth: number
             let containerHeight: number
@@ -125,13 +127,13 @@ export default function QRCodeDisplay({
               containerHeight = logoHeight + padding * 2
             } else if (imgAspect < 0.7) {
               // Dikey logo (uzun)
-              containerHeight = maxContainerHeight * 1.3
+              containerHeight = maxContainerHeight * 1.4
               logoHeight = containerHeight - padding * 2
               logoWidth = logoHeight * imgAspect
               containerWidth = logoWidth + padding * 2
             } else {
               // Kare veya kareye yakın logo
-              const baseSize = availableSize * 0.22
+              const baseSize = availableSize * 0.28 // Artırıldı
               if (imgAspect > 1) {
                 containerWidth = baseSize
                 logoWidth = containerWidth - padding * 2
@@ -149,28 +151,12 @@ export default function QRCodeDisplay({
             const containerX = centerX - containerWidth / 2
             const containerY = centerY - containerHeight / 2
             
-            // Yumuşak gölge efekti
-            ctx.save()
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.12)'
-            ctx.shadowBlur = 8
-            ctx.shadowOffsetX = 0
-            ctx.shadowOffsetY = 2
-            
-            // Yuvarlatılmış köşeli beyaz arka plan
+            // Yuvarlatılmış köşeli arka plan (border yok, sadece arka plan)
             const borderRadius = Math.min(containerWidth, containerHeight) * 0.12
             ctx.fillStyle = logoBgColor
             ctx.beginPath()
             ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius)
             ctx.fill()
-            
-            ctx.restore()
-            
-            // İnce çerçeve
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)'
-            ctx.lineWidth = 1
-            ctx.beginPath()
-            ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius)
-            ctx.stroke()
             
             // Logo'yu merkeze çiz
             const logoX = centerX - logoWidth / 2
@@ -239,10 +225,10 @@ export default function QRCodeDisplay({
       setIsSaving(true)
       try {
         await onSaveLogoBgColor(logoBgColor)
-        alert('Renk kaydedildi!')
+        alert(t.qr.colorSaved)
       } catch (error) {
         console.error('Renk kaydedilemedi:', error)
-        alert('Renk kaydedilemedi. Lütfen tekrar deneyin.')
+        alert(t.qr.colorSaveError)
       } finally {
         setIsSaving(false)
       }
@@ -266,7 +252,7 @@ export default function QRCodeDisplay({
               className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
             />
             <label htmlFor="show-logo" className="text-sm text-slate-600 cursor-pointer">
-              QR kod üzerine logo ekle
+              {t.qr.addLogoToQr}
             </label>
           </div>
           
@@ -274,7 +260,7 @@ export default function QRCodeDisplay({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <label htmlFor="logo-bg-color" className="text-sm text-slate-600">
-                  Logo arka plan rengi:
+                  {t.qr.logoBgColor}:
                 </label>
                 <input
                   type="color"
@@ -292,7 +278,7 @@ export default function QRCodeDisplay({
                   disabled={isSaving}
                   className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {isSaving ? 'Kaydediliyor...' : 'Rengi Kaydet'}
+                  {isSaving ? t.qr.saving : t.qr.saveColor}
                 </button>
               )}
             </div>
@@ -301,7 +287,7 @@ export default function QRCodeDisplay({
       )}
       
       <p className="mt-2 text-sm text-slate-600 text-center">
-        {restaurantName} - QR Menü
+        {restaurantName} - {t.qr.qrMenu}
       </p>
     </div>
   )

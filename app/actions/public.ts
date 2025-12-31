@@ -35,12 +35,15 @@ export async function getPublicMenu(restaurantId: string) {
       .select(`
         id,
         name,
+        name_en,
         sort_order,
         image_url,
         products (
           id,
           name,
+          name_en,
           description,
+          description_en,
           price,
           image_url,
           sort_order
@@ -130,7 +133,8 @@ export async function getAllProducts(restaurantId: string) {
         *,
         categories (
           id,
-          name
+          name,
+          name_en
         )
       `)
       .eq('restaurant_id', restaurantId)

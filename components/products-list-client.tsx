@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { DeleteButton } from '@/components/delete-button'
 import { formatCurrency } from '@/lib/utils/currency'
 import { updateProduct } from '@/app/actions/product'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 interface Category {
   id: string
@@ -33,7 +34,7 @@ interface ProductsListClientProps {
   categories: Category[]
 }
 
-function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpdate: (id: string, newPrice: number) => void }) {
+function InlinePrice({ product, onPriceUpdate, t }: { product: Product; onPriceUpdate: (id: string, newPrice: number) => void; t: any }) {
   const [isEditing, setIsEditing] = useState(false)
   const [price, setPrice] = useState(product.price.toString())
   const [isPending, startTransition] = useTransition()
@@ -58,7 +59,7 @@ function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpda
       const result = await updateProduct(product.id, { price: newPrice })
       if (result.error) {
         setPrice(displayPrice.toString())
-        alert('Fiyat güncellenirken hata oluştu: ' + result.error)
+        alert(t.panel.products.priceUpdateError + ': ' + result.error)
       } else {
         // Başarılı güncelleme
         setDisplayPrice(newPrice)
@@ -108,7 +109,7 @@ function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpda
       <button
         onClick={() => setIsEditing(true)}
         className="text-xl font-bold text-orange-600 whitespace-nowrap hover:bg-orange-50 px-2 py-1 rounded transition-colors flex items-center gap-1"
-        title="Fiyatı düzenlemek için tıklayın"
+        title={t.panel.products.clickToEditPrice}
       >
         {formatCurrency(displayPrice)}
         <span className="material-symbols-outlined text-sm text-orange-400">edit</span>
@@ -116,7 +117,7 @@ function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpda
       {showSuccess && (
         <span className="text-sm text-green-600 font-semibold flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full animate-pulse mt-1">
           <span className="material-symbols-outlined text-sm">check_circle</span>
-          Güncellendi!
+          {t.panel.products.updated}
         </span>
       )}
     </div>
@@ -124,6 +125,7 @@ function InlinePrice({ product, onPriceUpdate }: { product: Product; onPriceUpda
 }
 
 export function ProductsListClient({ products: initialProducts, categories }: ProductsListClientProps) {
+  const { t } = useLocale()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [products, setProducts] = useState(initialProducts)
 
@@ -151,7 +153,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Tümü ({products.length})
+              {t.panel.products.all} ({products.length})
             </button>
             {categories.map((category) => {
               const count = products.filter(p => p.category_id === category.id).length
@@ -179,15 +181,15 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
           <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300">
             <span className="material-symbols-outlined text-8xl text-gray-300 mb-4">restaurant_menu</span>
             <h3 className="text-2xl font-bold mb-2 text-gray-900">
-              {selectedCategory === 'all' ? 'Henüz ürün yok' : 'Bu kategoride ürün yok'}
+              {selectedCategory === 'all' ? t.panel.products.noProductsYet : t.panel.products.noProductsInCategory}
             </h3>
             <p className="text-gray-600 mb-6">
-              {selectedCategory === 'all' ? 'İlk ürününüzü oluşturarak başlayın' : 'Bu kategoriye ürün ekleyin'}
+              {selectedCategory === 'all' ? t.panel.products.startWithFirst : t.panel.products.addToCategory}
             </p>
             <Link href="/panel/products/new">
               <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
                 <span className="material-symbols-outlined mr-2">add</span>
-                Ürün Ekle
+                {t.panel.products.addProduct}
               </Button>
             </Link>
           </div>
@@ -221,7 +223,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                           <p className="text-sm text-gray-600 line-clamp-2 mt-1">{product.description}</p>
                         )}
                       </div>
-                      <InlinePrice product={product} onPriceUpdate={handlePriceUpdate} />
+                      <InlinePrice product={product} onPriceUpdate={handlePriceUpdate} t={t} />
                     </div>
 
                     {/* Category and Badges */}
@@ -235,13 +237,13 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                       {product.is_featured && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
                           <span className="material-symbols-outlined text-sm">star</span>
-                          Öne Çıkan
+                          {t.panel.products.featured}
                         </span>
                       )}
                       {product.is_daily_special && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-orange-100 text-orange-800">
                           <span className="material-symbols-outlined text-sm">today</span>
-                          Günün Menüsü
+                          {t.panel.products.dailySpecial}
                         </span>
                       )}
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
@@ -252,7 +254,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                         <span className="material-symbols-outlined text-sm">
                           {product.is_active ? 'check_circle' : 'cancel'}
                         </span>
-                        {product.is_active ? 'Aktif' : 'Pasif'}
+                        {product.is_active ? t.panel.products.active : t.panel.products.inactive}
                       </span>
                     </div>
 
@@ -261,7 +263,7 @@ export function ProductsListClient({ products: initialProducts, categories }: Pr
                       <Link href={`/panel/products/${product.id}/edit`}>
                         <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
                           <span className="material-symbols-outlined text-lg mr-1">edit</span>
-                          Düzenle
+                          {t.common.edit}
                         </Button>
                       </Link>
                       <DeleteButton productId={product.id} />

@@ -8,23 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ImageUpload } from '@/components/image-upload'
-import { getProductById, updateProductByAdmin, deleteProductByAdmin, getCategoriesByRestaurant } from '@/app/actions/admin'
+import { getProductById, updateProductByAdmin, getCategoriesByRestaurant, getRestaurantById } from '@/app/actions/admin'
 
 interface Category {
   id: string
   name: string
-}
-
-interface ProductFormData {
-  category_id: string
-  name: string
-  description: string
-  price: number
-  image_url: string
-  is_available: boolean
-  is_featured: boolean
-  is_daily_special: boolean
-  sort_order: number
 }
 
 export default function EditProductPage() {
@@ -33,16 +21,18 @@ export default function EditProductPage() {
   const productId = params.productId as string
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
+  const [loadingData, setLoadingData] = useState(true)
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
   
-  const [formData, setFormData] = useState<ProductFormData>({
+  const [formData, setFormData] = useState({
     category_id: '',
     name: '',
+    name_en: '',
     description: '',
+    description_en: '',
     price: 0,
     image_url: '',
     is_available: true,
@@ -53,18 +43,28 @@ export default function EditProductPage() {
 
   useEffect(() => {
     const loadData = async () => {
+      // Load restaurant to get supported languages
+      const restResult = await getRestaurantById(restaurantId) as any
+      if (restResult.restaurant) {
+        setSupportedLanguages(restResult.restaurant.supported_languages || ['tr'])
+      }
+      
+      // Load categories
       const catResult = await getCategoriesByRestaurant(restaurantId)
       if (catResult.success && catResult.data) {
-        setCategories(catResult.data)
+        setCategories(catResult.data as Category[])
       }
-
-      const result = await getProductById(productId)
-      if (result.success && result.data) {
-        const product = result.data
+      
+      // Load product
+      const prodResult = await getProductById(productId)
+      if (prodResult.success && prodResult.data) {
+        const product = prodResult.data as any
         setFormData({
           category_id: product.category_id || '',
           name: product.name || '',
+          name_en: product.name_en || '',
           description: product.description || '',
+          description_en: product.description_en || '',
           price: product.price || 0,
           image_url: product.image_url || '',
           is_available: product.is_available ?? true,
@@ -72,10 +72,8 @@ export default function EditProductPage() {
           is_daily_special: product.is_daily_special ?? false,
           sort_order: product.sort_order || 0
         })
-      } else {
-        setError('Ürün bulunamadı')
       }
-      setInitialLoading(false)
+      setLoadingData(false)
     }
     loadData()
   }, [restaurantId, productId])
@@ -86,10 +84,26 @@ export default function EditProductPage() {
       setError('Lütfen görsel yüklenmesini bekleyin')
       return
     }
+    if (!formData.category_id) {
+      setError('Lütfen bir kategori seçin')
+      return
+    }
     setIsLoading(true)
     setError(null)
     try {
-      const result = await updateProductByAdmin(productId, formData)
+      const result = await updateProductByAdmin(productId, {
+        category_id: formData.category_id,
+        name: formData.name,
+        name_en: formData.name_en || undefined,
+        description: formData.description || undefined,
+        description_en: formData.description_en || undefined,
+        price: formData.price,
+        image_url: formData.image_url || undefined,
+        is_available: formData.is_available,
+        is_featured: formData.is_featured,
+        is_daily_special: formData.is_daily_special,
+        sort_order: formData.sort_order
+      })
       if (result.success) {
         router.push(`/admin/restaurants/${restaurantId}/products`)
       } else {
@@ -102,24 +116,9 @@ export default function EditProductPage() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) return
-    setIsDeleting(true)
-    try {
-      const result = await deleteProductByAdmin(productId)
-      if (result.success) {
-        router.push(`/admin/restaurants/${restaurantId}/products`)
-      } else {
-        setError(result.error || 'Silme işlemi başarısız')
-      }
-    } catch {
-      setError('Beklenmeyen bir hata oluştu')
-    } finally {
-      setIsDeleting(false)
-    }
-  }
+  const supportsEnglish = supportedLanguages.includes('en')
 
-  if (initialLoading) {
+  if (loadingData) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -134,27 +133,17 @@ export default function EditProductPage() {
     <div className="min-h-screen bg-slate-50 pb-8">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href={`/admin/restaurants/${restaurantId}/products`}>
-                <Button variant="outline" size="sm">
-                  <span className="material-symbols-outlined mr-2">arrow_back</span>
-                  Geri
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">Ürün Düzenle</h1>
-                <p className="text-sm text-slate-600">{formData.name}</p>
-              </div>
+          <div className="flex items-center gap-4">
+            <Link href={`/admin/restaurants/${restaurantId}/products`}>
+              <Button variant="outline" size="sm">
+                <span className="material-symbols-outlined mr-2">arrow_back</span>
+                Geri
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Ürün Düzenle</h1>
+              <p className="text-sm text-slate-600">{formData.name}</p>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleDelete} 
-              disabled={isDeleting} 
-              className="text-red-600 border-red-200 hover:bg-red-50"
-            >
-              {isDeleting ? 'Siliniyor...' : 'Sil'}
-            </Button>
           </div>
         </div>
       </header>
@@ -163,7 +152,8 @@ export default function EditProductPage() {
         <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+                <span className="material-symbols-outlined text-red-600">error</span>
                 <p className="text-red-700">{error}</p>
               </div>
             )}
@@ -175,7 +165,7 @@ export default function EditProductPage() {
                   id="category_id"
                   value={formData.category_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 >
                   <option value="">Kategori Seçin</option>
@@ -185,23 +175,52 @@ export default function EditProductPage() {
                 </select>
               </div>
               <div>
-                <Label htmlFor="name">Ürün Adı *</Label>
+                <Label htmlFor="name">Ürün Adı (Türkçe) *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Örn: Adana Kebap"
                   required
                 />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="name_en">Ürün Adı (İngilizce)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
+                    placeholder="E.g: Adana Kebab"
+                  />
+                </div>
+              )}
+              
               <div>
-                <Label htmlFor="description">Açıklama</Label>
+                <Label htmlFor="description">Açıklama (Türkçe)</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Ürün açıklaması..."
                   rows={3}
                 />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="description_en">Açıklama (İngilizce)</Label>
+                  <Textarea
+                    id="description_en"
+                    value={formData.description_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description_en: e.target.value }))}
+                    placeholder="Product description..."
+                    rows={3}
+                  />
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="price">Fiyat (₺) *</Label>
                 <Input
@@ -224,33 +243,36 @@ export default function EditProductPage() {
                 />
               </div>
               <div className="flex flex-wrap gap-4">
-                <label className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
+                    id="is_available"
                     checked={formData.is_available}
                     onChange={(e) => setFormData(prev => ({ ...prev, is_available: e.target.checked }))}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300"
                   />
-                  <span>Mevcut</span>
-                </label>
-                <label className="flex items-center space-x-2">
+                  <Label htmlFor="is_available" className="cursor-pointer">Mevcut</Label>
+                </div>
+                <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
+                    id="is_featured"
                     checked={formData.is_featured}
                     onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300"
                   />
-                  <span>Öne Çıkan</span>
-                </label>
-                <label className="flex items-center space-x-2">
+                  <Label htmlFor="is_featured" className="cursor-pointer">Öne Çıkan</Label>
+                </div>
+                <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
+                    id="is_daily_special"
                     checked={formData.is_daily_special}
                     onChange={(e) => setFormData(prev => ({ ...prev, is_daily_special: e.target.checked }))}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300"
                   />
-                  <span>Günün Özel</span>
-                </label>
+                  <Label htmlFor="is_daily_special" className="cursor-pointer">Günün Özel</Label>
+                </div>
               </div>
             </div>
 
@@ -278,9 +300,19 @@ export default function EditProductPage() {
               <Button
                 type="submit"
                 disabled={isLoading || isUploading}
-                className="bg-gradient-to-r from-orange-500 to-orange-600"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
               >
-                {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
+                {isLoading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2">sync</span>
+                    Kaydediliyor...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined mr-2">save</span>
+                    Kaydet
+                  </>
+                )}
               </Button>
             </div>
           </form>

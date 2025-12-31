@@ -22,12 +22,43 @@ interface HamburgerMenuProps {
   }
   iconColor?: string
   hamburgerBgColor?: string
+  supportedLanguages?: string[]
+  currentLang?: string
+  slug?: string
 }
 
-export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: HamburgerMenuProps) {
+export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, currentLang = 'tr' }: HamburgerMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const hasSocialMedia = restaurant.whatsapp || restaurant.instagram || restaurant.facebook || restaurant.twitter
+  
+  // Translations
+  const translations = {
+    tr: {
+      menu: 'Menü',
+      close: 'Kapat',
+      aboutUs: 'Hakkımızda',
+      contact: 'İletişim',
+      socialMedia: 'Sosyal Medya',
+      noPhone: 'Telefon bilgisi eklenmemiş',
+      noEmail: 'E-posta bilgisi eklenmemiş',
+      noAddress: 'Adres bilgisi eklenmemiş',
+      poweredBy: 'Powered by QR Menü'
+    },
+    en: {
+      menu: 'Menu',
+      close: 'Close',
+      aboutUs: 'About Us',
+      contact: 'Contact',
+      socialMedia: 'Social Media',
+      noPhone: 'Phone not provided',
+      noEmail: 'Email not provided',
+      noAddress: 'Address not provided',
+      poweredBy: 'Powered by QR Menu'
+    }
+  }
+  
+  const t = translations[currentLang as keyof typeof translations] || translations.tr
   
   const primaryColor = restaurant.primary_color || '#FF6B35'
   const backgroundColor = restaurant.background_color || '#ffffff'
@@ -47,7 +78,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
           color: finalIconColor,
           backgroundColor: finalHamburgerBgColor
         }}
-        aria-label="Menü"
+        aria-label={t.menu}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
           menu
@@ -102,7 +133,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-full transition-colors hover:opacity-80"
               style={{ color: finalIconColor }}
-              aria-label="Kapat"
+              aria-label={t.close}
             >
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -118,7 +149,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                   style={{ color: textColor }}
                 >
                   <span className="material-symbols-outlined" style={{ color: finalIconColor }}>info</span>
-                  Hakkımızda
+                  {t.aboutUs}
                 </h3>
                 <p
                   className="text-sm leading-relaxed"
@@ -136,7 +167,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                 style={{ color: textColor }}
               >
                 <span className="material-symbols-outlined" style={{ color: finalIconColor }}>contact_phone</span>
-                İletişim
+                {t.contact}
               </h3>
               <div className="space-y-3">
                 {/* Phone */}
@@ -155,7 +186,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                     style={{ backgroundColor: surfaceColor }}
                   >
                     <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>call</span>
-                    <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>Telefon bilgisi eklenmemiş</span>
+                    <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>{t.noPhone}</span>
                   </div>
                 )}
                 
@@ -175,7 +206,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                     style={{ backgroundColor: surfaceColor }}
                   >
                     <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>mail</span>
-                    <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>E-posta bilgisi eklenmemiş</span>
+                    <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>{t.noEmail}</span>
                   </div>
                 )}
                 
@@ -197,7 +228,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                     style={{ backgroundColor: surfaceColor }}
                   >
                     <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>location_on</span>
-                    <span className="text-sm flex-1" style={{ color: textColor, opacity: 0.6 }}>Adres bilgisi eklenmemiş</span>
+                    <span className="text-sm flex-1" style={{ color: textColor, opacity: 0.6 }}>{t.noAddress}</span>
                   </div>
                 )}
               </div>
@@ -211,7 +242,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
                   style={{ color: textColor }}
                 >
                   <span className="material-symbols-outlined" style={{ color: finalIconColor }}>share</span>
-                  Sosyal Medya
+                  {t.socialMedia}
                 </h3>
                 <div className="flex gap-2 flex-wrap">
                   {restaurant.whatsapp && (
@@ -283,7 +314,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor }: Hambu
               className="text-xs text-center"
               style={{ color: textColor, opacity: 0.5 }}
             >
-              Powered by QR Menü
+              {t.poweredBy}
             </p>
           </div>
         </div>

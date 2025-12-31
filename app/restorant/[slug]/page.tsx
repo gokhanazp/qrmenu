@@ -11,7 +11,7 @@ import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic'
 
-export default async function PublicMenuPage({ params }: { params: { slug: string } }) {
+export default async function PublicMenuPage({ params, searchParams }: { params: { slug: string }, searchParams: { lang?: string } }) {
   const { slug } = params
 
   // Fetch restaurant
@@ -43,6 +43,39 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
   const hamburgerBgColor = rest.hamburger_bg_color || '#ffffff'
   const layoutStyle = rest.layout_style || 'grid'
   const borderColor = textColor + '20' // 20% opacity
+  const supportedLanguages = rest.supported_languages || ['tr']
+  
+  // Dil seçimi - URL parametresinden veya varsayılan
+  const currentLang = searchParams.lang && supportedLanguages.includes(searchParams.lang) 
+    ? searchParams.lang 
+    : supportedLanguages[0]
+  const isEnglish = currentLang === 'en'
+  
+  // Çeviri metinleri
+  const translations = {
+    tr: {
+      welcome: 'Hoşgeldiniz',
+      menuPreparing: 'Menü Hazırlanıyor',
+      menuPreparingDesc: 'Yakında lezzetli menümüzle karşınızda olacağız',
+      categories: 'Kategoriler',
+      dailyMenu: 'Günün Menüsü',
+      featured: 'Öne Çıkanlar',
+      items: 'Çeşit',
+      search: 'Ara'
+    },
+    en: {
+      welcome: 'Welcome',
+      menuPreparing: 'Menu is Being Prepared',
+      menuPreparingDesc: 'We will be with you soon with our delicious menu',
+      categories: 'Categories',
+      dailyMenu: 'Daily Specials',
+      featured: 'Featured',
+      items: 'Items',
+      search: 'Search'
+    }
+  }
+  
+  const t = translations[isEnglish ? 'en' : 'tr']
 
   return (
     <div
@@ -64,41 +97,49 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
               borderBottom: `1px solid ${borderColor}`
             }}
           >
-            <div className="flex items-center justify-between px-3" style={{ minHeight: '140px', paddingTop: '24px', paddingBottom: '24px' }}>
-              <div className="flex-shrink-0">
+            <div className="flex items-center px-3" style={{ minHeight: '120px', paddingTop: '16px', paddingBottom: '16px' }}>
+              {/* Sol: Hamburger Menü */}
+              <div className="flex-shrink-0 w-12">
                 <HamburgerMenu
                   restaurant={rest}
                   iconColor={iconColor}
                   hamburgerBgColor={hamburgerBgColor}
+                  supportedLanguages={supportedLanguages}
+                  currentLang={currentLang}
+                  slug={slug}
                 />
               </div>
-              <Link href={`/restorant/${slug}`} className="flex items-center justify-center flex-1 mx-2">
+              
+              {/* Orta: Logo */}
+              <Link href={`/restorant/${slug}${isEnglish ? '?lang=en' : ''}`} className="flex items-center justify-center flex-1">
                 {rest.logo_url ? (
-                  <div className="relative" style={{ width: '280px', height: '100px' }}>
+                  <div className="relative" style={{ width: '200px', height: '80px' }}>
                     <Image
                       src={rest.logo_url}
                       alt={rest.name}
                       fill
                       className="object-contain"
                       priority
-                      sizes="280px"
+                      sizes="200px"
                     />
                   </div>
                 ) : (
                   <h1
-                    className="text-2xl font-bold tracking-tight uppercase text-center"
+                    className="text-xl font-bold tracking-tight uppercase text-center"
                     style={{ color: primaryColor }}
                   >
                     {rest.name}
                   </h1>
                 )}
               </Link>
-              <div className="flex-shrink-0">
+              
+              {/* Sağ: Arama İkonu */}
+              <div className="flex-shrink-0 w-12 flex justify-end">
                 <button
                   id="search-button"
                   className="flex items-center justify-center p-2 rounded-full transition-colors hover:opacity-80"
                   style={{ color: iconColor }}
-                  aria-label="Ara"
+                  aria-label={t.search}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
                 </button>
@@ -125,10 +166,10 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                   className="text-sm font-semibold tracking-wider uppercase mb-1"
                   style={{ color: primaryColor }}
                 >
-                  Hoşgeldiniz
+                  {t.welcome}
                 </p>
                 <h2 className="text-white text-2xl font-bold leading-tight">
-                  {rest.slogan}
+                  {isEnglish && rest.slogan_en ? rest.slogan_en : rest.slogan}
                 </h2>
               </div>
             )}
@@ -145,10 +186,10 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                   className="text-xl font-bold mb-2"
                   style={{ color: textColor }}
                 >
-                  Menü Hazırlanıyor
+                  {t.menuPreparing}
                 </h3>
                 <p style={{ color: textColor, opacity: 0.7 }}>
-                  Yakında lezzetli menümüzle karşınızda olacağız
+                  {t.menuPreparingDesc}
                 </p>
               </div>
             </div>
@@ -166,7 +207,7 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                   className="text-lg font-bold"
                   style={{ color: textColor }}
                 >
-                  Kategoriler
+                  {t.categories}
                 </h2>
                 <div
                   className="h-px flex-1 ml-4"
@@ -178,7 +219,7 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                 {categories.map((category: any) => (
                   <Link
                     key={category.id}
-                    href={`/restorant/${slug}/category/${category.id}`}
+                    href={`/restorant/${slug}/category/${category.id}${isEnglish ? '?lang=en' : ''}`}
                     className={`relative ${layoutStyle === 'grid' ? 'aspect-[4/3]' : 'aspect-[16/9]'} rounded-lg overflow-hidden cursor-pointer group shadow-sm`}
                     style={{ backgroundColor: surfaceColor }}
                   >
@@ -191,10 +232,10 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
                     <div className="absolute bottom-0 left-0 p-3 w-full">
                       <h3 className="text-white font-bold text-lg leading-tight transition-colors uppercase group-hover:opacity-90">
-                        {category.name}
+                        {isEnglish && category.name_en ? category.name_en : category.name}
                       </h3>
                       <p className="text-gray-300 text-xs mt-1 font-medium">
-                        {category.products.length} Çeşit
+                        {category.products.length} {t.items}
                       </p>
                     </div>
                   </Link>
@@ -215,7 +256,7 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                       className="text-lg font-bold"
                       style={{ color: textColor }}
                     >
-                      Günün Menüsü
+                      {t.dailyMenu}
                     </h2>
                     <div
                       className="h-px flex-1 ml-4"
@@ -227,7 +268,11 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                     {dailySpecials.map((product: any) => (
                       <ProductCard
                         key={product.id}
-                        product={product}
+                        product={{
+                          ...product,
+                          name: isEnglish && product.name_en ? product.name_en : product.name,
+                          description: isEnglish && product.description_en ? product.description_en : product.description
+                        }}
                         primaryColor={primaryColor}
                         priceColor={priceColor}
                         backgroundColor={backgroundColor}
@@ -255,7 +300,7 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                       className="text-lg font-bold"
                       style={{ color: textColor }}
                     >
-                      Öne Çıkanlar
+                      {t.featured}
                     </h2>
                     <div
                       className="h-px flex-1 ml-4"
@@ -267,7 +312,11 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
                     {featuredProducts.map((product: any) => (
                       <ProductCard
                         key={product.id}
-                        product={product}
+                        product={{
+                          ...product,
+                          name: isEnglish && product.name_en ? product.name_en : product.name,
+                          description: isEnglish && product.description_en ? product.description_en : product.description
+                        }}
                         primaryColor={primaryColor}
                         priceColor={priceColor}
                         backgroundColor={backgroundColor}
@@ -285,7 +334,11 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
         </div>
 
         <PublicMenuClient
-          allProducts={allProducts || []}
+          allProducts={(allProducts || []).map((product: any) => ({
+            ...product,
+            name: isEnglish && product.name_en ? product.name_en : product.name,
+            description: isEnglish && product.description_en ? product.description_en : product.description
+          }))}
           primaryColor={primaryColor}
           priceColor={priceColor}
           iconColor={iconColor}
@@ -302,6 +355,7 @@ export default async function PublicMenuPage({ params }: { params: { slug: strin
           surfaceColor={surfaceColor}
           textColor={textColor}
           iconColor={iconColor}
+          currentLang={currentLang}
         />
     </div>
   )

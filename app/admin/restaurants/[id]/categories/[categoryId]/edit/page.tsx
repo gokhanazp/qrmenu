@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
-import { getCategoryById, updateCategoryByAdmin, deleteCategoryByAdmin } from '@/app/actions/admin'
+import { getCategoryById, updateCategoryByAdmin, deleteCategoryByAdmin, getRestaurantById } from '@/app/actions/admin'
 
 export default function EditCategoryPage() {
   const params = useParams()
@@ -19,31 +19,42 @@ export default function EditCategoryPage() {
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
   
   const [formData, setFormData] = useState({
     name: '',
+    name_en: '',
     image_url: '',
     sort_order: 0,
     is_active: true
   })
 
   useEffect(() => {
-    const loadCategory = async () => {
-      const result = await getCategoryById(categoryId)
-      if (result.success && result.data) {
+    const loadData = async () => {
+      // Load restaurant to get supported languages
+      const restResult = await getRestaurantById(restaurantId) as any
+      if (restResult.restaurant) {
+        setSupportedLanguages(restResult.restaurant.supported_languages || ['tr'])
+      }
+      
+      // Load category
+      const catResult = await getCategoryById(categoryId)
+      if (catResult.success && catResult.data) {
+        const data = catResult.data as any
         setFormData({
-          name: result.data.name || '',
-          image_url: result.data.image_url || '',
-          sort_order: result.data.sort_order || 0,
-          is_active: result.data.is_active ?? true
+          name: data.name || '',
+          name_en: data.name_en || '',
+          image_url: data.image_url || '',
+          sort_order: data.sort_order || 0,
+          is_active: data.is_active ?? true
         })
       } else {
         setError('Kategori bulunamadı')
       }
       setInitialLoading(false)
     }
-    loadCategory()
-  }, [categoryId])
+    loadData()
+  }, [restaurantId, categoryId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +65,13 @@ export default function EditCategoryPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await updateCategoryByAdmin(categoryId, formData)
+      const result = await updateCategoryByAdmin(categoryId, {
+        name: formData.name,
+        name_en: formData.name_en || undefined,
+        image_url: formData.image_url || undefined,
+        sort_order: formData.sort_order,
+        is_active: formData.is_active
+      })
       if (result.success) {
         router.push(`/admin/restaurants/${restaurantId}/categories`)
       } else {
@@ -83,6 +100,8 @@ export default function EditCategoryPage() {
       setIsDeleting(false)
     }
   }
+
+  const supportsEnglish = supportedLanguages.includes('en')
 
   if (initialLoading) {
     return (
@@ -141,7 +160,7 @@ export default function EditCategoryPage() {
 
             <div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
               <div>
-                <Label htmlFor="name">Kategori Adı *</Label>
+                <Label htmlFor="name">Kategori Adı (Türkçe) *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -150,6 +169,20 @@ export default function EditCategoryPage() {
                   required
                 />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="name_en">Kategori Adı (İngilizce)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
+                    placeholder="E.g: Main Courses"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">İngilizce menü için kategori adı</p>
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="sort_order">Sıra Numarası</Label>
                 <Input

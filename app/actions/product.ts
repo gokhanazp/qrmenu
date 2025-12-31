@@ -47,7 +47,9 @@ export async function createProduct(data: {
   restaurant_id: string
   category_id: string | null
   name: string
+  name_en?: string | null
   description: string | null
+  description_en?: string | null
   price: number
   image_url: string | null
   sort_order: number
@@ -59,7 +61,20 @@ export async function createProduct(data: {
 
   const { data: product, error } = await supabase
     .from('products')
-    .insert(data as never)
+    .insert({
+      restaurant_id: data.restaurant_id,
+      category_id: data.category_id,
+      name: data.name,
+      name_en: data.name_en || null,
+      description: data.description,
+      description_en: data.description_en || null,
+      price: data.price,
+      image_url: data.image_url,
+      sort_order: data.sort_order,
+      is_active: data.is_active,
+      is_featured: data.is_featured,
+      is_daily_special: data.is_daily_special || false
+    } as never)
     .select()
     .single()
 
@@ -74,7 +89,9 @@ export async function createProduct(data: {
 
 export async function updateProduct(id: string, data: {
   name?: string
+  name_en?: string | null
   description?: string | null
+  description_en?: string | null
   price?: number
   category_id?: string | null
   image_url?: string | null

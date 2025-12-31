@@ -98,9 +98,9 @@ export default async function AdminRestaurantDetailPage({
           {/* Restaurant Info */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">
-              Restoran Bilgileri
+              Temel Bilgiler
             </h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-slate-600">Restoran Adı</p>
                 <p className="text-base font-medium text-slate-900">{rest.name}</p>
@@ -137,8 +137,151 @@ export default async function AdminRestaurantDetailPage({
                   currentStatus={rest.is_active}
                 />
               </div>
+              <div>
+                <p className="text-sm text-slate-600">Desteklenen Diller</p>
+                <div className="flex gap-2 mt-1">
+                  {(rest.supported_languages || ['tr']).map((lang: string) => (
+                    <span key={lang} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {lang === 'tr' ? '🇹🇷 Türkçe' : lang === 'en' ? '🇬🇧 English' : lang}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Menü Düzeni</p>
+                <p className="text-base font-medium text-slate-900">
+                  {rest.layout_style === 'grid' ? '2\'li Grid' : 'Tekli Liste'}
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Logo & Hero Images */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Logo</h2>
+              {rest.logo_url ? (
+                <img src={rest.logo_url} alt="Logo" className="max-h-32 object-contain rounded-lg border" />
+              ) : (
+                <div className="h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                  <span className="material-symbols-outlined text-4xl">image</span>
+                </div>
+              )}
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Hero Banner</h2>
+              {rest.hero_url ? (
+                <img src={rest.hero_url} alt="Hero" className="max-h-32 w-full object-cover rounded-lg border" />
+              ) : (
+                <div className="h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                  <span className="material-symbols-outlined text-4xl">panorama</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact & Social Media */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">İletişim Bilgileri</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400">phone</span>
+                  <span className="text-slate-900">{rest.phone || '-'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400">email</span>
+                  <span className="text-slate-900">{rest.email || '-'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400">location_on</span>
+                  <span className="text-slate-900">{rest.address || '-'}</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Sosyal Medya</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-green-500 font-bold">WhatsApp</span>
+                  <span className="text-slate-900">{rest.whatsapp || '-'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-pink-500 font-bold">Instagram</span>
+                  {rest.instagram ? (
+                    <a href={rest.instagram} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">{rest.instagram}</a>
+                  ) : <span className="text-slate-900">-</span>}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-blue-600 font-bold">Facebook</span>
+                  {rest.facebook ? (
+                    <a href={rest.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">{rest.facebook}</a>
+                  ) : <span className="text-slate-900">-</span>}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-slate-800 font-bold">Twitter/X</span>
+                  {rest.twitter ? (
+                    <a href={rest.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">{rest.twitter}</a>
+                  ) : <span className="text-slate-900">-</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Theme Colors */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Tema Renkleri</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.background_color || '#ffffff' }}></div>
+                <p className="text-xs text-slate-600">Arka Plan</p>
+                <p className="text-xs font-mono text-slate-500">{rest.background_color || '#ffffff'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.surface_color || '#f9fafb' }}></div>
+                <p className="text-xs text-slate-600">Kart</p>
+                <p className="text-xs font-mono text-slate-500">{rest.surface_color || '#f9fafb'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.text_color || '#111827' }}></div>
+                <p className="text-xs text-slate-600">Yazı</p>
+                <p className="text-xs font-mono text-slate-500">{rest.text_color || '#111827'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.primary_color || '#FF6B35' }}></div>
+                <p className="text-xs text-slate-600">Vurgu</p>
+                <p className="text-xs font-mono text-slate-500">{rest.primary_color || '#FF6B35'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.price_color || '#ef4444' }}></div>
+                <p className="text-xs text-slate-600">Fiyat</p>
+                <p className="text-xs font-mono text-slate-500">{rest.price_color || '#ef4444'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.icon_color || '#111827' }}></div>
+                <p className="text-xs text-slate-600">İkon</p>
+                <p className="text-xs font-mono text-slate-500">{rest.icon_color || '#111827'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.hamburger_bg_color || '#ffffff' }}></div>
+                <p className="text-xs text-slate-600">Hamburger</p>
+                <p className="text-xs font-mono text-slate-500">{rest.hamburger_bg_color || '#ffffff'}</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-lg border mx-auto mb-2" style={{ backgroundColor: rest.qr_logo_bg_color || '#FFFFFF' }}></div>
+                <p className="text-xs text-slate-600">QR Logo</p>
+                <p className="text-xs font-mono text-slate-500">{rest.qr_logo_bg_color || '#FFFFFF'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* About Us */}
+          {rest.about_us && (
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Hakkımızda</h2>
+              <p className="text-slate-700 whitespace-pre-wrap">{rest.about_us}</p>
+            </div>
+          )}
 
           {/* Stats Grid */}
           <div className="grid md:grid-cols-4 gap-4">

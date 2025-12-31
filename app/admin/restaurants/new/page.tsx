@@ -25,7 +25,8 @@ export default function NewRestaurantPage() {
     background_color: '#ffffff', surface_color: '#f9fafb', text_color: '#111827',
     primary_color: '#FF6B35', price_color: '#ef4444', icon_color: '#111827',
     hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
-    plan: 'free' as 'free' | 'pro'
+    plan: 'free' as 'free' | 'pro',
+    supported_languages: ['tr'] as string[]
   })
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +122,54 @@ export default function NewRestaurantPage() {
                   <div><Label htmlFor="slug">URL Slug *</Label><div className="flex items-center gap-2"><span className="text-slate-500 text-sm">/restorant/</span><Input id="slug" value={formData.slug} onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))} placeholder="lezzet-duragi" required /></div><p className="text-xs text-slate-500 mt-1">Menü URL&apos;inde kullanılacak benzersiz tanımlayıcı</p></div>
                 </div>
                 <div><Label htmlFor="slogan">Slogan</Label><Input id="slogan" value={formData.slogan} onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))} placeholder="Örn: Lezzetin Adresi" /></div>
+              </div>
+            </div>
+
+            {/* Dil Ayarları */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">translate</span>
+                  <div><h2 className="text-lg font-bold">Dil Ayarları</h2><p className="text-sm text-teal-100">Desteklenen diller</p></div>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-sm text-slate-600 mb-4">Restoranın menüsünde hangi dillerin destekleneceğini seçin. İngilizce seçilirse, ürün ve kategori eklerken İngilizce alanları da doldurmanız gerekecektir.</p>
+                <div className="flex flex-wrap gap-3">
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all bg-orange-50 border-orange-500">
+                    <input type="checkbox" checked={true} disabled className="w-4 h-4 rounded border-gray-300" />
+                    <span className="text-2xl">🇹🇷</span>
+                    <span className="font-medium text-slate-900">Türkçe</span>
+                    <span className="text-xs text-slate-500">(Varsayılan)</span>
+                  </label>
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${formData.supported_languages.includes('en') ? 'bg-blue-50 border-blue-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input
+                      type="checkbox"
+                      checked={formData.supported_languages.includes('en')}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData(prev => ({ ...prev, supported_languages: [...prev.supported_languages, 'en'] }))
+                        } else {
+                          setFormData(prev => ({ ...prev, supported_languages: prev.supported_languages.filter(l => l !== 'en') }))
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-gray-300"
+                    />
+                    <span className="text-2xl">🇬🇧</span>
+                    <span className="font-medium text-slate-900">English</span>
+                  </label>
+                </div>
+                {formData.supported_languages.includes('en') && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <span className="material-symbols-outlined text-blue-600">info</span>
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">İngilizce Desteği Aktif</p>
+                        <p className="text-sm text-blue-700 mt-1">Ürün ve kategori ekleme/düzenleme ekranlarında İngilizce alanları göreceksiniz. Bu alanları doldurarak menünüzü İngilizce olarak da sunabilirsiniz.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

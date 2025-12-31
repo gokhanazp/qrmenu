@@ -3,6 +3,7 @@
 import { deleteCategory } from '@/app/actions/category'
 import { deleteProduct } from '@/app/actions/product'
 import { useState } from 'react'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 interface DeleteButtonProps {
   categoryId?: string
@@ -10,11 +11,15 @@ interface DeleteButtonProps {
 }
 
 export function DeleteButton({ categoryId, productId }: DeleteButtonProps) {
+  const { t } = useLocale()
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
-    const itemType = categoryId ? 'kategori' : 'ürün'
-    if (!confirm(`Bu ${itemType}yi silmek istediğinizden emin misiniz?`)) {
+    const confirmMessage = categoryId
+      ? t.panel.categories.deleteConfirm
+      : t.panel.products.deleteConfirm
+    
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -25,7 +30,7 @@ export function DeleteButton({ categoryId, productId }: DeleteButtonProps) {
       : await deleteProduct(productId!)
     
     if (result.error) {
-      alert('Hata: ' + result.error)
+      alert(t.common.error + ': ' + result.error)
       setIsDeleting(false)
     }
   }
@@ -36,7 +41,7 @@ export function DeleteButton({ categoryId, productId }: DeleteButtonProps) {
       disabled={isDeleting}
       className="text-red-600 hover:text-red-900 disabled:opacity-50"
     >
-      {isDeleting ? 'Siliniyor...' : 'Sil'}
+      {isDeleting ? t.common.loading : t.common.delete}
     </button>
   )
 }

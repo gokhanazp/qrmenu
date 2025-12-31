@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ImageUpload } from '@/components/image-upload'
-import { createProductByAdmin, getCategoriesByRestaurant } from '@/app/actions/admin'
+import { createProductByAdmin, getCategoriesByRestaurant, getRestaurantById } from '@/app/actions/admin'
 
 interface Category {
   id: string
@@ -23,12 +23,15 @@ export default function NewProductPage() {
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
-  const [loadingCategories, setLoadingCategories] = useState(true)
+  const [loadingData, setLoadingData] = useState(true)
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
   
   const [formData, setFormData] = useState({
     category_id: '',
     name: '',
+    name_en: '',
     description: '',
+    description_en: '',
     price: 0,
     image_url: '',
     is_available: true,
@@ -38,18 +41,25 @@ export default function NewProductPage() {
   })
 
   useEffect(() => {
-    const loadCategories = async () => {
-      const result = await getCategoriesByRestaurant(restaurantId)
-      if (result.success && result.data) {
-        const cats = result.data as Category[]
+    const loadData = async () => {
+      // Load restaurant to get supported languages
+      const restResult = await getRestaurantById(restaurantId) as any
+      if (restResult.restaurant) {
+        setSupportedLanguages(restResult.restaurant.supported_languages || ['tr'])
+      }
+      
+      // Load categories
+      const catResult = await getCategoriesByRestaurant(restaurantId)
+      if (catResult.success && catResult.data) {
+        const cats = catResult.data as Category[]
         setCategories(cats)
         if (cats.length > 0) {
           setFormData(prev => ({ ...prev, category_id: cats[0].id }))
         }
       }
-      setLoadingCategories(false)
+      setLoadingData(false)
     }
-    loadCategories()
+    loadData()
   }, [restaurantId])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,9 +79,11 @@ export default function NewProductPage() {
         restaurantId,
         category_id: formData.category_id,
         name: formData.name,
-        description: formData.description,
+        name_en: formData.name_en || undefined,
+        description: formData.description || undefined,
+        description_en: formData.description_en || undefined,
         price: formData.price,
-        image_url: formData.image_url,
+        image_url: formData.image_url || undefined,
         is_available: formData.is_available,
         is_featured: formData.is_featured,
         is_daily_special: formData.is_daily_special,
@@ -89,7 +101,9 @@ export default function NewProductPage() {
     }
   }
 
-  if (loadingCategories) {
+  const supportsEnglish = supportedLanguages.includes('en')
+
+  if (loadingData) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -153,7 +167,7 @@ export default function NewProductPage() {
                 </select>
               </div>
               <div>
-                <Label htmlFor="name">Ürün Adı *</Label>
+                <Label htmlFor="name">Ürün Adı (Türkçe) *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -162,8 +176,21 @@ export default function NewProductPage() {
                   required
                 />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="name_en">Ürün Adı (İngilizce)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
+                    placeholder="E.g: Adana Kebab"
+                  />
+                </div>
+              )}
+              
               <div>
-                <Label htmlFor="description">Açıklama</Label>
+                <Label htmlFor="description">Açıklama (Türkçe)</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -172,6 +199,20 @@ export default function NewProductPage() {
                   rows={3}
                 />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="description_en">Açıklama (İngilizce)</Label>
+                  <Textarea
+                    id="description_en"
+                    value={formData.description_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description_en: e.target.value }))}
+                    placeholder="Product description..."
+                    rows={3}
+                  />
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="price">Fiyat (₺) *</Label>
                 <Input

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
-import { createCategoryByAdmin } from '@/app/actions/admin'
+import { createCategoryByAdmin, getRestaurantById } from '@/app/actions/admin'
 
 export default function NewCategoryPage() {
   const params = useParams()
@@ -16,13 +16,27 @@ export default function NewCategoryPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>(['tr'])
+  const [loadingData, setLoadingData] = useState(true)
   
   const [formData, setFormData] = useState({
     name: '',
+    name_en: '',
     image_url: '',
     sort_order: 0,
     is_active: true
   })
+
+  useEffect(() => {
+    const loadData = async () => {
+      const restResult = await getRestaurantById(restaurantId) as any
+      if (restResult.restaurant) {
+        setSupportedLanguages(restResult.restaurant.supported_languages || ['tr'])
+      }
+      setLoadingData(false)
+    }
+    loadData()
+  }, [restaurantId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +47,14 @@ export default function NewCategoryPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await createCategoryByAdmin({ restaurantId, ...formData })
+      const result = await createCategoryByAdmin({
+        restaurantId,
+        name: formData.name,
+        name_en: formData.name_en || undefined,
+        image_url: formData.image_url || undefined,
+        sort_order: formData.sort_order,
+        is_active: formData.is_active
+      })
       if (result.success) {
         router.push(`/admin/restaurants/${restaurantId}/categories`)
       } else {
@@ -46,6 +67,19 @@ export default function NewCategoryPage() {
     }
   }
 
+  const supportsEnglish = supportedLanguages.includes('en')
+
+  if (loadingData) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <span className="material-symbols-outlined text-4xl text-orange-500 animate-spin">sync</span>
+          <p className="mt-2 text-slate-600">Yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-8">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
@@ -53,7 +87,8 @@ export default function NewCategoryPage() {
           <div className="flex items-center gap-4">
             <Link href={`/admin/restaurants/${restaurantId}/categories`}>
               <Button variant="outline" size="sm">
-                <span className="material-symbols-outlined mr-2">arrow_back</span>Geri
+                <span className="material-symbols-outlined mr-2">arrow_back</span>
+                Geri
               </Button>
             </Link>
             <div>
@@ -76,15 +111,45 @@ export default function NewCategoryPage() {
 
             <div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
               <div>
-                <Label htmlFor="name">Kategori Adı *</Label>
-                <Input id="name" value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} placeholder="Örn: Ana Yemekler" required />
+                <Label htmlFor="name">Kategori Adı (Türkçe) *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Örn: Ana Yemekler"
+                  required
+                />
               </div>
+              
+              {supportsEnglish && (
+                <div>
+                  <Label htmlFor="name_en">Kategori Adı (İngilizce)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
+                    placeholder="E.g: Main Courses"
+                  />
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="sort_order">Sıra Numarası</Label>
-                <Input id="sort_order" type="number" value={formData.sort_order} onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))} />
+                <Input
+                  id="sort_order"
+                  type="number"
+                  value={formData.sort_order}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                />
               </div>
               <div className="flex items-center space-x-2">
-                <input type="checkbox" id="is_active" checked={formData.is_active} onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))} className="w-4 h-4 rounded border-gray-300" />
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
                 <Label htmlFor="is_active" className="cursor-pointer">Aktif</Label>
               </div>
             </div>
@@ -92,7 +157,17 @@ export default function NewCategoryPage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <Label>Kategori Görseli</Label>
               <div className="mt-2">
-                <ImageUpload id="category-image" currentImageUrl={formData.image_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, image_url: url })); setIsUploading(false) }} bucket="category-images" path="categories" onUploadStart={() => setIsUploading(true)} />
+                <ImageUpload
+                  id="category-image"
+                  currentImageUrl={formData.image_url}
+                  onUploadComplete={(url: string) => {
+                    setFormData(prev => ({ ...prev, image_url: url }))
+                    setIsUploading(false)
+                  }}
+                  bucket="category-images"
+                  path="categories"
+                  onUploadStart={() => setIsUploading(true)}
+                />
               </div>
             </div>
 
@@ -100,8 +175,22 @@ export default function NewCategoryPage() {
               <Link href={`/admin/restaurants/${restaurantId}/categories`}>
                 <Button type="button" variant="outline">İptal</Button>
               </Link>
-              <Button type="submit" disabled={isLoading || isUploading} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
-                {isLoading ? (<><span className="material-symbols-outlined animate-spin mr-2">sync</span>Oluşturuluyor...</>) : (<><span className="material-symbols-outlined mr-2">add</span>Kategori Ekle</>)}
+              <Button
+                type="submit"
+                disabled={isLoading || isUploading}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin mr-2">sync</span>
+                    Oluşturuluyor...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined mr-2">add</span>
+                    Kategori Ekle
+                  </>
+                )}
               </Button>
             </div>
           </form>

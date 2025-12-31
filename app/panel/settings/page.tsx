@@ -11,9 +11,11 @@ import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
 import { generateSlug } from '@/lib/utils/slug'
 import Link from 'next/link'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 export default function SettingsPage() {
   const router = useRouter()
+  const { t } = useLocale()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -88,7 +90,7 @@ export default function SettingsPage() {
         })
       }
     } catch (err) {
-      setError('Restoran bilgileri yüklenirken hata oluştu')
+      setError(t.panel.settings.loadError)
     } finally {
       setLoading(false)
     }
@@ -98,7 +100,7 @@ export default function SettingsPage() {
     e.preventDefault()
     
     if (isUploadingLogo || isUploadingHero) {
-      setError('Lütfen görsellerin yüklenmesini bekleyin')
+      setError(t.panel.settings.waitForUpload)
       return
     }
 
@@ -110,15 +112,15 @@ export default function SettingsPage() {
       const result = await updateRestaurant(formData)
 
       if (result.success) {
-        setSuccess('Ayarlar başarıyla güncellendi')
+        setSuccess(t.panel.settings.updateSuccess)
         setTimeout(() => {
           router.push('/panel')
         }, 1500)
       } else {
-        setError(result.error || 'Güncelleme başarısız')
+        setError(result.error || t.panel.settings.updateError)
       }
     } catch (err) {
-      setError('Bir hata oluştu')
+      setError(t.common.error)
     } finally {
       setSaving(false)
     }
@@ -137,7 +139,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Yükleniyor...</p>
+          <p className="text-gray-600">{t.common.loading}</p>
         </div>
       </div>
     )
@@ -152,8 +154,8 @@ export default function SettingsPage() {
               <span className="material-symbols-outlined">arrow_back</span>
             </Link>
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">Restoran Ayarları</h1>
-              <p className="text-sm text-gray-600">Bilgilerinizi düzenleyin</p>
+              <h1 className="text-xl font-bold text-gray-900">{t.panel.settings.title}</h1>
+              <p className="text-sm text-gray-600">{t.panel.settings.subtitle}</p>
             </div>
           </div>
         </div>
@@ -175,44 +177,46 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* Basic Info */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">info</span>
                 <div>
-                  <h2 className="text-lg font-bold">Temel Bilgiler</h2>
-                  <p className="text-sm text-blue-100">Restoran adı ve URL</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.basicInfo}</h2>
+                  <p className="text-sm text-blue-100">{t.panel.settings.basicInfoSubtitle}</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Restoran Adı *</Label>
-                <Input id="name" value={formData.name} onChange={(e) => handleNameChange(e.target.value)} placeholder="Örn: Lezzet Durağı" required />
+                <Label htmlFor="name">{t.panel.settings.name} *</Label>
+                <Input id="name" value={formData.name} onChange={(e) => handleNameChange(e.target.value)} placeholder={t.panel.settings.namePlaceholder} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">URL Slug *</Label>
+                <Label htmlFor="slug">{t.panel.settings.slug} *</Label>
                 <Input id="slug" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="lezzet-duragi" required />
-                <p className="text-sm text-gray-500">Menü URL'iniz: /restorant/{formData.slug || 'slug'}</p>
+                <p className="text-sm text-gray-500">{t.panel.settings.slugHelp}{formData.slug || 'slug'}</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slogan">Slogan</Label>
-                <Input id="slogan" value={formData.slogan} onChange={(e) => setFormData({ ...formData, slogan: e.target.value })} placeholder="Örn: Lezzetin Adresi" />
+                <Label htmlFor="slogan">{t.panel.settings.slogan}</Label>
+                <Input id="slogan" value={formData.slogan} onChange={(e) => setFormData({ ...formData, slogan: e.target.value })} placeholder={t.panel.settings.sloganPlaceholder} />
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="is_active" checked={formData.is_active} onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} className="w-4 h-4 rounded border-gray-300" />
-                <Label htmlFor="is_active" className="cursor-pointer">Restoran aktif (Menü yayında)</Label>
+                <Label htmlFor="is_active" className="cursor-pointer">{t.panel.settings.isActive}</Label>
               </div>
             </div>
           </div>
 
+          {/* Logo */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">image</span>
                 <div>
-                  <h2 className="text-lg font-bold">Logo</h2>
-                  <p className="text-sm text-purple-100">Menü başlığında görünecek</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.logo}</h2>
+                  <p className="text-sm text-purple-100">{t.panel.settings.logoSubtitle}</p>
                 </div>
               </div>
             </div>
@@ -221,13 +225,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Hero Banner */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">panorama</span>
                 <div>
-                  <h2 className="text-lg font-bold">Hero Banner</h2>
-                  <p className="text-sm text-green-100">Menü üst görseli</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.heroBanner}</h2>
+                  <p className="text-sm text-green-100">{t.panel.settings.heroBannerSubtitle}</p>
                 </div>
               </div>
             </div>
@@ -236,13 +241,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Menu Layout */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">view_module</span>
                 <div>
-                  <h2 className="text-lg font-bold">Menü Düzeni</h2>
-                  <p className="text-sm text-amber-100">Görünüm stili</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.menuLayout}</h2>
+                  <p className="text-sm text-amber-100">{t.panel.settings.menuLayoutSubtitle}</p>
                 </div>
               </div>
             </div>
@@ -250,171 +256,176 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setFormData({ ...formData, layout_style: 'grid' })} className={`p-4 rounded-xl border-2 transition-all ${formData.layout_style === 'grid' ? 'border-orange-500 bg-orange-50 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}>
                   <span className="material-symbols-outlined text-4xl mb-2 text-orange-500">grid_view</span>
-                  <div className="font-semibold text-sm">2'li Grid</div>
-                  <div className="text-xs text-gray-600 mt-1">Yan yana</div>
+                  <div className="font-semibold text-sm">{t.panel.settings.gridLayout}</div>
+                  <div className="text-xs text-gray-600 mt-1">{t.panel.settings.gridLayoutDesc}</div>
                 </button>
                 <button type="button" onClick={() => setFormData({ ...formData, layout_style: 'list' })} className={`p-4 rounded-xl border-2 transition-all ${formData.layout_style === 'list' ? 'border-orange-500 bg-orange-50 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}>
                   <span className="material-symbols-outlined text-4xl mb-2 text-orange-500">view_list</span>
-                  <div className="font-semibold text-sm">Tekli Liste</div>
-                  <div className="text-xs text-gray-600 mt-1">Alt alta</div>
+                  <div className="font-semibold text-sm">{t.panel.settings.listLayout}</div>
+                  <div className="text-xs text-gray-600 mt-1">{t.panel.settings.listLayoutDesc}</div>
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Color Customization */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">palette</span>
                 <div>
-                  <h2 className="text-lg font-bold">Renk Özelleştirmesi</h2>
-                  <p className="text-sm text-pink-100">Tema renkleri</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.colorCustomization}</h2>
+                  <p className="text-sm text-pink-100">{t.panel.settings.colorCustomizationSubtitle}</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="background_color">Arka Plan Rengi</Label>
+                  <Label htmlFor="background_color">{t.panel.settings.backgroundColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="background_color" value={formData.background_color} onChange={(e) => setFormData({ ...formData, background_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.background_color} onChange={(e) => setFormData({ ...formData, background_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="surface_color">Kart Arka Plan Rengi</Label>
+                  <Label htmlFor="surface_color">{t.panel.settings.surfaceColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="surface_color" value={formData.surface_color} onChange={(e) => setFormData({ ...formData, surface_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.surface_color} onChange={(e) => setFormData({ ...formData, surface_color: e.target.value })} placeholder="#f9fafb" className="flex-1" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="text_color">Yazı Rengi</Label>
+                  <Label htmlFor="text_color">{t.panel.settings.textColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="text_color" value={formData.text_color} onChange={(e) => setFormData({ ...formData, text_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.text_color} onChange={(e) => setFormData({ ...formData, text_color: e.target.value })} placeholder="#111827" className="flex-1" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="primary_color">Vurgu Rengi</Label>
+                  <Label htmlFor="primary_color">{t.panel.settings.primaryColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="primary_color" value={formData.primary_color} onChange={(e) => setFormData({ ...formData, primary_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.primary_color} onChange={(e) => setFormData({ ...formData, primary_color: e.target.value })} placeholder="#FF6B35" className="flex-1" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price_color">Fiyat Rengi</Label>
+                  <Label htmlFor="price_color">{t.panel.settings.priceColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="price_color" value={formData.price_color} onChange={(e) => setFormData({ ...formData, price_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.price_color} onChange={(e) => setFormData({ ...formData, price_color: e.target.value })} placeholder="#ef4444" className="flex-1" />
                   </div>
-                  <p className="text-xs text-gray-500">Ürün fiyatlarının rengi</p>
+                  <p className="text-xs text-gray-500">{t.panel.settings.priceColorHelp}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="icon_color">İkon Rengi</Label>
+                  <Label htmlFor="icon_color">{t.panel.settings.iconColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="icon_color" value={formData.icon_color} onChange={(e) => setFormData({ ...formData, icon_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.icon_color} onChange={(e) => setFormData({ ...formData, icon_color: e.target.value })} placeholder="#111827" className="flex-1" />
                   </div>
-                  <p className="text-xs text-gray-500">Hamburger menü, arama ve diğer ikonların rengi</p>
+                  <p className="text-xs text-gray-500">{t.panel.settings.iconColorHelp}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="hamburger_bg_color">Hamburger Menü Arka Plan</Label>
+                  <Label htmlFor="hamburger_bg_color">{t.panel.settings.hamburgerBgColor}</Label>
                   <div className="flex gap-2">
                     <input type="color" id="hamburger_bg_color" value={formData.hamburger_bg_color} onChange={(e) => setFormData({ ...formData, hamburger_bg_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
                     <Input value={formData.hamburger_bg_color} onChange={(e) => setFormData({ ...formData, hamburger_bg_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
                   </div>
-                  <p className="text-xs text-gray-500">Hamburger menü butonunun arka plan rengi</p>
+                  <p className="text-xs text-gray-500">{t.panel.settings.hamburgerBgColorHelp}</p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* About Us */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">description</span>
                 <div>
-                  <h2 className="text-lg font-bold">Hakkımızda</h2>
-                  <p className="text-sm text-cyan-100">Restoran bilgisi</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.aboutUs}</h2>
+                  <p className="text-sm text-cyan-100">{t.panel.settings.aboutUsSubtitle}</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <div className="space-y-2">
-                <Label htmlFor="about_us">Hakkımızda Metni</Label>
-                <textarea id="about_us" value={formData.about_us} onChange={(e) => setFormData({ ...formData, about_us: e.target.value })} placeholder="Restoranınız hakkında bilgi yazın..." rows={4} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                <Label htmlFor="about_us">{t.panel.settings.aboutUsText}</Label>
+                <textarea id="about_us" value={formData.about_us} onChange={(e) => setFormData({ ...formData, about_us: e.target.value })} placeholder={t.panel.settings.aboutUsPlaceholder} rows={4} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
               </div>
             </div>
           </div>
 
+          {/* Contact Info */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">contact_phone</span>
                 <div>
-                  <h2 className="text-lg font-bold">İletişim Bilgileri</h2>
-                  <p className="text-sm text-indigo-100">Telefon, e-posta, adres</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.contactInfo}</h2>
+                  <p className="text-sm text-indigo-100">{t.panel.settings.contactInfoSubtitle}</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefon</Label>
-                  <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+90 555 123 45 67" />
+                  <Label htmlFor="phone">{t.panel.settings.phone}</Label>
+                  <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder={t.panel.settings.phonePlaceholder} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-posta</Label>
-                  <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="info@restoran.com" />
+                  <Label htmlFor="email">{t.panel.settings.email}</Label>
+                  <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder={t.panel.settings.emailPlaceholder} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Adres</Label>
-                <textarea id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Tam adresinizi yazın..." rows={2} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                <Label htmlFor="address">{t.panel.settings.address}</Label>
+                <textarea id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder={t.panel.settings.addressPlaceholder} rows={2} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
               </div>
             </div>
           </div>
 
+          {/* Social Media */}
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-4">
               <div className="flex items-center gap-3 text-white">
                 <span className="material-symbols-outlined text-3xl">share</span>
                 <div>
-                  <h2 className="text-lg font-bold">Sosyal Medya</h2>
-                  <p className="text-sm text-rose-100">Sosyal medya linkleri</p>
+                  <h2 className="text-lg font-bold">{t.panel.settings.socialMedia}</h2>
+                  <p className="text-sm text-rose-100">{t.panel.settings.socialMediaSubtitle}</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp</Label>
-                <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder="+90 555 123 45 67" />
-                <p className="text-xs text-gray-500">Ülke kodu ile birlikte girin (örn: +90 555 123 45 67)</p>
+                <Label htmlFor="whatsapp">{t.panel.settings.whatsapp}</Label>
+                <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder={t.panel.settings.phonePlaceholder} />
+                <p className="text-xs text-gray-500">{t.panel.settings.whatsappHelp}</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input id="instagram" value={formData.instagram} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder="https://instagram.com/restoraniniz" />
+                <Label htmlFor="instagram">{t.panel.settings.instagram}</Label>
+                <Input id="instagram" value={formData.instagram} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} placeholder={t.panel.settings.instagramPlaceholder} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="facebook">Facebook</Label>
-                <Input id="facebook" value={formData.facebook} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} placeholder="https://facebook.com/restoraniniz" />
+                <Label htmlFor="facebook">{t.panel.settings.facebook}</Label>
+                <Input id="facebook" value={formData.facebook} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} placeholder={t.panel.settings.facebookPlaceholder} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="twitter">Twitter / X</Label>
-                <Input id="twitter" value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder="https://twitter.com/restoraniniz" />
+                <Label htmlFor="twitter">{t.panel.settings.twitter}</Label>
+                <Input id="twitter" value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder={t.panel.settings.twitterPlaceholder} />
               </div>
             </div>
           </div>
 
+          {/* Submit Buttons */}
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-20">
             <div className="container max-w-4xl mx-auto flex gap-3">
               <Button type="button" variant="outline" onClick={() => router.push('/panel')} disabled={saving} className="flex-1">
                 <span className="material-symbols-outlined text-lg mr-2">close</span>
-                İptal
+                {t.common.cancel}
               </Button>
               <Button type="submit" disabled={saving || isUploadingLogo || isUploadingHero} className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
-                {saving ? (<><span className="material-symbols-outlined text-lg mr-2 animate-spin">progress_activity</span>Kaydediliyor...</>) : (<><span className="material-symbols-outlined text-lg mr-2">save</span>Kaydet</>)}
+                {saving ? (<><span className="material-symbols-outlined text-lg mr-2 animate-spin">progress_activity</span>{t.panel.settings.saving}</>) : (<><span className="material-symbols-outlined text-lg mr-2">save</span>{t.common.save}</>)}
               </Button>
             </div>
           </div>

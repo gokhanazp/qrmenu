@@ -52,7 +52,7 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>admin_panel_settings</span>
               <span className="text-sm font-medium">
-                Admin olarak görüntülüyorsunuz: <strong>{impersonation.restaurant?.restaurantName}</strong>
+                {t.panel.impersonation.viewingAs} <strong>{impersonation.restaurant?.restaurantName}</strong>
               </span>
             </div>
             <button
@@ -60,7 +60,7 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-              Admin Paneline Dön
+              {t.panel.impersonation.backToAdmin}
             </button>
           </div>
         </div>

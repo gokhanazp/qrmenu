@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface BottomNavigationProps {
   restaurant: {
@@ -14,12 +15,24 @@ interface BottomNavigationProps {
     instagram?: string
     facebook?: string
     twitter?: string
+    supported_languages?: string[]
   }
   primaryColor: string
   backgroundColor: string
   surfaceColor: string
   textColor: string
   iconColor?: string
+  currentLang?: string
+}
+
+const languageFlags: Record<string, string> = {
+  tr: '🇹🇷',
+  en: '🇬🇧',
+}
+
+const languageNames: Record<string, string> = {
+  tr: 'TR',
+  en: 'EN',
 }
 
 export function BottomNavigation({
@@ -29,10 +42,37 @@ export function BottomNavigation({
   surfaceColor,
   textColor,
   iconColor,
+  currentLang = 'tr',
 }: BottomNavigationProps) {
   const [showAbout, setShowAbout] = useState(false)
+  const router = useRouter()
   const finalIconColor = iconColor || textColor
   const borderColor = textColor + '20'
+  const supportedLanguages = restaurant.supported_languages || ['tr']
+  const hasMultipleLanguages = supportedLanguages.length > 1
+  const isEnglish = currentLang === 'en'
+
+  // Çeviri metinleri
+  const t = {
+    menu: isEnglish ? 'Menu' : 'Menü',
+    about: isEnglish ? 'About Us' : 'Hakkımızda',
+    contact: isEnglish ? 'Contact' : 'İletişim',
+    socialMedia: isEnglish ? 'Social Media' : 'Sosyal Medya',
+    noAboutInfo: isEnglish ? 'No about information added' : 'Hakkımızda bilgisi eklenmemiş',
+  }
+
+  const handleLanguageToggle = () => {
+    // Diller arasında geçiş yap
+    const currentIndex = supportedLanguages.indexOf(currentLang)
+    const nextIndex = (currentIndex + 1) % supportedLanguages.length
+    const nextLang = supportedLanguages[nextIndex]
+    
+    if (nextLang === 'tr') {
+      router.push(`/restorant/${restaurant.slug}`)
+    } else {
+      router.push(`/restorant/${restaurant.slug}?lang=${nextLang}`)
+    }
+  }
 
   return (
     <>
@@ -44,32 +84,61 @@ export function BottomNavigation({
           borderTop: `1px solid ${borderColor}`,
         }}
       >
-        <div className="flex items-center justify-around h-16 px-4">
+        <div className="flex items-center justify-around h-16 px-2">
           {/* Menu Button */}
           <button
             onClick={() => {
-              window.location.href = `/restorant/${restaurant.slug}`
+              const langParam = currentLang !== 'tr' ? `?lang=${currentLang}` : ''
+              window.location.href = `/restorant/${restaurant.slug}${langParam}`
             }}
-            className="flex flex-col items-center justify-center gap-1 px-6 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+            className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{ color: finalIconColor }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
               restaurant_menu
             </span>
-            <span className="text-xs font-medium">Menü</span>
+            <span className="text-xs font-medium">{t.menu}</span>
           </button>
 
           {/* About Button */}
           <button
             onClick={() => setShowAbout(true)}
-            className="flex flex-col items-center justify-center gap-1 px-6 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+            className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{ color: finalIconColor }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
               info
             </span>
-            <span className="text-xs font-medium">Hakkımızda</span>
+            <span className="text-xs font-medium">{t.about}</span>
           </button>
+
+          {/* Language Selector - Only show if multiple languages */}
+          {hasMultipleLanguages && (
+            <div className="flex items-center rounded-full p-1" style={{ backgroundColor: `${textColor}10` }}>
+              {supportedLanguages.map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => {
+                    if (lang === 'tr') {
+                      router.push(`/restorant/${restaurant.slug}`)
+                    } else {
+                      router.push(`/restorant/${restaurant.slug}?lang=${lang}`)
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
+                    currentLang === lang ? 'shadow-sm' : 'opacity-60 hover:opacity-100'
+                  }`}
+                  style={{
+                    backgroundColor: currentLang === lang ? surfaceColor : 'transparent',
+                    color: currentLang === lang ? primaryColor : finalIconColor,
+                  }}
+                >
+                  <span className="text-base">{languageFlags[lang]}</span>
+                  <span className="text-xs font-semibold">{languageNames[lang]}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
 
@@ -96,7 +165,7 @@ export function BottomNavigation({
               }}
             >
               <h2 className="text-xl font-bold" style={{ color: textColor }}>
-                Hakkımızda
+                {t.about}
               </h2>
               <button
                 onClick={() => setShowAbout(false)}
@@ -135,7 +204,7 @@ export function BottomNavigation({
                     className="text-sm text-center py-8"
                     style={{ color: textColor, opacity: 0.6 }}
                   >
-                    Hakkımızda bilgisi eklenmemiş
+                    {t.noAboutInfo}
                   </p>
                 </section>
               )}
@@ -150,7 +219,7 @@ export function BottomNavigation({
                     <span className="material-symbols-outlined" style={{ color: finalIconColor }}>
                       contact_phone
                     </span>
-                    İletişim
+                    {t.contact}
                   </h3>
                   <div className="space-y-3">
                     {restaurant.phone && (
@@ -222,7 +291,7 @@ export function BottomNavigation({
                     <span className="material-symbols-outlined" style={{ color: finalIconColor }}>
                       share
                     </span>
-                    Sosyal Medya
+                    {t.socialMedia}
                   </h3>
                   <div className="flex gap-2 justify-center flex-wrap">
                     {restaurant.whatsapp && (

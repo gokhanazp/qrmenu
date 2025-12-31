@@ -90,11 +90,19 @@ export default async function AdminRestaurantsPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <Link href="/admin">
-                <Button variant="ghost" size="sm">
-                  <span className="material-symbols-outlined mr-2">arrow_back</span>
-                  Geri
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Link href="/admin">
+                  <Button variant="ghost" size="sm">
+                    <span className="material-symbols-outlined mr-2">arrow_back</span>
+                    Geri
+                  </Button>
+                </Link>
+              </div>
+              <Link href="/admin/restaurants/new">
+                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+                  <span className="material-symbols-outlined mr-2">add</span>
+                  Yeni Restoran Ekle
                 </Button>
               </Link>
             </div>

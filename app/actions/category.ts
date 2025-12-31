@@ -23,6 +23,7 @@ export async function getCategories(restaurantId: string) {
 export async function createCategory(data: {
   restaurant_id: string
   name: string
+  name_en?: string | null
   sort_order: number
   image_url?: string
 }) {
@@ -33,6 +34,7 @@ export async function createCategory(data: {
     .insert({
       restaurant_id: data.restaurant_id,
       name: data.name,
+      name_en: data.name_en || null,
       sort_order: data.sort_order,
       image_url: data.image_url || null,
       is_active: true
@@ -49,6 +51,7 @@ export async function createCategory(data: {
 
 export async function updateCategory(id: string, data: {
   name: string
+  name_en?: string | null
   sort_order: number
   is_active: boolean
   image_url?: string
@@ -59,6 +62,7 @@ export async function updateCategory(id: string, data: {
     .from('categories')
     .update({
       name: data.name,
+      name_en: data.name_en || null,
       sort_order: data.sort_order,
       is_active: data.is_active,
       image_url: data.image_url

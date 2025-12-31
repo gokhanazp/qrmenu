@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 interface ImageUploadProps {
   bucket: string
@@ -13,7 +14,7 @@ interface ImageUploadProps {
   onUploadStart?: () => void
   label?: string
   id?: string
-  recommendedSize?: string // Önerilen boyut bilgisi
+  recommendedSize?: string
 }
 
 // UUID benzeri benzersiz ID oluştur
@@ -41,10 +42,11 @@ export function ImageUpload({
   currentImageUrl,
   onUploadComplete,
   onUploadStart,
-  label = 'Fotoğraf',
+  label,
   id,
   recommendedSize
 }: ImageUploadProps) {
+  const { t } = useLocale()
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null)
@@ -52,6 +54,9 @@ export function ImageUpload({
   const [urlInput, setUrlInput] = useState('')
   const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null)
   const uploadId = id || `image-upload-${Math.random().toString(36).substr(2, 9)}`
+  
+  // Use provided label or default from translations
+  const displayLabel = label || t.imageUpload.photo
 
   // Initialize Supabase client only on client-side
   useEffect(() => {
@@ -69,19 +74,19 @@ export function ImageUpload({
 
     // Check if supabase client is ready
     if (!supabase) {
-      alert('Yükleme servisi hazırlanıyor, lütfen tekrar deneyin')
+      alert(t.imageUpload.uploadServicePreparing)
       return
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Lütfen bir resim dosyası seçin')
+      alert(t.imageUpload.pleaseSelectImage)
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Dosya boyutu 5MB\'dan küçük olmalıdır')
+      alert(t.imageUpload.fileSizeLimit)
       return
     }
 
@@ -130,10 +135,10 @@ export function ImageUpload({
       onUploadComplete(publicUrl)
       
       // Show success message
-      alert('Fotoğraf başarıyla yüklendi! Şimdi "Güncelle" butonuna basın.')
+      alert(t.imageUpload.uploadSuccess)
     } catch (error: any) {
       console.error('Upload error:', error)
-      alert('Yükleme hatası: ' + (error.message || 'Bilinmeyen hata'))
+      alert(t.imageUpload.uploadError + ': ' + (error.message || t.imageUpload.unknownError))
       setPreview(currentImageUrl || null)
     } finally {
       setUploading(false)
@@ -141,13 +146,13 @@ export function ImageUpload({
   }
 
   async function handleRemove() {
-    if (!confirm('Fotoğrafı kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+    if (!confirm(t.imageUpload.deleteConfirm)) {
       return
     }
 
     // Check if supabase client is ready
     if (!supabase) {
-      alert('Silme servisi hazırlanıyor, lütfen tekrar deneyin')
+      alert(t.imageUpload.deleteServicePreparing)
       return
     }
 
@@ -168,10 +173,10 @@ export function ImageUpload({
 
       setPreview(null)
       onUploadComplete('')
-      alert('Fotoğraf başarıyla silindi!')
+      alert(t.imageUpload.deleteSuccess)
     } catch (error: any) {
       console.error('Delete error:', error)
-      alert('Silme hatası: ' + (error.message || 'Bilinmeyen hata'))
+      alert(t.imageUpload.deleteError + ': ' + (error.message || t.imageUpload.unknownError))
     } finally {
       setDeleting(false)
     }
@@ -179,7 +184,7 @@ export function ImageUpload({
 
   function handleUrlSubmit() {
     if (!urlInput.trim()) {
-      alert('Lütfen geçerli bir URL girin')
+      alert(t.imageUpload.pleaseEnterValidUrl)
       return
     }
 
@@ -187,7 +192,7 @@ export function ImageUpload({
     try {
       new URL(urlInput)
     } catch {
-      alert('Lütfen geçerli bir URL girin (örn: https://example.com/image.jpg)')
+      alert(t.imageUpload.urlExample)
       return
     }
 
@@ -195,13 +200,13 @@ export function ImageUpload({
     onUploadComplete(urlInput)
     setUrlInput('')
     setShowUrlInput(false)
-    alert('URL başarıyla eklendi! Şimdi "Güncelle" butonuna basın.')
+    alert(t.imageUpload.urlSuccess)
   }
 
   return (
     <div className="space-y-4">
       <label className="block text-sm font-medium text-gray-700">
-        {label}
+        {displayLabel}
       </label>
 
       {preview && (
@@ -251,7 +256,7 @@ export function ImageUpload({
               className="flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-lg">upload_file</span>
-              {uploading ? 'Yükleniyor...' : preview ? 'Dosya Değiştir' : 'Dosya Seç'}
+              {uploading ? t.imageUpload.uploading : preview ? t.imageUpload.changeFile : t.imageUpload.selectFile}
             </Button>
           </label>
           
@@ -263,14 +268,14 @@ export function ImageUpload({
             className="flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-lg">link</span>
-            URL ile Ekle
+            {t.imageUpload.addWithUrl}
           </Button>
 
           <div className="text-sm text-gray-500">
-            <p>JPG, PNG veya WebP (Max 5MB)</p>
+            <p>{t.imageUpload.fileFormats}</p>
             {recommendedSize && (
               <p className="text-xs text-blue-600 mt-1">
-                📐 Önerilen boyut: {recommendedSize}
+                📐 {t.imageUpload.recommendedSize}: {recommendedSize}
               </p>
             )}
           </div>
@@ -296,7 +301,7 @@ export function ImageUpload({
               onClick={handleUrlSubmit}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Ekle
+              {t.imageUpload.add}
             </Button>
             <Button
               type="button"
@@ -306,7 +311,7 @@ export function ImageUpload({
                 setUrlInput('')
               }}
             >
-              İptal
+              {t.imageUpload.cancel}
             </Button>
           </div>
         )}
