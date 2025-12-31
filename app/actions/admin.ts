@@ -808,15 +808,17 @@ export async function impersonateRestaurant(restaurantId: string) {
   }
 
   // Get restaurant owner user id
-  const { data: restaurant, error: restaurantError } = await supabase
+  const { data: restaurantData, error: restaurantError } = await supabase
     .from('restaurants')
     .select('owner_user_id, name, slug')
     .eq('id', restaurantId)
     .single()
 
-  if (restaurantError || !restaurant) {
+  if (restaurantError || !restaurantData) {
     return { success: false, error: 'Restoran bulunamadı' }
   }
+
+  const restaurant = restaurantData as { owner_user_id: string; name: string; slug: string }
 
   // Store admin session info in cookie for later restoration
   const cookieStore = await cookies()

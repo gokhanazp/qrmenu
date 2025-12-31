@@ -20,7 +20,7 @@ interface CategoriesListClientProps {
 }
 
 export function CategoriesListClient({ categories }: CategoriesListClientProps) {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-6">
@@ -101,12 +101,12 @@ export function CategoriesListClient({ categories }: CategoriesListClientProps) 
                 {/* Category Info */}
                 <div className="p-4">
                   <h3 className="font-bold text-xl text-gray-900 mb-1">
-                    {t.locale === 'en' && category.name_en ? category.name_en : category.name}
+                    {locale === 'en' && category.name_en ? category.name_en : category.name}
                   </h3>
-                  {t.locale === 'en' && category.name_en && (
+                  {locale === 'en' && category.name_en && (
                     <p className="text-sm text-gray-500 mb-3">{category.name}</p>
                   )}
-                  {t.locale !== 'en' && category.name_en && (
+                  {locale !== 'en' && category.name_en && (
                     <p className="text-sm text-gray-500 mb-3">EN: {category.name_en}</p>
                   )}
                   {!category.name_en && <div className="mb-4" />}

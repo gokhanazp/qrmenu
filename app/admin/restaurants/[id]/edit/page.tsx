@@ -34,11 +34,11 @@ export default function EditRestaurantPage() {
   useEffect(() => {
     async function loadRestaurant() {
       if (!restaurantId) return
-      const result = await getRestaurantById(restaurantId)
-      if ('error' in result && result.error) {
+      const result = await getRestaurantById(restaurantId) as { error?: string; restaurant?: any }
+      if (result.error) {
         setError(result.error)
-      } else if ('restaurant' in result && result.restaurant) {
-        const r = result.restaurant as any
+      } else if (result.restaurant) {
+        const r = result.restaurant
         setRestaurantName(r.name || '')
         setFormData({
           name: r.name || '', slug: r.slug || '', slogan: r.slogan || '',
