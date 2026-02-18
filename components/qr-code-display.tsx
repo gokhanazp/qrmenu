@@ -31,26 +31,30 @@ export default function QRCodeDisplay({
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
-      // Generate QR code data
+      // Generate QR code data with maximum quality for printing
       QRCode.toDataURL(url, {
-        errorCorrectionLevel: 'H',
+        errorCorrectionLevel: 'H', // Highest error correction
         margin: 0,
-        width: 1000,
+        width: 2000, // High resolution for printing
       }).then(() => {
         // Get QR code matrix
         const qr = QRCode.create(url, { errorCorrectionLevel: 'H' })
         const modules = qr.modules
         const moduleCount = modules.size
         
-        // Canvas settings
-        const size = 400
-        const margin = 20
+        // Canvas settings - High resolution for print quality (300 DPI equivalent)
+        const size = 2000 // 2000x2000px for high quality printing
+        const margin = 100 // Larger margin for print safety
         const availableSize = size - margin * 2
         const moduleSize = availableSize / moduleCount
         const dotRadius = moduleSize * 0.4 // Dot radius for rounded look
         
         canvas.width = size
         canvas.height = size
+        
+        // Enable high-quality rendering
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = 'high'
         
         // Clear canvas with white background
         ctx.fillStyle = '#FFFFFF'
@@ -103,6 +107,10 @@ export default function QRCodeDisplay({
           const img = new Image()
           img.crossOrigin = 'anonymous'
           img.onload = () => {
+            // Enable high-quality image rendering
+            ctx.imageSmoothingEnabled = true
+            ctx.imageSmoothingQuality = 'high'
+            
             const centerX = size / 2
             const centerY = size / 2
             
@@ -112,7 +120,7 @@ export default function QRCodeDisplay({
             // Container boyutlarını logo oranına göre dinamik ayarla - DAHA BÜYÜK
             const maxContainerWidth = availableSize * 0.38  // Maksimum genişlik (artırıldı)
             const maxContainerHeight = availableSize * 0.26 // Maksimum yükseklik (artırıldı)
-            const padding = 8 // Logo etrafındaki boşluk (azaltıldı)
+            const padding = 40 // Logo etrafındaki boşluk (yüksek çözünürlük için artırıldı)
             
             let containerWidth: number
             let containerHeight: number
@@ -238,7 +246,20 @@ export default function QRCodeDisplay({
   return (
     <div className="flex flex-col items-center">
       <div className="bg-white p-8 rounded-lg shadow-inner">
-        <canvas ref={canvasRef} className="max-w-full h-auto" />
+        <canvas
+          ref={canvasRef}
+          className="max-w-full h-auto"
+          style={{
+            width: '400px',
+            height: '400px'
+          }}
+        />
+      </div>
+      
+      <div className="mt-4 text-center">
+        <p className="text-xs text-slate-500">
+          Baskı kalitesi: 2000x2000px (300 DPI)
+        </p>
       </div>
       
       {logoUrl && (

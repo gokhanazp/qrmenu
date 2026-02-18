@@ -61,8 +61,9 @@ export default function QRPage() {
     const canvas = document.querySelector('canvas')
     if (canvas) {
       const link = document.createElement('a')
-      link.download = `qr-${restaurant.slug}.png`
-      link.href = canvas.toDataURL()
+      link.download = `qr-${restaurant.slug}-2000x2000.png`
+      // Use maximum quality PNG (no compression)
+      link.href = canvas.toDataURL('image/png', 1.0)
       link.click()
     }
   }
@@ -151,6 +152,26 @@ export default function QRPage() {
               </Button>
             </div>
 
+            {/* Print Quality Info */}
+            <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-green-900 mb-2">
+                    Profesyonel Baskı Kalitesi
+                  </h4>
+                  <ul className="space-y-1 text-sm text-green-800">
+                    <li>• 2000x2000 piksel yüksek çözünürlük</li>
+                    <li>• 300 DPI baskı standardına uygun</li>
+                    <li>• A4 kağıda kadar net baskı</li>
+                    <li>• Maksimum hata düzeltme seviyesi (Level H)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             {/* Instructions */}
             <div className="mt-8 border-t border-slate-200 pt-8">
               <h3 className="font-semibold text-slate-900 mb-4">
@@ -176,6 +197,20 @@ export default function QRPage() {
                   <span>{t.qr.step3}</span>
                 </li>
               </ol>
+            </div>
+            
+            {/* Print Tips */}
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold text-blue-900 mb-2 text-sm">
+                💡 Baskı İpuçları
+              </h4>
+              <ul className="space-y-1 text-xs text-blue-800">
+                <li>• QR kodu indirdikten sonra herhangi bir düzenleme yapmayın</li>
+                <li>• Beyaz veya açık renkli yüzeylere bastırın</li>
+                <li>• Minimum 5x5 cm boyutunda bastırmanız önerilir</li>
+                <li>• QR kodun etrafında en az 1 cm boşluk bırakın</li>
+                <li>• Parlak veya yansıtıcı malzemelerden kaçının</li>
+              </ul>
             </div>
           </div>
         </div>
