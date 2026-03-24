@@ -26,9 +26,12 @@ export default async function CategoryDetailPage({
     notFound()
   }
 
-  // Fetch category and products, and all products for search
-  const { category, products = [] } = await getCategoryWithProducts((restaurant as any).id, categoryId)
-  const { products: allProducts } = await getAllProducts((restaurant as any).id)
+  // Fetch category and products, and all products for search (Parallel)
+  const restaurantId = (restaurant as any).id;
+  const [{ category, products = [] }, { products: allProducts }] = await Promise.all([
+    getCategoryWithProducts(restaurantId, categoryId),
+    getAllProducts(restaurantId)
+  ]);
 
   if (!category) {
     notFound()

@@ -21,17 +21,25 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     notFound()
   }
 
-  // Fetch menu, featured products, daily specials, and all products for search
-  const { categories } = await getPublicMenu((restaurant as any).id)
-  const { products: featuredProducts } = await getFeaturedProducts((restaurant as any).id)
-  const { products: dailySpecials } = await getDailySpecials((restaurant as any).id)
-  const { products: allProducts } = await getAllProducts((restaurant as any).id)
-
-  // Track scan event
+  // Paralel Veri Çekme (Hızlandırıldı)
+  const restaurantId = (restaurant as any).id;
   const headersList = await headers()
   const userAgent = headersList.get('user-agent') || undefined
   const referrer = headersList.get('referer') || undefined
-  await trackScanEvent((restaurant as any).id, userAgent, referrer)
+
+  const [
+    { categories },
+    { products: featuredProducts },
+    { products: dailySpecials },
+    { products: allProducts },
+  ] = await Promise.all([
+    getPublicMenu(restaurantId),
+    getFeaturedProducts(restaurantId),
+    getDailySpecials(restaurantId),
+    getAllProducts(restaurantId),
+    // İstatistik kaydını paralel bekle ancak patlarsa hata atmasını engelliyoruz
+    trackScanEvent(restaurantId, userAgent, referrer).catch((err) => console.error("Tracking Error:", err))
+  ])
 
   const rest = restaurant as any
   const backgroundColor = rest.background_color || '#ffffff'
