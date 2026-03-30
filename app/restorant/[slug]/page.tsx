@@ -1,15 +1,21 @@
 import { notFound } from 'next/navigation'
-import { getPublicRestaurant, getPublicMenu, getFeaturedProducts, getDailySpecials, getAllProducts, trackScanEvent } from '@/app/actions/public'
-import { headers } from 'next/headers'
+import { 
+  getPublicRestaurant, 
+  getPublicMenu, 
+  getFeaturedProducts, 
+  getDailySpecials, 
+  getAllProducts 
+} from '@/app/actions/public'
 import Image from 'next/image'
 import Link from 'next/link'
 import { HamburgerMenu } from '@/components/hamburger-menu'
 import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
+import { ScanTracker } from '@/components/scan-tracker'
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic'
+// Enable Cache (ISR) 
+export const revalidate = 60
 
 export default async function PublicMenuPage({ params, searchParams }: { params: { slug: string }, searchParams: { lang?: string } }) {
   const { slug } = params
@@ -21,11 +27,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     notFound()
   }
 
-  // Paralel Veri Çekme (Hızlandırıldı)
+  // Paralel Veri Çekme (Hızlandırıldı - Cache Destekli)
   const restaurantId = (restaurant as any).id;
-  const headersList = await headers()
-  const userAgent = headersList.get('user-agent') || undefined
-  const referrer = headersList.get('referer') || undefined
 
   const [
     { categories },
@@ -36,9 +39,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     getPublicMenu(restaurantId),
     getFeaturedProducts(restaurantId),
     getDailySpecials(restaurantId),
-    getAllProducts(restaurantId),
-    // İstatistik kaydını paralel bekle ancak patlarsa hata atmasını engelliyoruz
-    trackScanEvent(restaurantId, userAgent, referrer).catch((err) => console.error("Tracking Error:", err))
+    getAllProducts(restaurantId)
   ])
 
   const rest = restaurant as any
@@ -93,10 +94,12 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
         color: textColor
       }}
     >
-        <div
+          <div
           className="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl"
           style={{ backgroundColor }}
         >
+          {/* Sessiz İstatistik İzleyici */}
+          <ScanTracker restaurantId={restaurantId} />
           {/* Sticky Header */}
           <header
             className="sticky top-0 z-[60] backdrop-blur-md transition-colors duration-200"
