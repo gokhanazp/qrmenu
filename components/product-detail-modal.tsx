@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
+import { useSearchParams } from 'next/navigation'
 
 interface ProductDetailModalProps {
   product: any
@@ -40,6 +41,16 @@ export function ProductDetailModal({
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
+
+  const searchParams = useSearchParams()
+  const isEnglish = searchParams?.get('lang') === 'en'
+
+  const t = {
+    featured: isEnglish ? 'Featured' : 'Öne Çıkan',
+    dailySpecial: isEnglish ? 'Daily Special' : 'Günün Menüsü',
+    description: isEnglish ? 'Description' : 'Açıklama',
+    category: isEnglish ? 'Category' : 'Kategori'
+  }
 
   if (!isOpen || !product) return null
 
@@ -100,7 +111,7 @@ export function ProductDetailModal({
                 }}
               >
                 <span className="material-symbols-outlined text-sm mr-1">star</span>
-                Öne Çıkan
+                {t.featured}
               </span>
             )}
             {product.is_daily_special && (
@@ -112,7 +123,7 @@ export function ProductDetailModal({
                 }}
               >
                 <span className="text-sm mr-1">🌟</span>
-                Günün Menüsü
+                {t.dailySpecial}
               </span>
             )}
           </div>
@@ -140,7 +151,7 @@ export function ProductDetailModal({
                 className="text-sm font-semibold uppercase tracking-wider mb-2"
                 style={{ color: textColor, opacity: 0.7 }}
               >
-                Açıklama
+                {t.description}
               </h3>
               <p
                 className="text-base leading-relaxed"
@@ -158,7 +169,7 @@ export function ProductDetailModal({
                 className="text-sm font-semibold uppercase tracking-wider mb-2"
                 style={{ color: textColor, opacity: 0.7 }}
               >
-                Kategori
+                {t.category}
               </h3>
               <span
                 className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium"
@@ -170,7 +181,7 @@ export function ProductDetailModal({
                 <span className="material-symbols-outlined text-sm mr-2" style={{ color: primaryColor }}>
                   restaurant
                 </span>
-                {product.categories.name}
+                {isEnglish && product.categories.name_en ? product.categories.name_en : product.categories.name}
               </span>
             </div>
           )}

@@ -25,17 +25,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-all group">
-                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
-                    admin_panel_settings
+              <Link href="/admin" className="flex items-center gap-1.5 hover:opacity-80 transition-all group">
+                <img src="/qrmenu-logo.png" alt="Logo" className="h-12 w-auto drop-shadow-sm" />
+                <div className="flex flex-col">
+                  <span className="font-bold text-xl tracking-tight leading-none">
+                    <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
+                    <span className="text-slate-800">menülist</span>
                   </span>
-                </div>
-                <div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-                    Admin Panel
-                  </span>
-                  <p className="text-xs text-slate-500">QR Menü Yönetimi</p>
+                  <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">Admin Panel</span>
                 </div>
               </Link>
             </div>

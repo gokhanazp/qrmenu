@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
 import { ProductDetailModal } from './product-detail-modal'
+import { useSearchParams } from 'next/navigation'
 
 interface ProductCardProps {
   product: any
@@ -27,6 +28,12 @@ export function ProductCard({
   variant
 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const isEnglish = searchParams?.get('lang') === 'en'
+
+  const t = {
+    special: isEnglish ? 'SPECIAL' : 'ÖZEL'
+  }
 
   const isDailySpecial = variant === 'daily-special'
   const isFeatured = variant === 'featured'
@@ -120,7 +127,7 @@ export function ProductCard({
         >
           {product.image_url && (
             <div
-              className="w-16 h-16 shrink-0 rounded-lg bg-cover bg-center mr-4"
+              className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center mr-4 shadow-sm"
               style={{
                 backgroundImage: `url(${product.image_url})`,
                 backgroundColor
@@ -198,7 +205,7 @@ export function ProductCard({
             }}
           >
             <span className="text-sm">🌟</span>
-            <span>ÖZEL</span>
+            <span>{t.special}</span>
           </div>
         )}
 

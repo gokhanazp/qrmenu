@@ -71,15 +71,15 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <Link href="/panel" className="flex items-center gap-3 hover:opacity-80 transition-all group">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <span className="material-symbols-outlined text-white" style={{ fontSize: '24px' }}>
-                    restaurant
+              <Link href="/panel" className="flex items-center gap-1.5 hover:opacity-80 transition-all group">
+                <img src="/qrmenu-logo.png" alt="Logo" className="h-12 w-auto drop-shadow-sm" />
+                <div className="flex flex-col">
+                  <span className="font-bold text-xl tracking-tight leading-none">
+                    <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
+                    <span className="text-gray-900">menülist</span>
                   </span>
+                  <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5">Restoran Paneli</span>
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
-                  QR Menü
-                </span>
               </Link>
             </div>
             

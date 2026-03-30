@@ -359,13 +359,12 @@ function HomePageContent() {
               isOpen={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             />
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white">
-                  restaurant_menu
-                </span>
-              </div>
-              <span className="font-bold text-xl hidden sm:block">QR Menü</span>
+            <Link href="/" className="flex items-center gap-1.5">
+              <img src="/qrmenu-logo.png" alt="Logo" className="h-12 sm:h-14 w-auto drop-shadow-md" />
+              <span className="font-bold text-2xl hidden sm:flex items-center tracking-tight">
+                <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
+                <span className="text-white">menülist</span>
+              </span>
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -949,13 +948,12 @@ function HomePageContent() {
           <div className="max-w-7xl mx-auto px-4 py-16">
             <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
               <div className="lg:col-span-2">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                    <span className="material-symbols-outlined text-white text-2xl">
-                      restaurant_menu
-                    </span>
-                  </div>
-                  <span className="font-bold text-2xl">QR Menü</span>
+                <div className="flex items-center gap-1.5 mb-6">
+                  <img src="/qrmenu-logo.png" alt="Logo" className="h-12 sm:h-14 w-auto drop-shadow-md" />
+                  <span className="font-bold text-2xl flex items-center tracking-tight">
+                    <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
+                    <span className="text-white">menülist</span>
+                  </span>
                 </div>
                 <p className="text-gray-400 mb-6 max-w-sm leading-relaxed">
                   {t.landing.footer.description}
@@ -1025,28 +1023,6 @@ function HomePageContent() {
                         auto_awesome
                       </span>
                       {t.landing.footer.product.features}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-400 hover:text-violet-400 transition-colors flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-sm">
-                        play_circle
-                      </span>
-                      {t.landing.footer.product.demo}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-400 hover:text-violet-400 transition-colors flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-sm">
-                        integration_instructions
-                      </span>
-                      {t.landing.footer.product.api}
                     </Link>
                   </li>
                 </ul>
