@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { LocaleProvider } from "@/lib/i18n/use-locale"
+import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,6 +24,10 @@ export const metadata: Metadata = {
   title: {
     default: "QR Menü SaaS - Dijital Menü Yönetim Sistemi",
     template: "%s | QR Menü SaaS"
+  },
+  icons: {
+    icon: '/qrmenu-logo.png',
+    apple: '/qrmenu-logo.png',
   },
   description: "Restoranlar için modern dijital menü yönetim sistemi. QR kod ile kolay erişim, online menü yönetimi ve müşteri takibi.",
   keywords: [
@@ -67,8 +72,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Google Search Console verification (eklenecek)
-    // google: 'your-verification-code',
+    google: 'L6v3-SFuY2V1BWHuXDMojb2oY1Etf1ESZdJJpHED9YY',
   },
 }
 
@@ -80,6 +84,19 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MMDJC2TFFP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-MMDJC2TFFP');
+          `}
+        </Script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
