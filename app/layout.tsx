@@ -48,6 +48,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(getSiteUrl()),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
