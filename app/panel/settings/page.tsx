@@ -45,6 +45,8 @@ export default function SettingsPage() {
     facebook: '',
     twitter: '',
     supported_languages: ['tr'] as string[],
+    header_bg_color: '#ffffff',
+    footer_bg_color: '#ffffff',
   })
 
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
@@ -89,6 +91,8 @@ export default function SettingsPage() {
           facebook: rest.facebook || '',
           twitter: rest.twitter || '',
           supported_languages: rest.supported_languages || ['tr'],
+          header_bg_color: rest.header_bg_color || rest.background_color || '#ffffff',
+          footer_bg_color: rest.footer_bg_color || rest.background_color || '#ffffff',
         })
       }
     } catch (err) {
@@ -402,6 +406,20 @@ export default function SettingsPage() {
                     <Input value={formData.hamburger_bg_color} onChange={(e) => setFormData({ ...formData, hamburger_bg_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
                   </div>
                   <p className="text-xs text-gray-500">{t.panel.settings.hamburgerBgColorHelp}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="header_bg_color">{t.panel.settings.headerBackgroundColor}</Label>
+                  <div className="flex gap-2">
+                    <input type="color" id="header_bg_color" value={formData.header_bg_color} onChange={(e) => setFormData({ ...formData, header_bg_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
+                    <Input value={formData.header_bg_color} onChange={(e) => setFormData({ ...formData, header_bg_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="footer_bg_color">{t.panel.settings.footerBackgroundColor}</Label>
+                  <div className="flex gap-2">
+                    <input type="color" id="footer_bg_color" value={formData.footer_bg_color} onChange={(e) => setFormData({ ...formData, footer_bg_color: e.target.value })} className="w-16 h-10 rounded border cursor-pointer" />
+                    <Input value={formData.footer_bg_color} onChange={(e) => setFormData({ ...formData, footer_bg_color: e.target.value })} placeholder="#ffffff" className="flex-1" />
+                  </div>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ interface PublicMenuBottomNavProps {
   textColor: string
   iconColor?: string
   currentLang?: string
+  footerBgColor?: string
 }
 
 export function PublicMenuBottomNav({
@@ -20,6 +21,7 @@ export function PublicMenuBottomNav({
   textColor,
   iconColor,
   currentLang = 'tr',
+  footerBgColor,
 }: PublicMenuBottomNavProps) {
   return (
     <BottomNavigation
@@ -30,6 +32,7 @@ export function PublicMenuBottomNav({
       textColor={textColor}
       iconColor={iconColor}
       currentLang={currentLang}
+      footerBgColor={footerBgColor}
     />
   )
 }

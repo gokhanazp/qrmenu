@@ -212,6 +212,8 @@ interface CreateRestaurantInput {
   icon_color?: string
   hamburger_bg_color?: string
   qr_logo_bg_color?: string
+  header_bg_color?: string
+  footer_bg_color?: string
   plan?: 'free' | 'pro'
   supported_languages?: string[]
 }
@@ -284,6 +286,8 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
       icon_color: input.icon_color || '#111827',
       hamburger_bg_color: input.hamburger_bg_color || '#ffffff',
       qr_logo_bg_color: input.qr_logo_bg_color || '#FFFFFF',
+      header_bg_color: input.header_bg_color || input.background_color || '#ffffff',
+      footer_bg_color: input.footer_bg_color || input.background_color || '#ffffff',
       supported_languages: input.supported_languages || ['tr'],
       owner_user_id: newUser.user.id,
       is_active: true
@@ -339,6 +343,8 @@ interface UpdateRestaurantByAdminInput {
   icon_color?: string
   hamburger_bg_color?: string
   qr_logo_bg_color?: string
+  header_bg_color?: string
+  footer_bg_color?: string
   is_active?: boolean
   supported_languages?: string[]
 }

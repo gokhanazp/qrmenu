@@ -151,8 +151,14 @@ interface UpdateRestaurantInput {
   layout_style?: string
   background_color?: string
   surface_color?: string
+  header_bg_color?: string
+  footer_bg_color?: string
   text_color?: string
   primary_color?: string
+  price_color?: string
+  icon_color?: string
+  hamburger_bg_color?: string
+  qr_logo_bg_color?: string
   about_us?: string
   phone?: string
   email?: string

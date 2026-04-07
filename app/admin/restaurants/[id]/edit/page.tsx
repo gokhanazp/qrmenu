@@ -28,7 +28,9 @@ export default function EditRestaurantPage() {
     text_color: '#111827', primary_color: '#FF6B35', price_color: '#ef4444',
     icon_color: '#111827', hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
     is_active: true,
-    supported_languages: ['tr'] as string[]
+    supported_languages: ['tr'] as string[],
+    header_bg_color: '#ffffff',
+    footer_bg_color: '#ffffff'
   })
 
   useEffect(() => {
@@ -56,7 +58,9 @@ export default function EditRestaurantPage() {
           hamburger_bg_color: r.hamburger_bg_color || '#ffffff',
           qr_logo_bg_color: r.qr_logo_bg_color || '#FFFFFF',
           is_active: r.is_active ?? true,
-          supported_languages: r.supported_languages || ['tr']
+          supported_languages: r.supported_languages || ['tr'],
+          header_bg_color: r.header_bg_color || r.background_color || '#ffffff',
+          footer_bg_color: r.footer_bg_color || r.background_color || '#ffffff'
         })
       }
       setIsLoading(false)
@@ -305,6 +309,8 @@ export default function EditRestaurantPage() {
                   <ColorInput label="İkon Rengi" field="icon_color" placeholder="#111827" />
                   <ColorInput label="Hamburger Menü Arka Plan" field="hamburger_bg_color" placeholder="#ffffff" />
                   <ColorInput label="QR Logo Arka Plan" field="qr_logo_bg_color" placeholder="#FFFFFF" />
+                  <ColorInput label="Header Arka Plan Rengi" field="header_bg_color" placeholder="#ffffff" />
+                  <ColorInput label="Footer Arka Plan Rengi" field="footer_bg_color" placeholder="#ffffff" />
                 </div>
               </div>
             </div>

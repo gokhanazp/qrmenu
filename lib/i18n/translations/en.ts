@@ -495,6 +495,8 @@ export const en: TranslationKeys = {
       iconColorHelp: 'Color of hamburger menu, search and other icons',
       hamburgerBgColor: 'Hamburger Menu Background',
       hamburgerBgColorHelp: 'Background color of hamburger menu button',
+      headerBackgroundColor: 'Header Background Color',
+      footerBackgroundColor: 'Footer Background Color',
       aboutUs: 'About Us',
       aboutUsSubtitle: 'Restaurant information',
       aboutUsText: 'About Us Text',

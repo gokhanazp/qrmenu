@@ -23,6 +23,7 @@ interface BottomNavigationProps {
   textColor: string
   iconColor?: string
   currentLang?: string
+  footerBgColor?: string
 }
 
 const languageFlags: Record<string, string> = {
@@ -43,6 +44,7 @@ export function BottomNavigation({
   textColor,
   iconColor,
   currentLang = 'tr',
+  footerBgColor,
 }: BottomNavigationProps) {
   const [showAbout, setShowAbout] = useState(false)
   const router = useRouter()
@@ -80,7 +82,7 @@ export function BottomNavigation({
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto"
         style={{
-          backgroundColor: surfaceColor,
+          backgroundColor: footerBgColor || surfaceColor,
           borderTop: `1px solid ${borderColor}`,
         }}
       >

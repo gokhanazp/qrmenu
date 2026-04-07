@@ -494,6 +494,8 @@ export const tr = {
       iconColorHelp: 'Hamburger menü, arama ve diğer ikonların rengi',
       hamburgerBgColor: 'Hamburger Menü Arka Plan',
       hamburgerBgColorHelp: 'Hamburger menü butonunun arka plan rengi',
+      headerBackgroundColor: 'Header Arka Plan Rengi',
+      footerBackgroundColor: 'Footer Arka Plan Rengi',
       aboutUs: 'Hakkımızda',
       aboutUsSubtitle: 'Restoran bilgisi',
       aboutUsText: 'Hakkımızda Metni',

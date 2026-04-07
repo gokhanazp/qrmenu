@@ -53,6 +53,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   const layoutStyle = rest.layout_style || 'grid'
   const borderColor = textColor + '20' // 20% opacity
   const supportedLanguages = rest.supported_languages || ['tr']
+  const headerBgColor = rest.header_bg_color || backgroundColor
+  const footerBgColor = rest.footer_bg_color || backgroundColor
   
   // Dil seçimi - URL parametresinden veya varsayılan
   const currentLang = searchParams.lang && supportedLanguages.includes(searchParams.lang) 
@@ -105,7 +107,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           <header
             className="sticky top-0 z-[60] backdrop-blur-md transition-colors duration-200"
             style={{
-              backgroundColor: `${backgroundColor}e6`,
+              backgroundColor: `${headerBgColor}e6`,
               borderBottom: `1px solid ${borderColor}`
             }}
           >
@@ -368,6 +370,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           textColor={textColor}
           iconColor={iconColor}
           currentLang={currentLang}
+          footerBgColor={footerBgColor}
         />
     </div>
   )
