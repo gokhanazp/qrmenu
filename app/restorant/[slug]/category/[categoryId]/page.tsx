@@ -76,6 +76,7 @@ export default async function CategoryDetailPage({
   return (
     <div
       className="font-['Work_Sans'] antialiased transition-colors duration-200"
+      lang={currentLang}
       style={{
         backgroundColor,
         color: textColor

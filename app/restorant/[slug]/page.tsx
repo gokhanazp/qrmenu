@@ -89,6 +89,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   return (
     <div
       className="font-['Work_Sans'] antialiased transition-colors duration-200"
+      lang={currentLang}
       style={{
         backgroundColor,
         color: textColor

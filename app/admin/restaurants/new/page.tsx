@@ -136,20 +136,32 @@ export default function NewRestaurantPage() {
               <div className="p-6">
                 <p className="text-sm text-slate-600 mb-4">Restoranın menüsünde hangi dillerin destekleneceğini seçin. İngilizce seçilirse, ürün ve kategori eklerken İngilizce alanları da doldurmanız gerekecektir.</p>
                 <div className="flex flex-wrap gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all bg-orange-50 border-orange-500">
-                    <input type="checkbox" checked={true} disabled className="w-4 h-4 rounded border-gray-300" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${formData.supported_languages.includes('tr') ? 'bg-orange-50 border-orange-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input
+                      type="checkbox"
+                      checked={formData.supported_languages.includes('tr')}
+                      onChange={(e) => {
+                        const current = formData.supported_languages;
+                        if (e.target.checked) {
+                          setFormData(prev => ({ ...prev, supported_languages: [...prev.supported_languages, 'tr'] }))
+                        } else if (current.length > 1) {
+                          setFormData(prev => ({ ...prev, supported_languages: prev.supported_languages.filter(l => l !== 'tr') }))
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-gray-300"
+                    />
                     <span className="text-2xl">🇹🇷</span>
                     <span className="font-medium text-slate-900">Türkçe</span>
-                    <span className="text-xs text-slate-500">(Varsayılan)</span>
                   </label>
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${formData.supported_languages.includes('en') ? 'bg-blue-50 border-blue-500' : 'border-gray-200 hover:border-gray-300'}`}>
                     <input
                       type="checkbox"
                       checked={formData.supported_languages.includes('en')}
                       onChange={(e) => {
+                        const current = formData.supported_languages;
                         if (e.target.checked) {
                           setFormData(prev => ({ ...prev, supported_languages: [...prev.supported_languages, 'en'] }))
-                        } else {
+                        } else if (current.length > 1) {
                           setFormData(prev => ({ ...prev, supported_languages: prev.supported_languages.filter(l => l !== 'en') }))
                         }
                       }}

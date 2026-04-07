@@ -44,6 +44,7 @@ export default function SettingsPage() {
     instagram: '',
     facebook: '',
     twitter: '',
+    supported_languages: ['tr'] as string[],
   })
 
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
@@ -87,6 +88,7 @@ export default function SettingsPage() {
           instagram: rest.instagram || '',
           facebook: rest.facebook || '',
           twitter: rest.twitter || '',
+          supported_languages: rest.supported_languages || ['tr'],
         })
       }
     } catch (err) {
@@ -205,6 +207,74 @@ export default function SettingsPage() {
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="is_active" checked={formData.is_active} onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} className="w-4 h-4 rounded border-gray-300" />
                 <Label htmlFor="is_active" className="cursor-pointer">{t.panel.settings.isActive}</Label>
+              </div>
+            </div>
+          </div>
+
+          {/* Supported Languages */}
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
+              <div className="flex items-center gap-3 text-white">
+                <span className="material-symbols-outlined text-3xl">language</span>
+                <div>
+                  <h2 className="text-lg font-bold">{t.panel.settings.supportedLanguages}</h2>
+                  <p className="text-sm text-teal-100">{t.panel.settings.supportedLanguagesSubtitle}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:bg-gray-50 ${formData.supported_languages?.includes('tr') ? 'border-teal-500 bg-teal-50/10' : 'border-gray-200 bg-white'}`}
+                  onClick={() => {
+                    const current = formData.supported_languages || ['tr'];
+                    let updated;
+                    if (current.includes('tr')) {
+                      if (current.length > 1) {
+                        updated = current.filter(l => l !== 'tr');
+                      } else {
+                        return; // At least one language must be selected
+                      }
+                    } else {
+                      updated = [...current, 'tr'];
+                    }
+                    setFormData({ ...formData, supported_languages: updated });
+                  }}
+                >
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.supported_languages?.includes('tr') ? 'bg-teal-500 border-teal-500' : 'border-gray-300'}`}>
+                    {formData.supported_languages?.includes('tr') && <span className="material-symbols-outlined text-white text-[16px]">check</span>}
+                  </div>
+                  <div className="flex-1">
+                    <span className="block font-bold text-gray-800">{t.panel.settings.turkish}</span>
+                    <span className="text-xs text-gray-500">TR</span>
+                  </div>
+                </div>
+
+                <div 
+                  className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:bg-gray-50 ${formData.supported_languages?.includes('en') ? 'border-teal-500 bg-teal-50/10' : 'border-gray-200 bg-white'}`}
+                  onClick={() => {
+                    const current = formData.supported_languages || ['tr'];
+                    let updated;
+                    if (current.includes('en')) {
+                      if (current.length > 1) {
+                        updated = current.filter(l => l !== 'en');
+                      } else {
+                        return; // At least one language must be selected
+                      }
+                    } else {
+                      updated = [...current, 'en'];
+                    }
+                    setFormData({ ...formData, supported_languages: updated });
+                  }}
+                >
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.supported_languages?.includes('en') ? 'bg-teal-500 border-teal-500' : 'border-gray-300'}`}>
+                    {formData.supported_languages?.includes('en') && <span className="material-symbols-outlined text-white text-[16px]">check</span>}
+                  </div>
+                  <div className="flex-1">
+                    <span className="block font-bold text-gray-800">{t.panel.settings.english}</span>
+                    <span className="text-xs text-gray-500">EN</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

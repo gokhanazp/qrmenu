@@ -160,6 +160,7 @@ interface UpdateRestaurantInput {
   instagram?: string
   facebook?: string
   twitter?: string
+  supported_languages?: string[]
 }
 
 export async function updateRestaurant(input: UpdateRestaurantInput) {

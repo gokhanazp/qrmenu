@@ -517,6 +517,10 @@ export const tr = {
       twitter: 'Twitter / X',
       twitterPlaceholder: 'https://twitter.com/restoraniniz',
       saving: 'Kaydediliyor...',
+      supportedLanguages: 'Desteklenen Diller',
+      supportedLanguagesSubtitle: 'Menünüzde hangi dillerin seçilebileceğini belirleyin',
+      turkish: 'Türkçe',
+      english: 'İngilizce',
     },
   },
   admin: {

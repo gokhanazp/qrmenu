@@ -518,6 +518,10 @@ export const en: TranslationKeys = {
       twitter: 'Twitter / X',
       twitterPlaceholder: 'https://twitter.com/yourrestaurant',
       saving: 'Saving...',
+      supportedLanguages: 'Supported Languages',
+      supportedLanguagesSubtitle: 'Choose which languages will be available in your menu',
+      turkish: 'Turkish',
+      english: 'English',
     },
   },
   admin: {
