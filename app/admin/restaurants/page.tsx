@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import DeleteRestaurantButton from '../delete-restaurant-button'
 
 type Restaurant = {
   id: string
@@ -241,6 +242,10 @@ export default async function AdminRestaurantsPage() {
                                 <span className="material-symbols-outlined text-sm">open_in_new</span>
                               </Button>
                             </Link>
+                            <DeleteRestaurantButton
+                              restaurantId={restaurant.id}
+                              restaurantName={restaurant.name}
+                            />
                           </div>
                         </td>
                       </tr>

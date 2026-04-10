@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getAllRestaurants } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
+import DeleteRestaurantButton from './delete-restaurant-button'
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient()
@@ -267,6 +268,11 @@ export default async function AdminDashboardPage() {
                           </span>
                           Düzenle
                         </Link>
+                        <DeleteRestaurantButton
+                          restaurantId={restaurant.id}
+                          restaurantName={restaurant.name}
+                          variant="full"
+                        />
                       </div>
                     </td>
                   </tr>
