@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRestaurant, updateRestaurant } from '@/app/actions/restaurant'
+import { changePassword, getUser } from '@/app/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -52,9 +53,58 @@ export default function SettingsPage() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isUploadingHero, setIsUploadingHero] = useState(false)
 
+  const [userEmail, setUserEmail] = useState('')
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+
   useEffect(() => {
     loadRestaurant()
+    loadUser()
   }, [])
+
+  async function loadUser() {
+    const user = await getUser()
+    if (user?.email) setUserEmail(user.email)
+  }
+
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError(t.panel.settings.passwordTooShort)
+      return
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError(t.panel.settings.passwordMismatch)
+      return
+    }
+
+    setPasswordSaving(true)
+    try {
+      const result = await changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      })
+      if (result.success) {
+        setPasswordSuccess(t.panel.settings.passwordChanged)
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      } else {
+        setPasswordError(result.error || t.common.error)
+      }
+    } catch {
+      setPasswordError(t.common.error)
+    } finally {
+      setPasswordSaving(false)
+    }
+  }
 
   async function loadRestaurant() {
     try {
@@ -502,6 +552,87 @@ export default function SettingsPage() {
                 <Label htmlFor="twitter">{t.panel.settings.twitter}</Label>
                 <Input id="twitter" value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} placeholder={t.panel.settings.twitterPlaceholder} />
               </div>
+            </div>
+          </div>
+
+          {/* Account Info */}
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-6 py-4">
+              <div className="flex items-center gap-3 text-white">
+                <span className="material-symbols-outlined text-3xl">account_circle</span>
+                <div>
+                  <h2 className="text-lg font-bold">{t.panel.settings.accountInfo}</h2>
+                  <p className="text-sm text-slate-200">{t.panel.settings.accountInfoSubtitle}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">{t.panel.settings.username}</Label>
+                <Input id="username" value={userEmail} readOnly disabled className="bg-gray-50" />
+              </div>
+
+              {passwordError && (
+                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg border border-red-200 flex items-center gap-2">
+                  <span className="material-symbols-outlined">error</span>
+                  {passwordError}
+                </div>
+              )}
+
+              {passwordSuccess && (
+                <div className="bg-green-50 text-green-600 px-4 py-3 rounded-lg border border-green-200 flex items-center gap-2">
+                  <span className="material-symbols-outlined">check_circle</span>
+                  {passwordSuccess}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">{t.panel.settings.currentPassword}</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  placeholder={t.panel.settings.currentPasswordPlaceholder}
+                  autoComplete="current-password"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">{t.panel.settings.newPassword}</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    placeholder={t.panel.settings.newPasswordPlaceholder}
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">{t.panel.settings.confirmPassword}</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    placeholder={t.panel.settings.confirmPasswordPlaceholder}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                onClick={handlePasswordSubmit}
+                disabled={passwordSaving || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+              >
+                {passwordSaving ? (
+                  <><span className="material-symbols-outlined text-lg mr-2 animate-spin">progress_activity</span>{t.panel.settings.changingPassword}</>
+                ) : (
+                  <><span className="material-symbols-outlined text-lg mr-2">key</span>{t.panel.settings.changePassword}</>
+                )}
+              </Button>
             </div>
           </div>
 

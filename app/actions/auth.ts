@@ -167,3 +167,45 @@ export async function isAdmin() {
   const { data } = await supabase.rpc('is_admin')
   return data || false
 }
+
+export async function changePassword(input: {
+  currentPassword: string
+  newPassword: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user || !user.email) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    if (!input.newPassword || input.newPassword.length < 6) {
+      return { success: false, error: 'Yeni şifre en az 6 karakter olmalıdır' }
+    }
+
+    // Verify current password by attempting re-auth
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: input.currentPassword,
+    })
+
+    if (signInError) {
+      return { success: false, error: 'Mevcut şifre hatalı' }
+    }
+
+    // Update password
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: input.newPassword,
+    })
+
+    if (updateError) {
+      return { success: false, error: updateError.message }
+    }
+
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Şifre güncellenirken bir hata oluştu' }
+  }
+}

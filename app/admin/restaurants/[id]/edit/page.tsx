@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
-import { getRestaurantById, updateRestaurantByAdmin } from '@/app/actions/admin'
+import { getRestaurantById, updateRestaurantByAdmin, getRestaurantOwnerInfo, adminChangeUserPassword } from '@/app/actions/admin'
 
 export default function EditRestaurantPage() {
   const params = useParams()
@@ -32,6 +32,55 @@ export default function EditRestaurantPage() {
     header_bg_color: '#ffffff',
     footer_bg_color: '#ffffff'
   })
+
+  const [ownerEmail, setOwnerEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+
+  useEffect(() => {
+    async function loadOwner() {
+      if (!restaurantId) return
+      const result = await getRestaurantOwnerInfo(restaurantId)
+      if ('email' in result && result.email) {
+        setOwnerEmail(result.email)
+      }
+    }
+    loadOwner()
+  }, [restaurantId])
+
+  const handlePasswordSubmit = async () => {
+    setPasswordError(null)
+    setPasswordSuccess(false)
+
+    if (newPassword.length < 6) {
+      setPasswordError('Yeni şifre en az 6 karakter olmalıdır')
+      return
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError('Şifreler eşleşmiyor')
+      return
+    }
+
+    setPasswordSaving(true)
+    try {
+      const result = await adminChangeUserPassword({ restaurantId, newPassword })
+      if (result.success) {
+        setPasswordSuccess(true)
+        setNewPassword('')
+        setConfirmNewPassword('')
+        setTimeout(() => setPasswordSuccess(false), 3000)
+      } else {
+        setPasswordError(result.error || 'Şifre değiştirilemedi')
+      }
+    } catch {
+      setPasswordError('Beklenmeyen bir hata oluştu')
+    } finally {
+      setPasswordSaving(false)
+    }
+  }
 
   useEffect(() => {
     async function loadRestaurant() {
@@ -359,6 +408,74 @@ export default function EditRestaurantPage() {
                 <div><Label htmlFor="instagram">Instagram</Label><Input id="instagram" value={formData.instagram} onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/restoraniniz" /></div>
                 <div><Label htmlFor="facebook">Facebook</Label><Input id="facebook" value={formData.facebook} onChange={(e) => setFormData(prev => ({ ...prev, facebook: e.target.value }))} placeholder="https://facebook.com/restoraniniz" /></div>
                 <div><Label htmlFor="twitter">Twitter / X</Label><Input id="twitter" value={formData.twitter} onChange={(e) => setFormData(prev => ({ ...prev, twitter: e.target.value }))} placeholder="https://twitter.com/restoraniniz" /></div>
+              </div>
+            </div>
+
+            {/* Hesap Bilgileri */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">account_circle</span>
+                  <div><h2 className="text-lg font-bold">Hesap Bilgileri</h2><p className="text-sm text-slate-200">Kullanıcı adı ve şifre</p></div>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <Label htmlFor="owner_email">Kullanıcı Adı (E-posta)</Label>
+                  <Input id="owner_email" value={ownerEmail} readOnly disabled className="bg-gray-50 mt-2" />
+                </div>
+
+                {passwordError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-red-600">error</span>
+                    <p className="text-red-700 text-sm">{passwordError}</p>
+                  </div>
+                )}
+                {passwordSuccess && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-green-600">check_circle</span>
+                    <p className="text-green-700 text-sm">Şifre başarıyla değiştirildi</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="new_password">Yeni Şifre</Label>
+                    <Input
+                      id="new_password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="En az 6 karakter"
+                      autoComplete="new-password"
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm_new_password">Yeni Şifre (Tekrar)</Label>
+                    <Input
+                      id="confirm_new_password"
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="Şifreyi tekrar girin"
+                      autoComplete="new-password"
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handlePasswordSubmit}
+                  disabled={passwordSaving || !newPassword || !confirmNewPassword}
+                  className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+                >
+                  {passwordSaving ? (
+                    <><span className="material-symbols-outlined animate-spin mr-2">sync</span>Şifre değiştiriliyor...</>
+                  ) : (
+                    <><span className="material-symbols-outlined mr-2">key</span>Şifreyi Değiştir</>
+                  )}
+                </Button>
               </div>
             </div>
 

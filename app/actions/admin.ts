@@ -897,6 +897,87 @@ export async function stopImpersonation() {
   return { success: true, redirectUrl: '/admin' }
 }
 
+export async function getRestaurantOwnerInfo(restaurantId: string) {
+  const supabase = await createClient()
+
+  const { isAdmin: userIsAdmin } = await isAdmin()
+  if (!userIsAdmin) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('owner_user_id')
+    .eq('id', restaurantId)
+    .maybeSingle()
+
+  if (!restaurant) {
+    return { error: 'Restoran bulunamadı' }
+  }
+
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { data: userData, error } = await supabaseAdmin.auth.admin.getUserById(
+    (restaurant as { owner_user_id: string }).owner_user_id
+  )
+
+  if (error || !userData?.user) {
+    return { error: 'Kullanıcı bulunamadı' }
+  }
+
+  return {
+    email: userData.user.email || '',
+    userId: userData.user.id,
+  }
+}
+
+export async function adminChangeUserPassword(input: {
+  restaurantId: string
+  newPassword: string
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+
+  const { isAdmin: userIsAdmin } = await isAdmin()
+  if (!userIsAdmin) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  if (!input.newPassword || input.newPassword.length < 6) {
+    return { success: false, error: 'Yeni şifre en az 6 karakter olmalıdır' }
+  }
+
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('owner_user_id')
+    .eq('id', input.restaurantId)
+    .maybeSingle()
+
+  if (!restaurant) {
+    return { success: false, error: 'Restoran bulunamadı' }
+  }
+
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(
+    (restaurant as { owner_user_id: string }).owner_user_id,
+    { password: input.newPassword }
+  )
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+
 export async function getImpersonationStatus() {
   const cookieStore = await cookies()
   const impersonationCookie = cookieStore.get('impersonating_restaurant')
