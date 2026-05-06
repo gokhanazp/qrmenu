@@ -105,6 +105,8 @@ export async function register(input: RegisterInput): Promise<AuthResult> {
         owner_user_id: authData.user.id,
         name: validatedData.restaurantName,
         slug: uniqueSlug,
+        phone: validatedData.phone,
+        email: validatedData.email,
         is_active: true,
       } as any)
 

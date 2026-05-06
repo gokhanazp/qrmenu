@@ -16,6 +16,11 @@ export const registerSchema = z
       .string()
       .min(3, 'Restoran adı en az 3 karakter olmalıdır')
       .max(100, 'Restoran adı en fazla 100 karakter olabilir'),
+    phone: z
+      .string()
+      .min(10, 'Geçerli bir telefon numarası giriniz')
+      .max(20, 'Telefon numarası en fazla 20 karakter olabilir')
+      .regex(/^[+0-9\s()-]+$/, 'Telefon numarası yalnızca rakam, +, boşluk ve - içerebilir'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Şifreler eşleşmiyor',

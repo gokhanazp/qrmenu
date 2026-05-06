@@ -108,6 +108,8 @@ export const tr = {
     privacyLink: 'Gizlilik Politikası',
     termsAccept: '\'nı kabul etmiş olursunuz.',
     restaurantNamePlaceholder: 'Örnek Restoran',
+    phone: 'Telefon',
+    phonePlaceholder: '+90 555 123 45 67',
     // Register left panel
     registerHeroTitle: 'Hemen Başlayın, Ücretsiz Deneyin',
     registerHeroSubtitle: 'Dakikalar içinde dijital menünüzü oluşturun. Kredi kartı gerekmez, hemen kullanmaya başlayın.',

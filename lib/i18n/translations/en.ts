@@ -109,6 +109,8 @@ export const en: TranslationKeys = {
     privacyLink: 'Privacy Policy',
     termsAccept: '.',
     restaurantNamePlaceholder: 'Example Restaurant',
+    phone: 'Phone',
+    phonePlaceholder: '+1 555 123 4567',
     // Register left panel
     registerHeroTitle: 'Get Started, Try Free',
     registerHeroSubtitle: 'Create your digital menu in minutes. No credit card required, start using immediately.',

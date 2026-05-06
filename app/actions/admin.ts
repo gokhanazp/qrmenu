@@ -950,6 +950,11 @@ export async function adminChangeUserPassword(input: {
     return { success: false, error: 'Yeni şifre en az 6 karakter olmalıdır' }
   }
 
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  if (!currentUser) {
+    return { success: false, error: 'Oturum bulunamadı' }
+  }
+
   const { data: restaurant } = await supabase
     .from('restaurants')
     .select('owner_user_id')
@@ -960,6 +965,17 @@ export async function adminChangeUserPassword(input: {
     return { success: false, error: 'Restoran bulunamadı' }
   }
 
+  const ownerUserId = (restaurant as { owner_user_id: string }).owner_user_id
+
+  // Prevent admin from accidentally changing their own password via this flow.
+  // Admins should change their own password from the panel settings page.
+  if (ownerUserId === currentUser.id) {
+    return {
+      success: false,
+      error: 'Bu restoranın sahibi sizsiniz. Kendi şifrenizi değiştirmek için panel ayarlarını kullanın.'
+    }
+  }
+
   const supabaseAdmin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -967,7 +983,7 @@ export async function adminChangeUserPassword(input: {
   )
 
   const { error } = await supabaseAdmin.auth.admin.updateUserById(
-    (restaurant as { owner_user_id: string }).owner_user_id,
+    ownerUserId,
     { password: input.newPassword }
   )
 
