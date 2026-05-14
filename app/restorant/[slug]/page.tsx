@@ -13,6 +13,13 @@ import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { ScanTracker } from '@/components/scan-tracker'
+import { JsonLd } from '@/components/json-ld'
+import {
+  restaurantJsonLd,
+  menuJsonLd,
+  breadcrumbJsonLd,
+  getSiteUrl,
+} from '@/lib/seo/jsonld'
 
 // Enable Cache (ISR) 
 export const revalidate = 60
@@ -88,6 +95,32 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   
   const t = translations[isEnglish ? 'en' : 'tr']
 
+  // JSON-LD structured data
+  const siteUrl = getSiteUrl()
+  const restaurantData = {
+    id: restaurantId,
+    name: rest.name,
+    slug,
+    slogan: rest.slogan,
+    about_us: rest.about_us,
+    logo_url: rest.logo_url,
+    hero_url: rest.hero_url,
+    phone: rest.phone,
+    email: rest.email,
+    address: rest.address,
+    instagram: rest.instagram,
+    facebook: rest.facebook,
+    twitter: rest.twitter,
+    whatsapp: rest.whatsapp,
+    supported_languages: supportedLanguages,
+  }
+  const restaurantSchema = restaurantJsonLd(restaurantData, allProducts || [])
+  const menuSchema = menuJsonLd(restaurantData, categories as any)
+  const breadcrumbSchema = breadcrumbJsonLd([
+    { name: 'Ana Sayfa', url: siteUrl },
+    { name: rest.name, url: `${siteUrl}/restorant/${slug}` },
+  ])
+
   return (
     <div
       className="font-['Work_Sans'] antialiased transition-colors duration-200"
@@ -97,6 +130,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
         color: textColor
       }}
     >
+          <JsonLd data={[restaurantSchema, menuSchema, breadcrumbSchema]} />
           <div
           className="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl"
           style={{ backgroundColor }}
@@ -387,11 +421,21 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const rest = restaurant as any
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/restorant/${params.slug}`
-  
+  const supportedLanguages: string[] = rest.supported_languages || ['tr']
+
+  const languageAlternates: Record<string, string> = {}
+  for (const lang of supportedLanguages) {
+    const tag = lang === 'tr' ? 'tr-TR' : lang === 'en' ? 'en-US' : lang
+    languageAlternates[tag] = lang === 'tr' ? pageUrl : `${pageUrl}?lang=${lang}`
+  }
+  languageAlternates['x-default'] = pageUrl
+
   const title = `${rest.name} - Dijital Menü | QR Menü`
-  const description = rest.slogan
+  const description = rest.about_us
+    ? `${rest.name} - ${rest.about_us.slice(0, 150)}`
+    : rest.slogan
     ? `${rest.name} - ${rest.slogan}. Dijital menümüzü görüntüleyin ve sipariş verin.`
     : `${rest.name} dijital menüsü. QR kod ile kolayca menümüze ulaşın ve sipariş verin.`
 
@@ -442,6 +486,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     alternates: {
       canonical: pageUrl,
+      languages: languageAlternates,
     },
     other: {
       'mobile-web-app-capable': 'yes',

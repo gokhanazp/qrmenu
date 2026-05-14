@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { LocaleProvider } from "@/lib/i18n/use-locale"
@@ -50,13 +50,36 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   alternates: {
     canonical: '/',
+    languages: {
+      'tr-TR': '/',
+      'en-US': '/?lang=en',
+      'x-default': '/',
+    },
   },
+  manifest: '/manifest.webmanifest',
+  applicationName: 'QR Menülist',
+  appleWebApp: {
+    capable: true,
+    title: 'QR Menülist',
+    statusBarStyle: 'black-translucent',
+  },
+  category: 'business',
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
+    alternateLocale: ['en_US'],
     siteName: 'QR Menü SaaS',
     title: 'QR Menü SaaS - Dijital Menü Yönetim Sistemi',
     description: 'Restoranlar için modern dijital menü yönetim sistemi',
+    url: getSiteUrl(),
+    images: [
+      {
+        url: '/qrmenu-logo.png',
+        width: 512,
+        height: 512,
+        alt: 'QR Menü SaaS',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -77,6 +100,17 @@ export const metadata: Metadata = {
   verification: {
     google: 'L6v3-SFuY2V1BWHuXDMojb2oY1Etf1ESZdJJpHED9YY',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+  colorScheme: 'light dark',
 }
 
 export default function RootLayout({

@@ -6,6 +6,8 @@ import { HamburgerMenu } from '@/components/hamburger-menu'
 import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
+import { JsonLd } from '@/components/json-ld'
+import { menuSectionJsonLd, breadcrumbJsonLd, getSiteUrl } from '@/lib/seo/jsonld'
 
 // Revalidate every 5 minutes for category pages
 export const revalidate = 300
@@ -75,6 +77,25 @@ export default async function CategoryDetailPage({
   // Kategori ve ürün isimlerini dile göre ayarla
   const categoryName = isEnglish && cat.name_en ? cat.name_en : cat.name
 
+  // JSON-LD structured data
+  const siteUrl = getSiteUrl()
+  const menuSectionSchema = menuSectionJsonLd(
+    {
+      id: restaurantId,
+      name: rest.name,
+      slug,
+      supported_languages: supportedLanguages,
+    },
+    { id: categoryId, name: cat.name, name_en: cat.name_en, image_url: cat.image_url },
+    products,
+    isEnglish,
+  )
+  const breadcrumbSchema = breadcrumbJsonLd([
+    { name: 'Ana Sayfa', url: siteUrl },
+    { name: rest.name, url: `${siteUrl}/restorant/${slug}` },
+    { name: categoryName, url: `${siteUrl}/restorant/${slug}/category/${categoryId}` },
+  ])
+
   return (
     <div
       className="font-['Work_Sans'] antialiased transition-colors duration-200"
@@ -84,6 +105,7 @@ export default async function CategoryDetailPage({
         color: textColor
       }}
     >
+        <JsonLd data={[menuSectionSchema, breadcrumbSchema]} />
         <div
           className="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl"
           style={{ backgroundColor }}
@@ -284,9 +306,17 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
 
   const rest = restaurant as any
   const cat = category as any
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/restorant/${params.slug}/category/${params.categoryId}`
-  
+  const supportedLanguages: string[] = rest.supported_languages || ['tr']
+
+  const languageAlternates: Record<string, string> = {}
+  for (const lang of supportedLanguages) {
+    const tag = lang === 'tr' ? 'tr-TR' : lang === 'en' ? 'en-US' : lang
+    languageAlternates[tag] = lang === 'tr' ? pageUrl : `${pageUrl}?lang=${lang}`
+  }
+  languageAlternates['x-default'] = pageUrl
+
   const title = `${cat.name} - ${rest.name} | Dijital Menü`
   const description = `${rest.name} restoranının ${cat.name} kategorisinde ${products.length} çeşit ürün bulunmaktadır. Dijital menümüzü görüntüleyin.`
 
@@ -330,6 +360,7 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
     },
     alternates: {
       canonical: pageUrl,
+      languages: languageAlternates,
     },
   }
 }

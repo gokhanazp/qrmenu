@@ -4,6 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LocaleProvider, useLocale } from "@/lib/i18n/use-locale";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { JsonLd } from "@/components/json-ld";
+import {
+  organizationJsonLd,
+  websiteJsonLd,
+  softwareApplicationJsonLd,
+  faqPageJsonLd,
+} from "@/lib/seo/jsonld";
 import { useState, useEffect, useRef } from "react";
 
 function HamburgerMenu({
@@ -322,8 +329,18 @@ function HomePageContent() {
     "from-emerald-500 to-teal-500",
   ];
 
+  const faqItems = t.landing.faq.items.map((f) => ({ q: f.q, a: f.a }))
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+      <JsonLd
+        data={[
+          organizationJsonLd(),
+          websiteJsonLd(),
+          softwareApplicationJsonLd(),
+          faqPageJsonLd(faqItems),
+        ]}
+      />
       <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
       {searchOpen && (
