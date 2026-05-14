@@ -2,10 +2,10 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'QR Menülist - Dijital Menü Yönetim Sistemi',
+    name: 'QR Menülist - Ücretsiz QR Menü Oluşturma',
     short_name: 'QR Menülist',
     description:
-      'Restoranlar için modern dijital menü yönetim sistemi. QR kod ile kolay erişim, online menü yönetimi ve müşteri takibi.',
+      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0a',

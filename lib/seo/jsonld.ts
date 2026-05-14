@@ -60,7 +60,6 @@ export function restaurantJsonLd(r: Restaurant, products: Product[] = []) {
           .map((p) => Number(p.price))
           .filter((p) => !Number.isNaN(p) && p > 0)
         if (prices.length === 0) return undefined
-        const min = Math.min(...prices)
         const max = Math.max(...prices)
         if (max < 100) return '₺'
         if (max < 300) return '₺₺'
@@ -183,6 +182,7 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     '@id': `${siteUrl}#organization`,
     name: 'QR Menülist',
+    alternateName: ['QR Menü', 'QR Menülist - Ücretsiz QR Menü Oluşturma'],
     url: siteUrl,
     logo: {
       '@type': 'ImageObject',
@@ -191,7 +191,7 @@ export function organizationJsonLd() {
       height: 512,
     },
     description:
-      'Restoranlar için modern dijital menü yönetim sistemi. QR kod ile kolay erişim, online menü yönetimi ve müşteri takibi.',
+      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü ve online menü yönetim sistemi.',
     sameAs: [],
   }
 }
@@ -204,7 +204,9 @@ export function websiteJsonLd() {
     '@id': `${siteUrl}#website`,
     url: siteUrl,
     name: 'QR Menülist',
-    description: 'Restoranlar için dijital menü yönetim sistemi',
+    alternateName: 'Ücretsiz QR Menü Oluşturma',
+    description:
+      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod menü oluşturma platformu.',
     publisher: { '@id': `${siteUrl}#organization` },
     inLanguage: ['tr-TR', 'en-US'],
     potentialAction: {
@@ -223,12 +225,13 @@ export function softwareApplicationJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'QR Menülist',
+    name: 'QR Menülist - Ücretsiz QR Menü Oluşturma',
     applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Restaurant Menu Software',
     operatingSystem: 'Web Browser',
     url: siteUrl,
     description:
-      'Restoranlar için QR kod tabanlı dijital menü yönetim platformu. Online menü, çoklu dil, istatistik takibi ve özelleştirilebilir tasarım.',
+      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -242,11 +245,13 @@ export function softwareApplicationJsonLd() {
       ratingCount: '500',
     },
     featureList: [
+      'Ücretsiz QR menü oluşturma',
       'QR kod ile menü erişimi',
+      'Dijital menü yönetimi',
       'Çoklu dil desteği',
       'Müşteri istatistikleri',
       'Özelleştirilebilir tasarım',
-      'Mobil uyumlu',
+      'Mobil uyumlu menü',
       'Kategori bazlı menü yönetimi',
     ],
   }
