@@ -240,12 +240,25 @@ export function softwareApplicationJsonLd() {
     url: siteUrl,
     description:
       'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, yapay zeka destekli çeviri, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'TRY',
-      availability: 'https://schema.org/InStock',
-    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Başlangıç Planı',
+        category: 'Free',
+        price: '0',
+        priceCurrency: 'TRY',
+        availability: 'https://schema.org/InStock',
+        description: 'Ücretsiz başlangıç planı — denemek için ideal',
+      },
+      {
+        '@type': 'Offer',
+        name: 'Pro Plan',
+        category: 'Subscription',
+        priceCurrency: 'TRY',
+        availability: 'https://schema.org/InStock',
+        description: 'Gelişmiş özellikler ve yüksek kapasite için Pro plan',
+      },
+    ],
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',

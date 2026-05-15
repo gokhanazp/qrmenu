@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     icon: '/qrmenu-logo.png',
     apple: '/qrmenu-logo.png',
   },
-  description: "Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Kayıt yok, kredi kartı yok - hemen başla!",
+  description: "Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Başlangıç planı ücretsiz, kredi kartı gerekmez.",
   keywords: [
     "qr menü",
     "ücretsiz qr menü",
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US'],
     siteName: 'QR Menülist',
     title: 'Ücretsiz QR Menü Oluşturma | Dijital Menü | QR Menülist',
-    description: 'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Kayıt yok, kredi kartı yok - hemen başla!',
+    description: 'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Başlangıç planı ücretsiz, kredi kartı gerekmez.',
     url: getSiteUrl(),
     images: [
       {

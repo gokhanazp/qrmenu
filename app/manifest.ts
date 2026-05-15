@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'QR Menülist - Ücretsiz QR Menü Oluşturma',
     short_name: 'QR Menülist',
     description:
-      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin.',
+      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. Başlangıç planı ücretsiz, ileri özellikler için Pro plan mevcut.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0a',

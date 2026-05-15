@@ -3,13 +3,12 @@ import { SeoLanding } from "@/components/seo-landing"
 import { getSiteUrl } from "@/lib/seo/jsonld"
 
 const SLUG = "qr-menu-olusturma"
-const H1 = "QR Menü Oluşturma"
 const TITLE = "QR Menü Oluşturma - 5 Dakikada Hazır | QR Menülist"
 const DESCRIPTION =
   "QR menü oluşturma rehberi: kayıt ol, kategori ekle, ürünleri yükle, QR kodunu indir. 5 dakikada profesyonel dijital menüne sahip ol."
 
 export const metadata: Metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   keywords: [
     "qr menü oluşturma",
@@ -81,13 +80,13 @@ export default function QrMenuOlusturmaPage() {
       ]}
       benefitsTitle="QR Menü Oluşturmanın Avantajları"
       benefits={[
-        "Basılı menü maliyetini sıfıra indirir",
+        "Basılı menü maliyetini büyük oranda azaltır",
         "Fiyat ve ürün güncellemesi anında yapılır",
         "Müşteriye temassız, hijyenik deneyim sunar",
         "Yabancı turistler için otomatik İngilizce menü",
         "Hangi ürünün ilgi gördüğünü istatistiklerle gör",
         "Yeni ürünü 30 saniyede menüye ekle",
-        "QR kod ücretsiz, sınırsız yeniden indirilebilir",
+        "QR kodunu istediğin zaman yeniden indir",
         "Restoran sahibi olarak SEO faydası — Google'da çık",
       ]}
       faq={[
@@ -105,7 +104,7 @@ export default function QrMenuOlusturmaPage() {
         },
         {
           q: "Menüde ne kadar ürün gösterebilirim?",
-          a: "Sınırsız. İstediğin kadar kategori ve ürün ekleyebilirsin, hiçbir kısıtlama yok.",
+          a: "Ücretsiz başlangıç planında menünü hazırlayıp deneyebilirsin. Daha yüksek kapasite ve gelişmiş özellikler için Pro plan mevcuttur.",
         },
         {
           q: "QR menüyü sonradan güncelleyebilir miyim?",

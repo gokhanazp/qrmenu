@@ -3,13 +3,12 @@ import { SeoLanding } from "@/components/seo-landing"
 import { getSiteUrl } from "@/lib/seo/jsonld"
 
 const SLUG = "restoran-menu-programi"
-const H1 = "Restoran Menü Programı"
 const TITLE = "Restoran Menü Programı - Online Menü Yönetimi | QR Menülist"
 const DESCRIPTION =
   "Restoran menü programı arayanlar için tam donanımlı online menü yönetim sistemi. Kategori, ürün, fiyat, görsel yönetimi ve QR kod entegrasyonu bir arada."
 
 export const metadata: Metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   keywords: [
     "restoran menü programı",
@@ -92,12 +91,12 @@ export default function RestoranMenuProgramiPage() {
         {
           icon: "qr_code_2",
           title: "QR Kod Üretici",
-          description: "Sınırsız sayıda QR kod üret, logolu özelleştirme yap, PNG indir.",
+          description: "QR kodunu logolu özelleştir, PNG olarak indir, baskıya hazır.",
         },
       ]}
       benefitsTitle="Restoran Menü Programı Neler Sunmalı?"
       benefits={[
-        "Sınırsız kategori ve ürün yönetimi",
+        "Kategori ve ürün yönetimi (planına göre kapasite)",
         "Görsel yükleme ve otomatik optimizasyon (WebP)",
         "Çoklu dil desteği — Türkçe + İngilizce",
         "Yapay zeka destekli otomatik çeviri",
@@ -131,7 +130,7 @@ export default function RestoranMenuProgramiPage() {
         },
       ]}
       ctaTitle="Restoranını Profesyonel Yönet"
-      ctaSubtitle="Tam donanımlı restoran menü programına ücretsiz erişim."
+      ctaSubtitle="Restoran menü programını ücretsiz dene, ihtiyacın büyüdükçe Pro'ya yükselt."
     />
   )
 }

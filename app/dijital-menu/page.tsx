@@ -3,13 +3,12 @@ import { SeoLanding } from "@/components/seo-landing"
 import { getSiteUrl } from "@/lib/seo/jsonld"
 
 const SLUG = "dijital-menu"
-const H1 = "Dijital Menü"
 const TITLE = "Dijital Menü - Restoranınız İçin Online Menü Çözümü | QR Menülist"
 const DESCRIPTION =
   "Restoranınız için modern dijital menü çözümü. QR kod ile erişilen, mobil uyumlu, çoklu dil destekli online menü sistemi. Yapay zeka çevirisi dahil."
 
 export const metadata: Metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   keywords: [
     "dijital menü",
@@ -82,7 +81,7 @@ export default function DijitalMenuPage() {
       ]}
       benefitsTitle="Dijital Menüye Geçmenin Faydaları"
       benefits={[
-        "Basılı menü baskı maliyeti tamamen sıfırlanır",
+        "Basılı menü baskı maliyetini büyük oranda azaltır",
         "Fiyat değişikliği anında menüde yansır",
         "Mevsimsel ürünleri kolayca aç/kapat",
         "Stoksuz ürünü tek tıkla gizle",
