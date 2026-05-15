@@ -175,6 +175,10 @@ export const en: TranslationKeys = {
         title: 'Multilingual',
         description: 'Turkish and English language support.',
       },
+      aiTranslation: {
+        title: 'AI-Powered Translation',
+        description: 'Translate your menu to English with one click using AI.',
+      },
     },
     howItWorks: {
       badge: 'HOW IT WORKS',

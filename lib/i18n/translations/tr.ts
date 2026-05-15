@@ -174,6 +174,10 @@ export const tr = {
         title: 'Çoklu Dil',
         description: 'Türkçe ve İngilizce dil desteği.',
       },
+      aiTranslation: {
+        title: 'Yapay Zeka Çevirisi',
+        description: 'Menünüzü tek tıkla yapay zeka ile İngilizceye çevirin.',
+      },
     },
     howItWorks: {
       badge: 'NASIL ÇALIŞIR',

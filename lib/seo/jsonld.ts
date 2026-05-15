@@ -192,6 +192,14 @@ export function organizationJsonLd() {
     },
     description:
       'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü ve online menü yönetim sistemi.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+90-537-510-20-84',
+      contactType: 'customer support',
+      contactOption: 'TollFree',
+      areaServed: 'TR',
+      availableLanguage: ['Turkish', 'English'],
+    },
     sameAs: [],
   }
 }
@@ -231,7 +239,7 @@ export function softwareApplicationJsonLd() {
     operatingSystem: 'Web Browser',
     url: siteUrl,
     description:
-      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
+      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, yapay zeka destekli çeviri, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -248,7 +256,8 @@ export function softwareApplicationJsonLd() {
       'Ücretsiz QR menü oluşturma',
       'QR kod ile menü erişimi',
       'Dijital menü yönetimi',
-      'Çoklu dil desteği',
+      'Yapay zeka destekli menü çevirisi',
+      'Çoklu dil desteği (Türkçe + İngilizce)',
       'Müşteri istatistikleri',
       'Özelleştirilebilir tasarım',
       'Mobil uyumlu menü',

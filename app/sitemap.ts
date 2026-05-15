@@ -82,6 +82,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     .filter(Boolean) as MetadataRoute.Sitemap
 
+  const seoLandingSlugs = [
+    'ucretsiz-qr-menu',
+    'qr-menu-olusturma',
+    'dijital-menu',
+    'restoran-menu-programi',
+  ]
+
+  const seoLandingUrls: MetadataRoute.Sitemap = seoLandingSlugs.map((slug) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }))
+
   const staticUrls: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -89,6 +103,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 1,
     },
+    ...seoLandingUrls,
     {
       url: `${baseUrl}/auth/register`,
       lastModified: new Date(),
