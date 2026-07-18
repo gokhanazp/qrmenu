@@ -22,6 +22,56 @@ function generateUniqueId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}-${Math.random().toString(36).substring(2, 11)}`
 }
 
+// Görseli yüklemeden önce yeniden boyutlandır ve sıkıştır (WebP)
+// Bant genişliği (egress) tüketimini ciddi oranda azaltır
+async function compressImage(
+  file: File,
+  maxDimension = 1280,
+  quality = 0.8
+): Promise<{ blob: Blob; ext: string }> {
+  // GIF gibi animasyonlu / desteklenmeyen formatları olduğu gibi bırak
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+    return { blob: file, ext: file.name.split('.').pop()?.toLowerCase() || 'jpg' }
+  }
+
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+
+  const img: HTMLImageElement = await new Promise((resolve, reject) => {
+    const image = new window.Image()
+    image.onload = () => resolve(image)
+    image.onerror = reject
+    image.src = dataUrl
+  })
+
+  // Zaten yeterince küçükse dokunma
+  const scale = Math.min(1, maxDimension / Math.max(img.width, img.height))
+  const targetW = Math.round(img.width * scale)
+  const targetH = Math.round(img.height * scale)
+
+  const canvas = document.createElement('canvas')
+  canvas.width = targetW
+  canvas.height = targetH
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return { blob: file, ext: file.name.split('.').pop()?.toLowerCase() || 'jpg' }
+  ctx.drawImage(img, 0, 0, targetW, targetH)
+
+  const blob: Blob | null = await new Promise((resolve) =>
+    canvas.toBlob(resolve, 'image/webp', quality)
+  )
+
+  // WebP üretilemezse (eski tarayıcı) orijinali kullan
+  if (!blob || blob.size >= file.size) {
+    return { blob: file, ext: file.name.split('.').pop()?.toLowerCase() || 'jpg' }
+  }
+
+  return { blob, ext: 'webp' }
+}
+
 // Storage URL'inden dosya yolunu çıkar
 function extractFilePathFromUrl(url: string, bucket: string): string | null {
   try {
@@ -101,8 +151,8 @@ export function ImageUpload({
       }
       reader.readAsDataURL(file)
 
-      // Generate unique filename with UUID to prevent conflicts
-      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      // Yüklemeden önce yeniden boyutlandır + sıkıştır (egress tasarrufu)
+      const { blob, ext: fileExt } = await compressImage(file)
       const uniqueId = generateUniqueId()
       const fileName = `${path}/${uniqueId}.${fileExt}`
 
@@ -117,8 +167,9 @@ export function ImageUpload({
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
+        .upload(fileName, blob, {
+          cacheControl: '31536000',
+          contentType: blob.type || file.type,
           upsert: false
         })
 

@@ -127,12 +127,17 @@ export function ProductCard({
         >
           {product.image_url && (
             <div
-              className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center mr-4 shadow-sm"
-              style={{
-                backgroundImage: `url(${product.image_url})`,
-                backgroundColor
-              }}
-            />
+              className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden mr-4 shadow-sm"
+              style={{ backgroundColor }}
+            >
+              <Image
+                src={product.image_url}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="96px"
+              />
+            </div>
           )}
           <div className="flex-1">
             <h3
@@ -212,15 +217,22 @@ export function ProductCard({
         {/* Product Image */}
         {product.image_url && (
           <div
-            className={`${isDailySpecial ? 'w-24 h-24' : 'w-20 h-20'} shrink-0 rounded-lg bg-cover bg-center mr-4 ${
+            className={`relative ${isDailySpecial ? 'w-24 h-24' : 'w-20 h-20'} shrink-0 rounded-lg overflow-hidden mr-4 ${
               isDailySpecial ? 'ring-2' : ''
             }`}
             style={{
-              backgroundImage: `url(${product.image_url})`,
               backgroundColor,
-              ...(isDailySpecial && { ringColor: primaryColor })
+              ...(isDailySpecial && { ['--tw-ring-color' as any]: primaryColor })
             }}
-          />
+          >
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="96px"
+            />
+          </div>
         )}
 
         {/* Product Info */}

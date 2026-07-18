@@ -272,9 +272,12 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
                     style={{ backgroundColor: surfaceColor }}
                   >
                     {(category.image_url || category.products[0]?.image_url) && (
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                        style={{ backgroundImage: `url(${category.image_url || category.products[0]?.image_url})` }}
+                      <Image
+                        src={category.image_url || category.products[0]?.image_url}
+                        alt={category.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        sizes="(max-width: 768px) 50vw, 224px"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>

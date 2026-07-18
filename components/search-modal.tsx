@@ -173,12 +173,17 @@ export function SearchModal({
                   >
                     {product.image_url && (
                       <div
-                        className="w-16 h-16 shrink-0 rounded-lg bg-cover bg-center mr-3"
-                        style={{
-                          backgroundImage: `url(${product.image_url})`,
-                          backgroundColor: surfaceColor
-                        }}
-                      />
+                        className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden mr-3"
+                        style={{ backgroundColor: surfaceColor }}
+                      >
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <h3
