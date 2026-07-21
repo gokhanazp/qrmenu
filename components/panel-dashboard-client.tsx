@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/lib/i18n/use-locale"
+import { isPro, getTrialEndsAt, getDaysRemaining, isTrialExpired } from "@/lib/subscription"
+import { CONTACT_WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact"
 
 interface PanelDashboardClientProps {
   restaurant: {
@@ -12,6 +14,8 @@ interface PanelDashboardClientProps {
   }
   subscription: {
     plan: string
+    status?: string
+    trial_ends_at?: string | null
   } | null
   stats: {
     scans_today: number
@@ -44,19 +48,23 @@ export function PanelDashboardClient({
     day: 'numeric'
   })
   
-  // 1 yıllık abonelik bitiş tarihi hesaplama
-  const subscriptionEndDate = new Date(createdAt)
-  subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1)
-  
-  // Kalan gün hesaplama
-  const today = new Date()
-  const timeDiff = subscriptionEndDate.getTime() - today.getTime()
-  const daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
-  
-  // Uyarı seviyesi belirleme
-  const isExpired = daysRemaining <= 0
-  const isWarning = daysRemaining > 0 && daysRemaining <= 30
-  const isCaution = daysRemaining > 30 && daysRemaining <= 60
+  // Freemium: Pro ise süresiz, değilse 2 aylık deneme (trial_ends_at) üzerinden hesap
+  const proPlan = isPro(subscription)
+  const trialEnd = getTrialEndsAt(subscription, restaurant.created_at)
+  const subscriptionEndDate = trialEnd // Pro'da da denemenin ne zaman bittiğini gösteririz
+  const rawDaysRemaining = getDaysRemaining(subscription, restaurant.created_at)
+
+  // Uyarı seviyeleri sadece ÜCRETSİZ (Pro olmayan) planlar için geçerli
+  const daysRemaining = rawDaysRemaining !== null ? Math.max(rawDaysRemaining, 0) : 0
+  const expired = !proPlan && isTrialExpired(subscription, restaurant.created_at)
+  const isExpired = expired
+  const isWarning = !proPlan && !expired && rawDaysRemaining !== null && rawDaysRemaining <= 14
+  const isCaution = !proPlan && !expired && rawDaysRemaining !== null && rawDaysRemaining > 14 && rawDaysRemaining <= 30
+
+  // Pro'ya geçmek / yenilemek için WhatsApp mesajı
+  const upgradeWhatsappUrl = whatsappUrl(
+    `Merhaba, "${restaurant.name}" restoranı için Pro plana geçmek / aboneliğimi yenilemek istiyorum.`
+  )
 
   return (
     <div className="space-y-6">
@@ -123,6 +131,21 @@ export function PanelDashboardClient({
               <p className="text-2xl font-bold">{isExpired ? '0' : daysRemaining}</p>
               <p className="text-xs">{t.panel.dashboard.daysRemaining}</p>
             </div>
+          </div>
+          {/* Pro'ya geçiş / iletişim çağrısı */}
+          <div className="mt-4 pt-4 border-t border-black/5 flex flex-col sm:flex-row sm:items-center gap-3">
+            <p className={`text-sm flex-1 ${isExpired ? 'text-red-700' : 'text-gray-600'}`}>
+              {t.panel.dashboard.upgradePrompt}
+            </p>
+            <a
+              href={upgradeWhatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chat</span>
+              {t.panel.dashboard.contactToUpgrade}
+            </a>
           </div>
         </div>
       )}
@@ -216,17 +239,19 @@ export function PanelDashboardClient({
           {/* Sol: Plan ve Durum */}
           <div className="flex items-center gap-4 flex-1">
             <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${
-              isExpired
-                ? 'bg-gradient-to-br from-red-500 to-red-600'
-                : 'bg-gradient-to-br from-amber-500 to-amber-600'
+              proPlan
+                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
+                : isExpired
+                  ? 'bg-gradient-to-br from-red-500 to-red-600'
+                  : 'bg-gradient-to-br from-amber-500 to-amber-600'
             }`}>
               <span className="material-symbols-outlined text-white" style={{ fontSize: '28px' }}>
-                {isExpired ? 'timer_off' : 'workspace_premium'}
+                {proPlan ? 'verified' : isExpired ? 'timer_off' : 'workspace_premium'}
               </span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-2xl font-bold text-gray-900 capitalize">
+                <p className="text-2xl font-bold text-gray-900 uppercase">
                   {subscription?.plan || 'free'}
                 </p>
                 <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -235,27 +260,31 @@ export function PanelDashboardClient({
                   {isExpired ? t.panel.dashboard.expired : t.panel.dashboard.active}
                 </span>
               </div>
-              <p className="text-sm text-gray-500 mt-1">{t.panel.dashboard.yearlySubscription}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {proPlan ? t.panel.dashboard.proSubscription : t.panel.dashboard.trialSubscription}
+              </p>
             </div>
           </div>
 
           {/* Orta: Kalan Gün */}
           <div className={`flex-shrink-0 rounded-xl px-6 py-3 text-center ${
-            isExpired
-              ? 'bg-red-100 border border-red-200'
-              : isWarning
-                ? 'bg-amber-100 border border-amber-200'
-                : 'bg-green-100 border border-green-200'
+            proPlan
+              ? 'bg-emerald-100 border border-emerald-200'
+              : isExpired
+                ? 'bg-red-100 border border-red-200'
+                : isWarning
+                  ? 'bg-amber-100 border border-amber-200'
+                  : 'bg-green-100 border border-green-200'
           }`}>
             <p className={`text-3xl font-bold ${
-              isExpired ? 'text-red-600' : isWarning ? 'text-amber-600' : 'text-green-600'
+              proPlan ? 'text-emerald-600' : isExpired ? 'text-red-600' : isWarning ? 'text-amber-600' : 'text-green-600'
             }`}>
-              {isExpired ? '0' : daysRemaining}
+              {proPlan ? '∞' : isExpired ? '0' : daysRemaining}
             </p>
             <p className={`text-xs font-medium ${
-              isExpired ? 'text-red-700' : isWarning ? 'text-amber-700' : 'text-green-700'
+              proPlan ? 'text-emerald-700' : isExpired ? 'text-red-700' : isWarning ? 'text-amber-700' : 'text-green-700'
             }`}>
-              {t.panel.dashboard.daysRemaining}
+              {proPlan ? t.panel.dashboard.active : t.panel.dashboard.daysRemaining}
             </p>
           </div>
 
@@ -272,10 +301,14 @@ export function PanelDashboardClient({
               <div>
                 <div className="flex items-center gap-1 mb-1">
                   <span className={`material-symbols-outlined ${isExpired ? 'text-red-600' : 'text-amber-600'}`} style={{ fontSize: '16px' }}>event_busy</span>
-                  <span className="text-xs text-gray-500">{t.panel.dashboard.endDate}</span>
+                  <span className="text-xs text-gray-500">{proPlan ? t.panel.dashboard.proSubscription : t.panel.dashboard.trialEndDate}</span>
                 </div>
                 <p className={`text-sm font-semibold ${isExpired ? 'text-red-600' : 'text-gray-900'}`}>
-                  {subscriptionEndDate.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {proPlan
+                    ? '∞'
+                    : subscriptionEndDate
+                      ? subscriptionEndDate.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : '—'}
                 </p>
               </div>
             </div>

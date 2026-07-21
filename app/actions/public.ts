@@ -8,7 +8,7 @@ export async function getPublicRestaurant(slug: string) {
 
     const { data: restaurant, error } = await supabase
       .from('restaurants')
-      .select('*')
+      .select('*, subscriptions(plan, status, trial_ends_at)')
       .eq('slug', slug)
       .eq('is_active', true)
       .maybeSingle()

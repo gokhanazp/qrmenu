@@ -154,6 +154,7 @@ export interface Database {
           status: 'active' | 'inactive' | 'past_due' | 'canceled' | 'trialing'
           current_period_start: string | null
           current_period_end: string | null
+          trial_ends_at: string | null
           created_at: string
           updated_at: string
         }
@@ -164,6 +165,7 @@ export interface Database {
           status?: 'active' | 'inactive' | 'past_due' | 'canceled' | 'trialing'
           current_period_start?: string | null
           current_period_end?: string | null
+          trial_ends_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -174,6 +176,7 @@ export interface Database {
           status?: 'active' | 'inactive' | 'past_due' | 'canceled' | 'trialing'
           current_period_start?: string | null
           current_period_end?: string | null
+          trial_ends_at?: string | null
           created_at?: string
           updated_at?: string
         }

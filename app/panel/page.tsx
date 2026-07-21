@@ -50,7 +50,11 @@ export default async function PanelPage() {
         slug: (restaurant as any).slug,
         created_at: (restaurant as any).created_at,
       }}
-      subscription={subscription ? { plan: (subscription as any).plan } : null}
+      subscription={subscription ? {
+        plan: (subscription as any).plan,
+        status: (subscription as any).status,
+        trial_ends_at: (subscription as any).trial_ends_at,
+      } : null}
       stats={{
         scans_today: stats.scans_today,
         scans_7d: stats.scans_7d,

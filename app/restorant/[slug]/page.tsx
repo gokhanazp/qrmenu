@@ -14,6 +14,8 @@ import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { ScanTracker } from '@/components/scan-tracker'
 import { JsonLd } from '@/components/json-ld'
+import { MenuUnavailable } from '@/components/menu-unavailable'
+import { isMenuAccessible, extractSubscription } from '@/lib/subscription'
 import {
   restaurantJsonLd,
   menuJsonLd,
@@ -32,6 +34,21 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
 
   if (restaurantError || !restaurant) {
     notFound()
+  }
+
+  // Freemium kontrolü: deneme süresi dolan (ve Pro'ya geçmemiş) restoranların
+  // menüsü kapanır. Menü yerine "kapalı" sayfası gösterilir.
+  const subscription = extractSubscription((restaurant as any).subscriptions)
+  const langs = (restaurant as any).supported_languages || ['tr']
+  const gateLang = searchParams.lang && langs.includes(searchParams.lang) ? searchParams.lang : langs[0]
+
+  if (!isMenuAccessible(subscription, (restaurant as any).created_at)) {
+    return (
+      <MenuUnavailable
+        restaurantName={(restaurant as any).name}
+        isEnglish={gateLang === 'en'}
+      />
+    )
   }
 
   // Paralel Veri Çekme (Hızlandırıldı - Cache Destekli)
@@ -424,6 +441,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const rest = restaurant as any
+  // Deneme süresi dolmuş menüler indexlenmesin
+  const accessible = isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at)
+  const shouldIndex = rest.is_active && accessible
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/restorant/${params.slug}`
   const supportedLanguages: string[] = rest.supported_languages || ['tr']
@@ -458,11 +478,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     creator: rest.name,
     publisher: rest.name,
     robots: {
-      index: rest.is_active,
-      follow: rest.is_active,
+      index: shouldIndex,
+      follow: shouldIndex,
       googleBot: {
-        index: rest.is_active,
-        follow: rest.is_active,
+        index: shouldIndex,
+        follow: shouldIndex,
       },
     },
     openGraph: {

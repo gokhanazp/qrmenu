@@ -8,6 +8,8 @@ import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { JsonLd } from '@/components/json-ld'
 import { menuSectionJsonLd, breadcrumbJsonLd, getSiteUrl } from '@/lib/seo/jsonld'
+import { MenuUnavailable } from '@/components/menu-unavailable'
+import { isMenuAccessible, extractSubscription } from '@/lib/subscription'
 
 // Revalidate every 5 minutes for category pages
 export const revalidate = 300
@@ -26,6 +28,20 @@ export default async function CategoryDetailPage({
 
   if (restaurantError || !restaurant) {
     notFound()
+  }
+
+  // Freemium kontrolü: deneme süresi dolan menüler kapalı gösterilir.
+  const subscription = extractSubscription((restaurant as any).subscriptions)
+  const langs = (restaurant as any).supported_languages || ['tr']
+  const gateLang = searchParams.lang && langs.includes(searchParams.lang) ? searchParams.lang : langs[0]
+
+  if (!isMenuAccessible(subscription, (restaurant as any).created_at)) {
+    return (
+      <MenuUnavailable
+        restaurantName={(restaurant as any).name}
+        isEnglish={gateLang === 'en'}
+      />
+    )
   }
 
   // Fetch category and products, and all products for search (Parallel)
@@ -333,8 +349,8 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
     ],
     authors: [{ name: rest.name }],
     robots: {
-      index: rest.is_active && cat.is_active,
-      follow: rest.is_active && cat.is_active,
+      index: rest.is_active && cat.is_active && isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at),
+      follow: rest.is_active && cat.is_active && isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at),
     },
     openGraph: {
       type: 'website',

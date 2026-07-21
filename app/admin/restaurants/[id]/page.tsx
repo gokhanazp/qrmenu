@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { UpdateSubscriptionForm } from './update-subscription-form'
 import { ToggleRestaurantStatus } from './toggle-restaurant-status'
 import { ImpersonateButton } from './impersonate-button'
+import { extractSubscription } from '@/lib/subscription'
 
 export default async function AdminRestaurantDetailPage({
   params
@@ -32,7 +33,7 @@ export default async function AdminRestaurantDetailPage({
   }
 
   const rest = restaurant as any
-  const subscription = rest.subscriptions?.[0]
+  const subscription = extractSubscription(rest.subscriptions)
   const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${rest.slug}`
 
   // Process scan events for chart (last 30 days)
@@ -422,6 +423,7 @@ export default async function AdminRestaurantDetailPage({
             </h2>
             <UpdateSubscriptionForm
               restaurantId={rest.id}
+              restaurantCreatedAt={rest.created_at}
               currentSubscription={subscription}
             />
           </div>

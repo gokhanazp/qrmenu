@@ -40,7 +40,8 @@ export async function getAllRestaurants() {
         plan,
         status,
         current_period_start,
-        current_period_end
+        current_period_end,
+        trial_ends_at
       )
     `)
     .order('created_at', { ascending: false })
@@ -70,7 +71,8 @@ export async function getRestaurantStats(restaurantId: string) {
         plan,
         status,
         current_period_start,
-        current_period_end
+        current_period_end,
+        trial_ends_at
       )
     `)
     .eq('id', restaurantId)
@@ -129,6 +131,7 @@ interface UpdateSubscriptionInput {
   status?: string
   current_period_start?: string
   current_period_end?: string
+  trial_ends_at?: string | null
 }
 
 export async function updateSubscription(input: UpdateSubscriptionInput) {
@@ -160,6 +163,7 @@ export async function updateSubscription(input: UpdateSubscriptionInput) {
         ...(updateData.status && { status: updateData.status }),
         ...(updateData.current_period_start && { current_period_start: updateData.current_period_start }),
         ...(updateData.current_period_end && { current_period_end: updateData.current_period_end }),
+        ...(updateData.trial_ends_at !== undefined && { trial_ends_at: updateData.trial_ends_at || null }),
         updated_at: new Date().toISOString()
       } as never)
       .eq('restaurant_id', restaurantId)
@@ -174,6 +178,7 @@ export async function updateSubscription(input: UpdateSubscriptionInput) {
         status: updateData.status || 'active',
         ...(updateData.current_period_start && { current_period_start: updateData.current_period_start }),
         ...(updateData.current_period_end && { current_period_end: updateData.current_period_end }),
+        ...(updateData.trial_ends_at !== undefined && { trial_ends_at: updateData.trial_ends_at || null }),
         updated_at: new Date().toISOString()
       } as never)
     error = result.error
@@ -301,17 +306,22 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
     return { success: false, error: `Restoran oluşturulamadı: ${restaurantError.message}` }
   }
 
-  // Create subscription
-  const { error: subscriptionError } = await supabase
-    .from('subscriptions')
-    .insert({
-      restaurant_id: (restaurant as any).id,
-      plan: input.plan || 'free',
-      status: 'active'
-    } as never)
+  // Abonelik trigger tarafından otomatik oluşturuluyor: free plan + 2 ay deneme (trialing).
+  // Admin "Pro" seçtiyse trigger'ın oluşturduğu aboneliği Pro'ya güncelle.
+  if (input.plan === 'pro') {
+    const { error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .update({
+        plan: 'pro',
+        status: 'active',
+        trial_ends_at: null,
+        updated_at: new Date().toISOString()
+      } as never)
+      .eq('restaurant_id', (restaurant as any).id)
 
-  if (subscriptionError) {
-    console.error('Subscription creation error:', subscriptionError)
+    if (subscriptionError) {
+      console.error('Subscription update error:', subscriptionError)
+    }
   }
 
   revalidatePath('/admin')
@@ -446,7 +456,8 @@ export async function getRestaurantById(restaurantId: string) {
         plan,
         status,
         current_period_start,
-        current_period_end
+        current_period_end,
+        trial_ends_at
       )
     `)
     .eq('id', restaurantId)

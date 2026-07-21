@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import DeleteRestaurantButton from '../delete-restaurant-button'
+import { isPro, getDaysRemaining, isTrialExpired, extractSubscription } from '@/lib/subscription'
 
 type Restaurant = {
   id: string
@@ -16,6 +17,7 @@ type Restaurant = {
     status: string
     current_period_start: string | null
     current_period_end: string | null
+    trial_ends_at: string | null
   }>
 }
 
@@ -53,7 +55,8 @@ export default async function AdminRestaurantsPage() {
         plan,
         status,
         current_period_start,
-        current_period_end
+        current_period_end,
+        trial_ends_at
       )
     `)
     .order('created_at', { ascending: false })
@@ -142,7 +145,7 @@ export default async function AdminRestaurantsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 font-medium">Pro</p>
-                  <p className="text-3xl font-black text-gray-900">{(restaurants as Restaurant[])?.filter(r => r.subscriptions?.[0]?.plan === 'pro').length || 0}</p>
+                  <p className="text-3xl font-black text-gray-900">{(restaurants as Restaurant[])?.filter(r => extractSubscription(r.subscriptions)?.plan === 'pro').length || 0}</p>
                 </div>
               </div>
             </div>
@@ -153,7 +156,7 @@ export default async function AdminRestaurantsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 font-medium">Free</p>
-                  <p className="text-3xl font-black text-gray-900">{(restaurants as Restaurant[])?.filter(r => !r.subscriptions?.[0] || r.subscriptions[0].plan === 'free').length || 0}</p>
+                  <p className="text-3xl font-black text-gray-900">{(restaurants as Restaurant[])?.filter(r => (extractSubscription(r.subscriptions)?.plan ?? 'free') === 'free').length || 0}</p>
                 </div>
               </div>
             </div>
@@ -176,7 +179,7 @@ export default async function AdminRestaurantsPage() {
                 <tbody className="divide-y divide-gray-200">
                   {(restaurants as Restaurant[])?.map((restaurant) => {
                     const stats = statsMap.get(restaurant.id) || { total: 0, today: 0, week: 0 }
-                    const subscription = restaurant.subscriptions?.[0]
+                    const subscription = extractSubscription(restaurant.subscriptions)
                     
                     return (
                       <tr key={restaurant.id} className="hover:bg-gray-50 transition-colors">
@@ -199,13 +202,24 @@ export default async function AdminRestaurantsPage() {
                           <code className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">{restaurant.slug}</code>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            subscription?.plan === 'pro' 
-                              ? 'bg-orange-100 text-orange-700' 
-                              : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {subscription?.plan?.toUpperCase() || 'FREE'}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block w-fit ${
+                              subscription?.plan === 'pro'
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {subscription?.plan?.toUpperCase() || 'FREE'}
+                            </span>
+                            {!isPro(subscription) && (
+                              isTrialExpired(subscription, restaurant.created_at) ? (
+                                <span className="text-xs font-bold text-red-600">Süresi doldu · kapalı</span>
+                              ) : (
+                                <span className="text-xs text-amber-600">
+                                  Deneme: {Math.max(getDaysRemaining(subscription, restaurant.created_at) ?? 0, 0)} gün
+                                </span>
+                              )
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-1">
