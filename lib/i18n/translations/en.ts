@@ -136,6 +136,7 @@ export const en: TranslationKeys = {
       subtitle: 'Provide your customers with a modern menu experience via QR code.',
       cta: 'Start Free',
       ctaSecondary: 'Explore',
+      trialNote: 'First 2 months free · No credit card required',
       stats: {
         restaurants: 'Restaurants',
         views: 'Views',

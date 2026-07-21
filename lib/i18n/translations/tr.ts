@@ -135,6 +135,7 @@ export const tr = {
       subtitle: 'QR kod ile müşterilerinize modern bir menü deneyimi sunun.',
       cta: 'Ücretsiz Başla',
       ctaSecondary: 'Keşfet',
+      trialNote: 'İlk 2 ay ücretsiz · Kredi kartı gerekmez',
       stats: {
         restaurants: 'Restoran',
         views: 'Görüntüleme',

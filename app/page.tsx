@@ -380,14 +380,14 @@ function HomePageContent() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "bg-[#0a0a0a]/95 backdrop-blur-lg" : "bg-transparent"}`}
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <HamburgerMenu
               isOpen={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             />
             <Link href="/" className="flex items-center gap-1.5">
-              <img src="/qrmenu-logo.png" alt="Logo" className="h-12 sm:h-14 w-auto drop-shadow-md" />
-              <span className="font-bold text-2xl hidden sm:flex items-center tracking-tight">
+              <img src="/qrmenu-logo.png" alt="Logo" className="h-10 sm:h-14 w-auto drop-shadow-md" />
+              <span className="font-bold text-xl sm:text-2xl flex items-center tracking-tight">
                 <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
                 <span className="text-white">menülist</span>
               </span>
@@ -486,6 +486,12 @@ function HomePageContent() {
                       {t.landing.hero.ctaSecondary}
                     </Button>
                   </Link>
+                </div>
+
+                {/* Ücretsiz deneme notu */}
+                <div className="flex items-center justify-center lg:justify-start gap-2 mb-8 lg:mb-12 -mt-2 lg:-mt-6">
+                  <span className="material-symbols-outlined text-emerald-400 text-lg">verified</span>
+                  <span className="text-sm text-gray-300">{t.landing.hero.trialNote}</span>
                 </div>
 
                 <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 lg:gap-12 flex-wrap">
