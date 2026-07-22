@@ -39,8 +39,8 @@ export default function RegisterPage() {
         return
       }
 
-      // Google Ads dönüşümü: başarılı kayıt
-      trackSignupConversion()
+      // Google Ads dönüşümü: başarılı kayıt (gelişmiş dönüşüm için email/telefon iletilir)
+      trackSignupConversion({ email: data.email, phone: data.phone })
 
       router.push("/panel")
       router.refresh()
