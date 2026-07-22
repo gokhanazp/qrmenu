@@ -150,6 +150,7 @@ export default function RootLayout({
             gtag('js', new Date());
 
             gtag('config', 'G-MMDJC2TFFP');
+            gtag('config', 'AW-18341719321');
           `}
         </Script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />

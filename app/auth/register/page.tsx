@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth"
 import { register as registerAction } from "@/app/actions/auth"
+import { trackSignupConversion } from "@/lib/gtag"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,6 +38,9 @@ export default function RegisterPage() {
         setError(result.error || t.auth.registerError)
         return
       }
+
+      // Google Ads dönüşümü: başarılı kayıt
+      trackSignupConversion()
 
       router.push("/panel")
       router.refresh()
