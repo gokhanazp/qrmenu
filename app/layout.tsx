@@ -4,7 +4,7 @@ import "./globals.css"
 import { LocaleProvider } from "@/lib/i18n/use-locale"
 import Script from "next/script"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin", "latin-ext"] })
 
 // Get the site URL with proper fallback
 function getSiteUrl(): string {
