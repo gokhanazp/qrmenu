@@ -216,6 +216,41 @@ export interface Database {
           created_at?: string
         }
       }
+      reviews: {
+        Row: {
+          id: string
+          restaurant_id: string
+          topic: 'oneri' | 'sikayet' | 'diger'
+          rating: number | null
+          message: string
+          author_name: string | null
+          contact: string | null
+          is_published: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          restaurant_id: string
+          topic?: 'oneri' | 'sikayet' | 'diger'
+          rating?: number | null
+          message: string
+          author_name?: string | null
+          contact?: string | null
+          is_published?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          restaurant_id?: string
+          topic?: 'oneri' | 'sikayet' | 'diger'
+          rating?: number | null
+          message?: string
+          author_name?: string | null
+          contact?: string | null
+          is_published?: boolean
+          created_at?: string
+        }
+      }
       admin_users: {
         Row: {
           user_id: string

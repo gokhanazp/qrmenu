@@ -16,6 +16,8 @@ import { ScanTracker } from '@/components/scan-tracker'
 import { JsonLd } from '@/components/json-ld'
 import { MenuUnavailable } from '@/components/menu-unavailable'
 import { isMenuAccessible, extractSubscription } from '@/lib/subscription'
+import { ReviewsSection } from '@/components/reviews-section'
+import { getPublicReviews } from '@/app/actions/reviews'
 import {
   restaurantJsonLd,
   menuJsonLd,
@@ -59,11 +61,13 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     { products: featuredProducts },
     { products: dailySpecials },
     { products: allProducts },
+    reviewsData,
   ] = await Promise.all([
     getPublicMenu(restaurantId),
     getFeaturedProducts(restaurantId),
     getDailySpecials(restaurantId),
-    getAllProducts(restaurantId)
+    getAllProducts(restaurantId),
+    getPublicReviews(restaurantId),
   ])
 
   const rest = restaurant as any
@@ -414,6 +418,22 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           surfaceColor={surfaceColor}
           textColor={textColor}
           borderColor={borderColor}
+        />
+
+        <ReviewsSection
+          restaurantId={restaurantId}
+          slug={slug}
+          reviews={reviewsData.reviews}
+          average={reviewsData.average}
+          count={reviewsData.count}
+          ratingCount={reviewsData.ratingCount}
+          primaryColor={primaryColor}
+          surfaceColor={surfaceColor}
+          textColor={textColor}
+          isEnglish={isEnglish}
+          currentLang={currentLang}
+          limit={5}
+          compact={true}
         />
 
         <PublicMenuBottomNav

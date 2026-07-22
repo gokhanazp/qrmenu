@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { ReviewModal } from './review-modal'
 
 interface BottomNavigationProps {
   restaurant: {
+    id: string
     name: string
     slug: string
     about_us?: string
@@ -47,6 +49,7 @@ export function BottomNavigation({
   footerBgColor,
 }: BottomNavigationProps) {
   const [showAbout, setShowAbout] = useState(false)
+  const [showReview, setShowReview] = useState(false)
   const router = useRouter()
   const finalIconColor = iconColor || textColor
   const borderColor = textColor + '20'
@@ -58,6 +61,7 @@ export function BottomNavigation({
   const t = {
     menu: isEnglish ? 'Menu' : 'Menü',
     about: isEnglish ? 'About Us' : 'Hakkımızda',
+    review: isEnglish ? 'Review' : 'Yorum',
     contact: isEnglish ? 'Contact' : 'İletişim',
     socialMedia: isEnglish ? 'Social Media' : 'Sosyal Medya',
     noAboutInfo: isEnglish ? 'No about information added' : 'Hakkımızda bilgisi eklenmemiş',
@@ -114,6 +118,18 @@ export function BottomNavigation({
             <span className="text-xs font-medium">{t.about}</span>
           </button>
 
+          {/* Review Button */}
+          <button
+            onClick={() => setShowReview(true)}
+            className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+            style={{ color: finalIconColor }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
+              rate_review
+            </span>
+            <span className="text-xs font-medium">{t.review}</span>
+          </button>
+
           {/* Language Selector - Only show if multiple languages */}
           {hasMultipleLanguages && (
             <div className="flex items-center rounded-full p-1" style={{ backgroundColor: `${textColor}10` }}>
@@ -143,6 +159,15 @@ export function BottomNavigation({
           )}
         </div>
       </nav>
+
+      {/* Review Modal */}
+      <ReviewModal
+        restaurantId={restaurant.id}
+        primaryColor={primaryColor}
+        isEnglish={isEnglish}
+        open={showReview}
+        onClose={() => setShowReview(false)}
+      />
 
       {/* About Modal */}
       {showAbout && (

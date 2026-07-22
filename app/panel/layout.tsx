@@ -34,6 +34,7 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
     { name: t.panel.dashboard.title, href: '/panel', icon: 'home' },
     { name: t.panel.categories.title, href: '/panel/categories', icon: 'category' },
     { name: t.panel.products.title, href: '/panel/products', icon: 'restaurant_menu' },
+    { name: t.panel.reviews.title, href: '/panel/reviews', icon: 'reviews' },
     { name: t.panel.dashboard.qrCode, href: '/panel/qr', icon: 'qr_code_2' },
     { name: t.panel.settings.title, href: '/panel/settings', icon: 'settings' },
   ]
