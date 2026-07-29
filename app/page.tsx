@@ -1094,7 +1094,7 @@ function HomePageContent() {
                   </li>
                   <li>
                     <Link
-                      href="#"
+                      href="/blog"
                       className="text-gray-400 hover:text-violet-400 transition-colors flex items-center gap-2"
                     >
                       <span className="material-symbols-outlined text-sm">

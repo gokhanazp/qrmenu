@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { BLOG_POSTS } from '@/lib/blog/posts'
 
 function getSiteUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
@@ -96,6 +97,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }))
 
+  const blogPostUrls: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(`${post.updatedAt}T00:00:00Z`),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
   const staticUrls: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -104,6 +112,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     ...seoLandingUrls,
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...blogPostUrls,
     {
       url: `${baseUrl}/auth/register`,
       lastModified: new Date(),

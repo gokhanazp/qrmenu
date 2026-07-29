@@ -279,6 +279,76 @@ export function softwareApplicationJsonLd() {
   }
 }
 
+type ArticleInput = {
+  slug: string
+  title: string
+  description: string
+  publishedAt: string
+  updatedAt: string
+  keywords: string[]
+  section: string
+  /** Yaklaşık kelime sayısı — Google için içerik derinliği sinyali */
+  wordCount?: number
+}
+
+export function articleJsonLd(article: ArticleInput) {
+  const siteUrl = getSiteUrl()
+  const url = `${siteUrl}/blog/${article.slug}`
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': url,
+    headline: article.title,
+    description: article.description,
+    url,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt,
+    inLanguage: 'tr-TR',
+    articleSection: article.section,
+    keywords: article.keywords.join(', '),
+    wordCount: article.wordCount,
+    image: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/qrmenu-logo.png`,
+      width: 512,
+      height: 512,
+    },
+    author: { '@id': `${siteUrl}#organization` },
+    publisher: { '@id': `${siteUrl}#organization` },
+    isPartOf: { '@id': `${siteUrl}/blog#blog` },
+  }
+}
+
+export function blogJsonLd(posts: Array<{ slug: string; title: string; description: string; publishedAt: string }>) {
+  const siteUrl = getSiteUrl()
+  const blogUrl = `${siteUrl}/blog`
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': `${blogUrl}#blog`,
+    url: blogUrl,
+    name: 'QR Menülist Blog',
+    description:
+      'QR menü, dijital menü ve restoran menü yönetimi üzerine rehberler, karşılaştırmalar ve maliyet analizleri.',
+    inLanguage: 'tr-TR',
+    publisher: { '@id': `${siteUrl}#organization` },
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      '@id': `${blogUrl}/${post.slug}`,
+      headline: post.title,
+      description: post.description,
+      datePublished: post.publishedAt,
+      url: `${blogUrl}/${post.slug}`,
+    })),
+  }
+}
+
 export function faqPageJsonLd(items: Array<{ q: string; a: string }>) {
   return {
     '@context': 'https://schema.org',

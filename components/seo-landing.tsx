@@ -231,8 +231,9 @@ export function SeoLanding(props: SeoLandingProps) {
       <footer className="py-8 border-t border-white/10 bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <p>© {new Date().getFullYear()} QR Menülist — Ücretsiz QR Menü Oluşturma Platformu</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/" className="hover:text-violet-400 transition-colors">Ana Sayfa</Link>
+            <Link href="/blog" className="hover:text-violet-400 transition-colors">Blog</Link>
             <a
               href={whatsappUrl()}
               target="_blank"
