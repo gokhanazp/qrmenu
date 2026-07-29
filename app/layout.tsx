@@ -2,24 +2,12 @@ import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { LocaleProvider } from "@/lib/i18n/use-locale"
+import { getSiteUrl } from "@/lib/seo/jsonld"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin", "latin-ext"] })
 
 // Get the site URL with proper fallback
-function getSiteUrl(): string {
-  // Check for Vercel URL first (automatically set by Vercel)
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`
-  }
-  // Then check for custom site URL
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL
-  }
-  // Default fallback for local development
-  return 'http://localhost:3000'
-}
-
 export const metadata: Metadata = {
   title: {
     default: "Ücretsiz QR Menü Oluşturma | Dijital Menü | QR Menülist",
