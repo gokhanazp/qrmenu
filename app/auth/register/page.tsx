@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,7 +13,6 @@ import { Label } from "@/components/ui/label"
 import { useLocale } from "@/lib/i18n/use-locale"
 
 export default function RegisterPage() {
-  const router = useRouter()
   const { t } = useLocale()
   const [error, setError] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
@@ -36,17 +34,17 @@ export default function RegisterPage() {
 
       if (!result.success) {
         setError(result.error || t.auth.registerError)
+        setIsLoading(false)
         return
       }
 
       // Google Ads dönüşümü: başarılı kayıt (gelişmiş dönüşüm için email/telefon iletilir)
       trackSignupConversion({ email: data.email, phone: data.phone })
 
-      router.push("/panel")
-      router.refresh()
+      // Login ile aynı sebep: yeni oturum cookie'leri ile tam sayfa yüklemesi
+      window.location.replace("/panel")
     } catch (err: any) {
       setError(err.message || t.auth.registerError)
-    } finally {
       setIsLoading(false)
     }
   }

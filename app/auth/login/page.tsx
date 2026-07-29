@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -13,7 +12,6 @@ import { Label } from "@/components/ui/label"
 import { useLocale } from "@/lib/i18n/use-locale"
 
 export default function LoginPage() {
-  const router = useRouter()
   const { t } = useLocale()
   const [error, setError] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
@@ -35,19 +33,17 @@ export default function LoginPage() {
 
       if (!result.success) {
         setError(result.error || t.auth.loginError)
+        setIsLoading(false)
         return
       }
 
-      // Redirect based on admin status
-      if (result.isAdmin) {
-        router.push("/admin")
-      } else {
-        router.push("/panel")
-      }
-      router.refresh()
+      // Oturum cookie'leri server action içinde yazıldı. Tam sayfa yüklemesi ile
+      // yönlendiriyoruz: router.push + router.refresh birbirini iptal ediyor
+      // (action'daki revalidatePath mevcut route'u yeniden render ettiği için)
+      // ve kullanıcı login sayfasında kalıyordu.
+      window.location.replace(result.isAdmin ? "/admin" : "/panel")
     } catch (err: any) {
       setError(err.message || t.auth.loginError)
-    } finally {
       setIsLoading(false)
     }
   }

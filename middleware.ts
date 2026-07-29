@@ -43,39 +43,43 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // getUser() oturumu yenilediğinde yeni token'lar supabaseResponse üzerine
+  // yazılır. Redirect dönerken bunları taşımazsak yeni token'lar kaybolur;
+  // eski refresh token da tüketilmiş olduğu için kullanıcı oturumdan düşer.
+  const redirectTo = (pathname: string) => {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname
+    const response = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie)
+    })
+    return response
+  }
+
+  const { pathname } = request.nextUrl
+
   // Protected routes - require authentication
-  if (request.nextUrl.pathname.startsWith('/panel')) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
-    }
+  if (pathname.startsWith('/panel') && !user) {
+    return redirectTo('/auth/login')
   }
 
   // Admin routes - require admin role
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin')) {
     if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
+      return redirectTo('/auth/login')
     }
 
     // Check if user is admin
     const { data: isAdmin } = await supabase.rpc('is_admin')
     if (!isAdmin) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/panel'
-      return NextResponse.redirect(url)
+      return redirectTo('/panel')
     }
   }
 
   // Auth routes - redirect if already logged in
-  if (request.nextUrl.pathname.startsWith('/auth') && user) {
-    // Check if admin
+  if (pathname.startsWith('/auth') && user) {
     const { data: isAdmin } = await supabase.rpc('is_admin')
-    const url = request.nextUrl.clone()
-    url.pathname = isAdmin ? '/admin' : '/panel'
-    return NextResponse.redirect(url)
+    return redirectTo(isAdmin ? '/admin' : '/panel')
   }
 
   return supabaseResponse
