@@ -1005,6 +1005,86 @@ export async function adminChangeUserPassword(input: {
   return { success: true }
 }
 
+export async function adminChangeUserEmail(input: {
+  restaurantId: string
+  newEmail: string
+}): Promise<{ success: boolean; error?: string; email?: string }> {
+  const supabase = await createClient()
+
+  const { isAdmin: userIsAdmin } = await isAdmin()
+  if (!userIsAdmin) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const newEmail = (input.newEmail || '').trim().toLowerCase()
+
+  if (!newEmail) {
+    return { success: false, error: 'E-posta adresi boş olamaz' }
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    return { success: false, error: 'Geçerli bir e-posta adresi girin' }
+  }
+
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  if (!currentUser) {
+    return { success: false, error: 'Oturum bulunamadı' }
+  }
+
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('owner_user_id')
+    .eq('id', input.restaurantId)
+    .maybeSingle()
+
+  if (!restaurant) {
+    return { success: false, error: 'Restoran bulunamadı' }
+  }
+
+  const ownerUserId = (restaurant as { owner_user_id: string }).owner_user_id
+
+  // Prevent admin from changing their own login e-mail through this flow —
+  // it would invalidate the session they are currently using.
+  if (ownerUserId === currentUser.id) {
+    return {
+      success: false,
+      error: 'Bu restoranın sahibi sizsiniz. Kendi e-postanızı değiştirmek için panel ayarlarını kullanın.'
+    }
+  }
+
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { data: ownerData } = await supabaseAdmin.auth.admin.getUserById(ownerUserId)
+
+  if (ownerData?.user?.email?.toLowerCase() === newEmail) {
+    return { success: false, error: 'Bu e-posta adresi hâlihazırda kullanılıyor' }
+  }
+
+  // email_confirm: true marks the new address as verified right away, so the
+  // restaurant owner can log in with it without a confirmation e-mail.
+  const { data: updated, error } = await supabaseAdmin.auth.admin.updateUserById(
+    ownerUserId,
+    { email: newEmail, email_confirm: true }
+  )
+
+  if (error) {
+    const message = /already|exists|registered|duplicate/i.test(error.message)
+      ? 'Bu e-posta adresi başka bir kullanıcıya ait'
+      : error.message
+    return { success: false, error: message }
+  }
+
+  revalidatePath(`/admin/restaurants/${input.restaurantId}`)
+  revalidatePath(`/admin/restaurants/${input.restaurantId}/edit`)
+  revalidatePath('/admin/restaurants')
+
+  return { success: true, email: updated?.user?.email || newEmail }
+}
+
 export async function getImpersonationStatus() {
   const cookieStore = await cookies()
   const impersonationCookie = cookieStore.get('impersonating_restaurant')

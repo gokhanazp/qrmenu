@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
-import { getRestaurantById, updateRestaurantByAdmin, getRestaurantOwnerInfo, adminChangeUserPassword } from '@/app/actions/admin'
+import { getRestaurantById, updateRestaurantByAdmin, getRestaurantOwnerInfo, adminChangeUserPassword, adminChangeUserEmail } from '@/app/actions/admin'
 
 export default function EditRestaurantPage() {
   const params = useParams()
@@ -34,6 +34,10 @@ export default function EditRestaurantPage() {
   })
 
   const [ownerEmail, setOwnerEmail] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [emailSaving, setEmailSaving] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [emailSuccess, setEmailSuccess] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
   const [passwordSaving, setPasswordSaving] = useState(false)
@@ -46,10 +50,44 @@ export default function EditRestaurantPage() {
       const result = await getRestaurantOwnerInfo(restaurantId)
       if ('email' in result && result.email) {
         setOwnerEmail(result.email)
+        setNewEmail(result.email)
       }
     }
     loadOwner()
   }, [restaurantId])
+
+  const handleEmailSubmit = async () => {
+    setEmailError(null)
+    setEmailSuccess(false)
+
+    const trimmed = newEmail.trim()
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError('Geçerli bir e-posta adresi girin')
+      return
+    }
+    if (trimmed.toLowerCase() === ownerEmail.toLowerCase()) {
+      setEmailError('Yeni e-posta mevcut e-posta ile aynı')
+      return
+    }
+
+    setEmailSaving(true)
+    try {
+      const result = await adminChangeUserEmail({ restaurantId, newEmail: trimmed })
+      if (result.success) {
+        setOwnerEmail(result.email || trimmed)
+        setNewEmail(result.email || trimmed)
+        setEmailSuccess(true)
+        setTimeout(() => setEmailSuccess(false), 3000)
+      } else {
+        setEmailError(result.error || 'E-posta değiştirilemedi')
+      }
+    } catch {
+      setEmailError('Beklenmeyen bir hata oluştu')
+    } finally {
+      setEmailSaving(false)
+    }
+  }
 
   const handlePasswordSubmit = async () => {
     setPasswordError(null)
@@ -422,8 +460,46 @@ export default function EditRestaurantPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <Label htmlFor="owner_email">Kullanıcı Adı (E-posta)</Label>
-                  <Input id="owner_email" value={ownerEmail} readOnly disabled className="bg-gray-50 mt-2" />
+                  <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                    <Input
+                      id="owner_email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="kullanici@ornek.com"
+                      autoComplete="off"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleEmailSubmit}
+                      disabled={emailSaving || !newEmail.trim() || newEmail.trim().toLowerCase() === ownerEmail.toLowerCase()}
+                      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white whitespace-nowrap"
+                    >
+                      {emailSaving ? (
+                        <><span className="material-symbols-outlined animate-spin mr-2">sync</span>Değiştiriliyor...</>
+                      ) : (
+                        <><span className="material-symbols-outlined mr-2">alternate_email</span>E-postayı Değiştir</>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Kullanıcının giriş yaptığı e-posta adresidir. Değiştirdikten sonra yeni adresle giriş yapması gerekir.</p>
                 </div>
+
+                {emailError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-red-600">error</span>
+                    <p className="text-red-700 text-sm">{emailError}</p>
+                  </div>
+                )}
+                {emailSuccess && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-green-600">check_circle</span>
+                    <p className="text-green-700 text-sm">E-posta adresi başarıyla değiştirildi</p>
+                  </div>
+                )}
+
+                <div className="border-t pt-4" />
 
                 {passwordError && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
