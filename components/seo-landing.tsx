@@ -1,7 +1,9 @@
+import { Icon } from "@/components/icon"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { JsonLd } from "@/components/json-ld"
 import { breadcrumbJsonLd, faqPageJsonLd, getSiteUrl } from "@/lib/seo/jsonld"
+import { SiteFooter } from "@/components/site-footer"
 import { whatsappUrl, CONTACT_WHATSAPP_DISPLAY } from "@/lib/contact"
 
 type LandingFeature = {
@@ -12,11 +14,40 @@ type LandingFeature = {
 
 type FaqItem = { q: string; a: string }
 
+/**
+ * Para sayfaları arası karşılıklı iç link havuzu.
+ * Anchor metinleri birebir hedef kelime — "buraya tıklayın" değil.
+ */
+const RELATED_PAGES = [
+  {
+    slug: "qr-menu-olusturma",
+    anchor: "QR menü oluşturma",
+    description: "Kayıttan QR kodu bastırmaya kadar adım adım rehber.",
+  },
+  {
+    slug: "ucretsiz-qr-menu",
+    anchor: "Ücretsiz QR menü",
+    description: "Deneme süresinde neler dahil, ne zaman ücretli olur.",
+  },
+  {
+    slug: "dijital-menu",
+    anchor: "Dijital menü sistemi",
+    description: "Dijital menünün basılı menüye göre getirdiği farklar.",
+  },
+  {
+    slug: "restoran-menu-programi",
+    anchor: "Restoran menü programı",
+    description: "Menü yönetimi, istatistikler ve çoklu dil desteği.",
+  },
+]
+
 export type SeoLandingProps = {
   slug: string
   badge: string
   h1: string
   h1Highlight: string
+  /** Breadcrumb'ta ve schema'da görünen kısa ad; verilmezse h1 kullanılır */
+  breadcrumbName?: string
   subtitle: string
   intro: string
   features: LandingFeature[]
@@ -25,21 +56,31 @@ export type SeoLandingProps = {
   faq: FaqItem[]
   ctaTitle: string
   ctaSubtitle: string
+  /** Sayfaya özgü ek schema (ör. /qr-menu-olusturma için HowTo) */
+  extraJsonLd?: object | object[]
+  /** Özellikler bölümünün altına eklenecek serbest içerik */
+  children?: React.ReactNode
 }
 
 export function SeoLanding(props: SeoLandingProps) {
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/${props.slug}`
+  const breadcrumbName = props.breadcrumbName ?? props.h1
 
   const breadcrumb = breadcrumbJsonLd([
     { name: "Ana Sayfa", url: siteUrl },
-    { name: props.h1, url: pageUrl },
+    { name: breadcrumbName, url: pageUrl },
   ])
   const faqSchema = faqPageJsonLd(props.faq)
+  const extra = props.extraJsonLd
+    ? Array.isArray(props.extraJsonLd)
+      ? props.extraJsonLd
+      : [props.extraJsonLd]
+    : []
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <JsonLd data={[breadcrumb, faqSchema]} />
+      <JsonLd data={[breadcrumb, faqSchema, ...extra]} />
 
       {/* Sticky header (basic) */}
       <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-lg border-b border-white/10">
@@ -47,9 +88,7 @@ export function SeoLanding(props: SeoLandingProps) {
           <Link href="/" className="flex items-center gap-2">
             <img src="/qrmenu-logo.png" alt="QR Menülist" className="h-10 w-auto" />
             <span className="font-bold text-xl">
-              <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">
-                qr
-              </span>
+              <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">qr</span>
               <span className="text-white">menülist</span>
             </span>
           </Link>
@@ -84,8 +123,26 @@ export function SeoLanding(props: SeoLandingProps) {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+          {/* Görünür breadcrumb — BreadcrumbList schema'sıyla birebir aynı.
+              Google, işaretleme varken de sayfada karşılığını görmek istiyor. */}
+          <nav aria-label="Breadcrumb" className="mb-6">
+            <ol className="flex items-center justify-center gap-2 text-sm text-gray-500">
+              <li>
+                <Link href="/" className="hover:text-violet-400 transition-colors">
+                  Ana Sayfa
+                </Link>
+              </li>
+              <li aria-hidden="true">
+                <Icon name="chevron_right" className="text-base" />
+              </li>
+              <li className="text-gray-300" aria-current="page">
+                {breadcrumbName}
+              </li>
+            </ol>
+          </nav>
+
           <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2 mb-6">
-            <span className="material-symbols-outlined text-violet-400 text-sm">restaurant</span>
+            <Icon name="restaurant" className="text-violet-400 text-sm" />
             <span className="text-sm text-violet-300">{props.badge}</span>
           </div>
 
@@ -143,7 +200,7 @@ export function SeoLanding(props: SeoLandingProps) {
                 className="bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-6 rounded-2xl border border-white/10 hover:border-violet-500/40 transition-all"
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-white text-2xl">{f.icon}</span>
+                  <Icon name={f.icon} className="text-white text-2xl" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{f.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{f.description}</p>
@@ -152,6 +209,8 @@ export function SeoLanding(props: SeoLandingProps) {
           </div>
         </div>
       </section>
+
+      {props.children}
 
       {/* Benefits */}
       <section className="py-20 bg-[#0a0a0a]">
@@ -162,13 +221,40 @@ export function SeoLanding(props: SeoLandingProps) {
           <ul className="grid sm:grid-cols-2 gap-4">
             {props.benefits.map((b, i) => (
               <li key={i} className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                <span className="material-symbols-outlined text-emerald-400 flex-shrink-0">
-                  check_circle
-                </span>
+                <Icon name="check_circle" className="text-emerald-400 flex-shrink-0" />
                 <span className="text-gray-300">{b}</span>
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/*
+        İlgili sayfalar — para sayfaları arasında KARŞILIKLI iç link.
+        Kendi sayfası listeden otomatik düşer, yani kanibalizasyon yaratan
+        self-link oluşmaz.
+      */}
+      <section className="py-16 bg-[#0a0a0a] border-t border-white/5">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center">
+            İlgili Sayfalar
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {RELATED_PAGES.filter((page) => page.slug !== props.slug).map((page) => (
+              <Link
+                key={page.slug}
+                href={`/${page.slug}`}
+                className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 hover:border-violet-500/40 transition-colors"
+              >
+                <span className="block font-semibold text-white mb-1.5">
+                  {page.anchor}
+                </span>
+                <span className="block text-sm text-gray-400 leading-relaxed">
+                  {page.description}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -183,7 +269,7 @@ export function SeoLanding(props: SeoLandingProps) {
                 className="bg-white/5 rounded-2xl border border-white/10 p-6 hover:border-blue-500/30 transition-colors"
               >
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-3">
-                  <span className="material-symbols-outlined text-blue-400">help_outline</span>
+                  <Icon name="help_outline" className="text-blue-400" />
                   {item.q}
                 </h3>
                 <p className="text-gray-400 leading-relaxed">{item.a}</p>
@@ -227,24 +313,7 @@ export function SeoLanding(props: SeoLandingProps) {
         </div>
       </section>
 
-      {/* Mini footer */}
-      <footer className="py-8 border-t border-white/10 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} QR Menülist — Ücretsiz QR Menü Oluşturma Platformu</p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/" className="hover:text-violet-400 transition-colors">Ana Sayfa</Link>
-            <Link href="/blog" className="hover:text-violet-400 transition-colors">Blog</Link>
-            <a
-              href={whatsappUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-emerald-400 transition-colors"
-            >
-              WhatsApp: {CONTACT_WHATSAPP_DISPLAY}
-            </a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { getImpersonationStatus, stopImpersonation } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { LocaleProvider, useLocale } from '@/lib/i18n/use-locale'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { MaterialSymbolsStylesheet } from '@/components/material-symbols-stylesheet'
 
 function PanelLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -46,6 +47,7 @@ function PanelLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <MaterialSymbolsStylesheet />
       {/* Impersonation Banner */}
       {impersonation?.isImpersonating && (
         <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-2 px-4 sticky top-0 z-[60]">

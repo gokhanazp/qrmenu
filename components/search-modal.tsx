@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
@@ -112,12 +113,7 @@ export function SearchModal({
           {/* Search Input */}
           <div className="p-4 border-b" style={{ borderColor }}>
             <div className="flex items-center gap-3">
-              <span
-                className="material-symbols-outlined"
-                style={{ color: iconColor || primaryColor }}
-              >
-                search
-              </span>
+              <Icon name="search" style={{ color: iconColor || primaryColor }} />
               <input
                 ref={inputRef}
                 type="text"
@@ -133,7 +129,7 @@ export function SearchModal({
                   className="p-1 rounded-full hover:opacity-70 transition-opacity"
                   style={{ color: textColor, opacity: 0.5 }}
                 >
-                  <span className="material-symbols-outlined text-xl">close</span>
+                  <Icon name="close" className="text-xl" />
                 </button>
               )}
             </div>
@@ -143,16 +139,12 @@ export function SearchModal({
           <div className="max-h-[60vh] overflow-y-auto">
             {searchQuery.trim() === '' ? (
               <div className="p-8 text-center" style={{ color: textColor, opacity: 0.5 }}>
-                <span className="material-symbols-outlined text-5xl mb-2 block">
-                  search
-                </span>
+                <Icon name="search" className="text-5xl mb-2 block" />
                 <p>Ürün veya kategori aramak için yazın</p>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="p-8 text-center" style={{ color: textColor, opacity: 0.5 }}>
-                <span className="material-symbols-outlined text-5xl mb-2 block">
-                  search_off
-                </span>
+                <Icon name="search_off" className="text-5xl mb-2 block" />
                 <p>Sonuç bulunamadı</p>
                 <p className="text-sm mt-1">"{searchQuery}" için ürün bulunamadı</p>
               </div>
@@ -207,12 +199,7 @@ export function SearchModal({
                         {formatCurrency(product.price)}
                       </p>
                     </div>
-                    <span
-                      className="material-symbols-outlined text-lg ml-2"
-                      style={{ color: textColor, opacity: 0.3 }}
-                    >
-                      chevron_right
-                    </span>
+                    <Icon name="chevron_right" className="text-lg ml-2" style={{ color: textColor, opacity: 0.3 }} />
                   </div>
                 ))}
               </div>

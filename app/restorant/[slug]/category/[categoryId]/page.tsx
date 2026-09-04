@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import { notFound } from 'next/navigation'
 import { getPublicRestaurant, getCategoryWithProducts, getAllProducts } from '@/app/actions/public'
 import Image from 'next/image'
@@ -6,6 +7,7 @@ import { HamburgerMenu } from '@/components/hamburger-menu'
 import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
+import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { JsonLd } from '@/components/json-ld'
 import { menuSectionJsonLd, breadcrumbJsonLd, getSiteUrl } from '@/lib/seo/jsonld'
 import { MenuUnavailable } from '@/components/menu-unavailable'
@@ -114,7 +116,7 @@ export default async function CategoryDetailPage({
 
   return (
     <div
-      className="font-['Work_Sans'] antialiased transition-colors duration-200"
+      className="font-work-sans antialiased transition-colors duration-200"
       lang={currentLang}
       style={{
         backgroundColor,
@@ -178,7 +180,7 @@ export default async function CategoryDetailPage({
                   style={{ color: iconColor }}
                   aria-label={t.search}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
+                  <Icon name="search" style={{ fontSize: '24px' }} />
                 </button>
               </div>
             </div>
@@ -209,12 +211,7 @@ export default async function CategoryDetailPage({
           {/* Products */}
           <div className="mt-4 pb-24">
             <div className="flex items-center px-4 mb-3">
-              <span
-                className="material-symbols-outlined mr-2"
-                style={{ color: iconColor }}
-              >
-                restaurant
-              </span>
+              <Icon name="restaurant" className="mr-2" style={{ color: iconColor }} />
               <h2
                 className="text-lg font-bold"
                 style={{ color: textColor }}
@@ -295,6 +292,12 @@ export default async function CategoryDetailPage({
           borderColor={borderColor}
         />
 
+        <PoweredByQrMenulist
+          textColor={textColor}
+          footerBgColor={footerBgColor}
+          isEnglish={isEnglish}
+        />
+
         <PublicMenuBottomNav
           restaurant={rest}
           primaryColor={primaryColor}
@@ -324,14 +327,6 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
   const cat = category as any
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/restorant/${params.slug}/category/${params.categoryId}`
-  const supportedLanguages: string[] = rest.supported_languages || ['tr']
-
-  const languageAlternates: Record<string, string> = {}
-  for (const lang of supportedLanguages) {
-    const tag = lang === 'tr' ? 'tr-TR' : lang === 'en' ? 'en-US' : lang
-    languageAlternates[tag] = lang === 'tr' ? pageUrl : `${pageUrl}?lang=${lang}`
-  }
-  languageAlternates['x-default'] = pageUrl
 
   const title = `${cat.name} - ${rest.name} | Dijital Menü`
   const description = `${rest.name} restoranının ${cat.name} kategorisinde ${products.length} çeşit ürün bulunmaktadır. Dijital menümüzü görüntüleyin.`
@@ -348,9 +343,25 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
       'restoran menüsü',
     ],
     authors: [{ name: rest.name }],
+    /*
+     * Kategori sayfaları BİLEREK `noindex, follow`.
+     *
+     * URL'de kelime yerine UUID var (hiçbir aramaya karşılık gelmiyor) ve
+     * içerik ana restoran sayfasının alt kümesi — yani neredeyse birebir kopya.
+     * Sitede 71 böyle URL vardı ve sitemap'in %42'sini yiyordu; yeni blog
+     * yazıları bu yüzden daha yavaş taranıyordu.
+     *
+     * `follow` bırakılıyor ki bu sayfalardan ana restoran sayfasına ve
+     * QR Menülist'e giden linkler yine değerlendirilsin.
+     * Canonical ana restoran sayfasını gösteriyor: indekslenmesi gereken
+     * sayfa, tüm ürünleri içeren o sayfa.
+     *
+     * Search Console'da "Taranmadı / Hariç tutuldu" sayısının artması bu
+     * değişikliğin BEKLENEN sonucudur.
+     */
     robots: {
-      index: rest.is_active && cat.is_active && isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at),
-      follow: rest.is_active && cat.is_active && isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at),
+      index: false,
+      follow: true,
     },
     openGraph: {
       type: 'website',
@@ -375,8 +386,8 @@ export async function generateMetadata({ params }: { params: { slug: string; cat
       images: cat.image_url ? [cat.image_url] : [],
     },
     alternates: {
-      canonical: pageUrl,
-      languages: languageAlternates,
+      // Canonical, indekslenmesi istenen ana restoran sayfasını gösteriyor.
+      canonical: `${siteUrl}/restorant/${params.slug.toLowerCase()}`,
     },
   }
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReviewModal } from './review-modal'
@@ -100,9 +101,7 @@ export function BottomNavigation({
             className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{ color: finalIconColor }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-              restaurant_menu
-            </span>
+            <Icon name="restaurant_menu" style={{ fontSize: '24px' }} />
             <span className="text-xs font-medium">{t.menu}</span>
           </button>
 
@@ -112,9 +111,7 @@ export function BottomNavigation({
             className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{ color: finalIconColor }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-              info
-            </span>
+            <Icon name="info" style={{ fontSize: '24px' }} />
             <span className="text-xs font-medium">{t.about}</span>
           </button>
 
@@ -124,9 +121,7 @@ export function BottomNavigation({
             className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{ color: finalIconColor }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-              rate_review
-            </span>
+            <Icon name="rate_review" style={{ fontSize: '24px' }} />
             <span className="text-xs font-medium">{t.review}</span>
           </button>
 
@@ -200,7 +195,7 @@ export function BottomNavigation({
                 style={{ color: finalIconColor }}
                 aria-label="Kapat"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -213,9 +208,7 @@ export function BottomNavigation({
                     className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                     style={{ color: textColor }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: finalIconColor }}>
-                      restaurant
-                    </span>
+                    <Icon name="restaurant" style={{ color: finalIconColor }} />
                     {restaurant.name}
                   </h3>
                   <p
@@ -243,9 +236,7 @@ export function BottomNavigation({
                     className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                     style={{ color: textColor }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: finalIconColor }}>
-                      contact_phone
-                    </span>
+                    <Icon name="contact_phone" style={{ color: finalIconColor }} />
                     {t.contact}
                   </h3>
                   <div className="space-y-3">
@@ -255,12 +246,7 @@ export function BottomNavigation({
                         className="flex items-center gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                         style={{ backgroundColor }}
                       >
-                        <span
-                          className="material-symbols-outlined flex-shrink-0"
-                          style={{ color: finalIconColor }}
-                        >
-                          call
-                        </span>
+                        <Icon name="call" className="flex-shrink-0" style={{ color: finalIconColor }} />
                         <span className="text-sm" style={{ color: textColor }}>
                           {restaurant.phone}
                         </span>
@@ -273,12 +259,7 @@ export function BottomNavigation({
                         className="flex items-center gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                         style={{ backgroundColor }}
                       >
-                        <span
-                          className="material-symbols-outlined flex-shrink-0"
-                          style={{ color: finalIconColor }}
-                        >
-                          mail
-                        </span>
+                        <Icon name="mail" className="flex-shrink-0" style={{ color: finalIconColor }} />
                         <span className="text-sm break-all" style={{ color: textColor }}>
                           {restaurant.email}
                         </span>
@@ -293,12 +274,7 @@ export function BottomNavigation({
                         className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                         style={{ backgroundColor }}
                       >
-                        <span
-                          className="material-symbols-outlined flex-shrink-0"
-                          style={{ color: finalIconColor }}
-                        >
-                          location_on
-                        </span>
+                        <Icon name="location_on" className="flex-shrink-0" style={{ color: finalIconColor }} />
                         <span className="text-sm flex-1" style={{ color: textColor }}>
                           {restaurant.address}
                         </span>
@@ -315,9 +291,7 @@ export function BottomNavigation({
                     className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                     style={{ color: textColor }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: finalIconColor }}>
-                      share
-                    </span>
+                    <Icon name="share" style={{ color: finalIconColor }} />
                     {t.socialMedia}
                   </h3>
                   <div className="flex gap-2 justify-center flex-wrap">

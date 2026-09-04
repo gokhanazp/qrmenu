@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import { notFound } from 'next/navigation'
 import { 
   getPublicRestaurant, 
@@ -12,6 +13,7 @@ import { HamburgerMenu } from '@/components/hamburger-menu'
 import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
+import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { ScanTracker } from '@/components/scan-tracker'
 import { JsonLd } from '@/components/json-ld'
 import { MenuUnavailable } from '@/components/menu-unavailable'
@@ -24,6 +26,7 @@ import {
   breadcrumbJsonLd,
   getSiteUrl,
 } from '@/lib/seo/jsonld'
+import { toTitleCase } from '@/lib/utils/slug'
 
 // Enable Cache (ISR) 
 export const revalidate = 60
@@ -144,7 +147,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
 
   return (
     <div
-      className="font-['Work_Sans'] antialiased transition-colors duration-200"
+      className="font-work-sans antialiased transition-colors duration-200"
       lang={currentLang}
       style={{
         backgroundColor,
@@ -210,7 +213,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
                   style={{ color: iconColor }}
                   aria-label={t.search}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>search</span>
+                  <Icon name="search" style={{ fontSize: '24px' }} />
                 </button>
               </div>
             </div>
@@ -266,12 +269,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
             <div className="mt-4 pb-24">
               {/* Food Categories Section */}
               <div className="flex items-center px-4 mb-3" data-section="categories">
-                <span
-                  className="material-symbols-outlined mr-2"
-                  style={{ color: iconColor }}
-                >
-                  restaurant
-                </span>
+                <Icon name="restaurant" className="mr-2" style={{ color: iconColor }} />
                 <h2
                   className="text-lg font-bold"
                   style={{ color: textColor }}
@@ -318,12 +316,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
               {dailySpecials && dailySpecials.length > 0 && (
                 <div className="mt-6">
                   <div className="flex items-center px-4 mb-3">
-                    <span
-                      className="material-symbols-outlined mr-2"
-                      style={{ color: iconColor }}
-                    >
-                      local_fire_department
-                    </span>
+                    <Icon name="local_fire_department" className="mr-2" style={{ color: iconColor }} />
                     <h2
                       className="text-lg font-bold"
                       style={{ color: textColor }}
@@ -362,12 +355,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
               {featuredProducts && featuredProducts.length > 0 && (
                 <div className="mt-6">
                   <div className="flex items-center px-4 mb-3">
-                    <span
-                      className="material-symbols-outlined mr-2"
-                      style={{ color: iconColor }}
-                    >
-                      star
-                    </span>
+                    <Icon name="star" className="mr-2" style={{ color: iconColor }} />
                     <h2
                       className="text-lg font-bold"
                       style={{ color: textColor }}
@@ -436,6 +424,12 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           compact={true}
         />
 
+        <PoweredByQrMenulist
+          textColor={textColor}
+          footerBgColor={footerBgColor}
+          isEnglish={isEnglish}
+        />
+
         <PublicMenuBottomNav
           restaurant={rest}
           primaryColor={primaryColor}
@@ -465,7 +459,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const accessible = isMenuAccessible(extractSubscription(rest.subscriptions), rest.created_at)
   const shouldIndex = rest.is_active && accessible
   const siteUrl = getSiteUrl()
-  const pageUrl = `${siteUrl}/restorant/${params.slug}`
+  // Canonical daima küçük harfli adres: aynı içerik iki adreste indekslenmesin.
+  const canonicalSlug = params.slug.toLowerCase()
+  const pageUrl = `${siteUrl}/restorant/${canonicalSlug}`
   const supportedLanguages: string[] = rest.supported_languages || ['tr']
 
   const languageAlternates: Record<string, string> = {}
@@ -475,15 +471,28 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
   languageAlternates['x-default'] = pageUrl
 
-  const title = `${rest.name} - Dijital Menü | QR Menü`
+  /*
+   * Title kalıbı: "{Restoran Adı} Menü ve Fiyatları ({yıl}) | QR Menülist"
+   *
+   * Eskiden "VERNA CAFE BISTRO - Dijital Menü - QR Menülist" şeklindeydi:
+   * hem restoran adı veritabanından geldiği gibi (bazen tamamı büyük harf)
+   * basılıyordu hem de yanlış kalıptı. Türkiye'de insanlar "X menü fiyatları"
+   * diye arıyor, "X dijital menü" diye aramıyor.
+   */
+  const displayName = toTitleCase(rest.name)
+  const year = new Date().getFullYear()
+  const title = `${displayName} Menü ve Fiyatları (${year}) | QR Menülist`
   const description = rest.about_us
-    ? `${rest.name} - ${rest.about_us.slice(0, 150)}`
+    ? `${displayName} menüsü ve güncel fiyatları. ${rest.about_us.slice(0, 110)}`
     : rest.slogan
-    ? `${rest.name} - ${rest.slogan}. Dijital menümüzü görüntüleyin ve sipariş verin.`
-    : `${rest.name} dijital menüsü. QR kod ile kolayca menümüze ulaşın ve sipariş verin.`
+    ? `${displayName} menüsü ve güncel fiyatları. ${rest.slogan}. QR kod ile menüye anında ulaşın.`
+    : `${displayName} menüsü ve güncel fiyatları. Kategoriler, ürünler ve fiyat listesi — QR kod ile telefonunuzdan görüntüleyin.`
 
   return {
-    title,
+    // `absolute` ŞART: root layout'ta title template'i "%s | QR Menülist".
+    // Kalıp zaten markayı içerdiği için absolute olmadan
+    // "... | QR Menülist | QR Menülist" gibi iki kez basılıyor.
+    title: { absolute: title },
     description,
     keywords: [
       rest.name,

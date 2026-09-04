@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useState } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
@@ -93,7 +94,7 @@ export function ProductCard({
                   opacity: 0.5
                 }}
               >
-                <span className="material-symbols-outlined">add</span>
+                <Icon name="add" />
               </div>
             </div>
           </div>
@@ -169,7 +170,7 @@ export function ProductCard({
               opacity: 0.5
             }}
           >
-            <span className="material-symbols-outlined text-lg">chevron_right</span>
+            <Icon name="chevron_right" className="text-lg" />
           </div>
         </div>
 
@@ -239,12 +240,7 @@ export function ProductCard({
         <div className="flex-1">
           {isFeatured && (
             <div className="flex items-center gap-2 mb-1">
-              <span
-                className="material-symbols-outlined text-sm"
-                style={{ color: primaryColor }}
-              >
-                star
-              </span>
+              <Icon name="star" className="text-sm" style={{ color: primaryColor }} />
               <h3
                 className="font-bold text-base"
                 style={{ color: textColor }}
@@ -287,7 +283,7 @@ export function ProductCard({
               opacity: 0.5
             }}
           >
-            <span className="material-symbols-outlined text-lg">chevron_right</span>
+            <Icon name="chevron_right" className="text-lg" />
           </div>
         )}
       </div>

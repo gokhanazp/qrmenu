@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -74,7 +75,7 @@ export default function BlogIndexPage() {
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2 mb-6">
-            <span className="material-symbols-outlined text-violet-400 text-sm">article</span>
+            <Icon name="article" className="text-violet-400 text-sm" />
             <span className="text-sm text-violet-300">QR MENÜ REHBERLERİ</span>
           </div>
 
@@ -119,7 +120,7 @@ export default function BlogIndexPage() {
                 <span>{featured.readingMinutes} dk okuma</span>
                 <span className="ml-auto inline-flex items-center gap-1 text-violet-400 group-hover:gap-2 transition-all">
                   Oku
-                  <span className="material-symbols-outlined text-base">arrow_forward</span>
+                  <Icon name="arrow_forward" className="text-base" />
                 </span>
               </div>
             </Link>
@@ -138,7 +139,7 @@ export default function BlogIndexPage() {
                 className="group flex flex-col rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-6 hover:border-violet-500/40 transition-all"
               >
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-white text-xl">{post.icon}</span>
+                  <Icon name={post.icon} className="text-white text-xl" />
                 </div>
 
                 <span className="text-xs text-gray-500 mb-2">{post.category}</span>

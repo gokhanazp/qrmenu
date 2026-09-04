@@ -1,3 +1,6 @@
+import { toTitleCase } from '@/lib/utils/slug'
+import { getSiteUrl } from '@/lib/seo/jsonld'
+import { Icon } from "@/components/icon"
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getPublicRestaurant } from '@/app/actions/public'
@@ -57,7 +60,7 @@ export default async function AllReviewsPage({
             style={{ color: textColor }}
             aria-label={isEnglish ? 'Back to menu' : 'Menüye dön'}
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+            <Icon name="arrow_back" />
           </Link>
           {rest.logo_url && (
             <img src={rest.logo_url} alt={rest.name} className="h-8 w-8 rounded-full object-cover" />
@@ -99,9 +102,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return { title: 'Yorumlar' }
   }
   const rest = restaurant as any
+  const displayName = toTitleCase(rest.name)
   return {
-    title: `Yorumlar - ${rest.name}`,
-    description: `${rest.name} müşteri yorumları ve değerlendirmeleri.`,
+    title: `${displayName} Yorumları`,
+    description: `${displayName} müşteri yorumları ve değerlendirmeleri.`,
+    // Yorum listesi ana menü sayfasının alt kümesi — indekslenmesi gereken
+    // sayfa menünün kendisi. `follow` açık ki oradaki linkler sayılsın.
     robots: { index: false, follow: true },
+    alternates: {
+      canonical: `${getSiteUrl()}/restorant/${params.slug.toLowerCase()}`,
+    },
   }
 }

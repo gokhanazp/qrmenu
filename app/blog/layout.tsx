@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { WhatsAppIcon } from "@/components/whatsapp-icon"
-import { whatsappUrl, CONTACT_WHATSAPP_DISPLAY } from "@/lib/contact"
+import { SiteFooter } from "@/components/site-footer"
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,81 +40,7 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
 
       {children}
 
-      <footer className="py-10 border-t border-white/10 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid sm:grid-cols-3 gap-8 mb-8 text-sm">
-            <div>
-              <h3 className="font-semibold text-white mb-3">Rehberler</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link href="/blog/qr-menu-nedir" className="hover:text-violet-400 transition-colors">
-                    QR Menü Nedir?
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog/qr-menu-avantajlari" className="hover:text-violet-400 transition-colors">
-                    QR Menünün Avantajları
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog/qr-menu-fiyatlari" className="hover:text-violet-400 transition-colors">
-                    QR Menü Fiyatları
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-3">Ürün</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link href="/qr-menu-olusturma" className="hover:text-violet-400 transition-colors">
-                    QR Menü Oluşturma
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/ucretsiz-qr-menu" className="hover:text-violet-400 transition-colors">
-                    Ücretsiz QR Menü
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dijital-menu" className="hover:text-violet-400 transition-colors">
-                    Dijital Menü
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/restoran-menu-programi" className="hover:text-violet-400 transition-colors">
-                    Restoran Menü Programı
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-3">İletişim</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <Link href="/" className="hover:text-violet-400 transition-colors">
-                    Ana Sayfa
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href={whatsappUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-emerald-400 transition-colors inline-flex items-center gap-2"
-                  >
-                    <WhatsAppIcon />
-                    {CONTACT_WHATSAPP_DISPLAY}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 pt-6 border-t border-white/10">
-            © {new Date().getFullYear()} QR Menülist — Ücretsiz QR Menü Oluşturma Platformu
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

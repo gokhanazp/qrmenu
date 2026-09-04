@@ -1,23 +1,37 @@
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Work_Sans } from "next/font/google"
 import "./globals.css"
 import { LocaleProvider } from "@/lib/i18n/use-locale"
 import { getSiteUrl } from "@/lib/seo/jsonld"
+import { FREE_OFFER } from "@/lib/offer"
 import Script from "next/script"
 
-const inter = Inter({ subsets: ["latin", "latin-ext"] })
+const inter = Inter({ subsets: ["latin", "latin-ext"], display: "swap" })
+
+// Restoran menü sayfaları Work Sans kullanıyor. Eskiden fonts.googleapis.com'dan
+// render-blocking bir <link> ile çekiliyordu; next/font ile self-host edilince
+// üçüncü parti bağlantı ve FOUT ortadan kalkıyor. latin-ext alt kümesi Türkçe
+// karakterler (ş, ğ, ı, İ, ö, ü, ç) için gerekli.
+const workSans = Work_Sans({
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  variable: "--font-work-sans",
+})
+
+const SITE_TITLE = "QR Menü | Restoran ve Kafeler İçin Dijital Menü — QR Menülist"
+const SITE_DESCRIPTION = `Restoranın için 5 dakikada QR menü oluştur. ${FREE_OFFER.sentence} Sınırsız güncelleme, yapay zeka çevirisi, görüntüleme istatistikleri.`
 
 // Get the site URL with proper fallback
 export const metadata: Metadata = {
   title: {
-    default: "Ücretsiz QR Menü Oluşturma | Dijital Menü | QR Menülist",
+    default: SITE_TITLE,
     template: "%s | QR Menülist"
   },
   icons: {
     icon: '/qrmenu-logo.png',
     apple: '/qrmenu-logo.png',
   },
-  description: "Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Başlangıç planı ücretsiz, kredi kartı gerekmez.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "qr menü",
     "ücretsiz qr menü",
@@ -53,13 +67,15 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(getSiteUrl()),
+  // hreflang BİLEREK yok. Eskiden tr-TR / en-US / x-default üçü de aynı URL'e
+  // (ana sayfaya) bakıyordu; Google böyle bir işaretlemeyi ya yok sayar ya da
+  // çelişki olarak raporlar. Pazarlama sayfalarının (ana sayfa, landing'ler,
+  // blog) İngilizce karşılığı yok — dolayısıyla alternate verilecek bir şey de
+  // yok. Gerçek çoklu dil yalnızca restoran menülerinde var ve oradaki
+  // alternate'ler restorant/[slug] generateMetadata içinde, sadece restoranın
+  // supported_languages değerine göre üretiliyor.
   alternates: {
     canonical: '/',
-    languages: {
-      'tr-TR': '/',
-      'en-US': '/?lang=en',
-      'x-default': '/',
-    },
   },
   manifest: '/manifest.webmanifest',
   applicationName: 'QR Menülist',
@@ -72,10 +88,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    alternateLocale: ['en_US'],
     siteName: 'QR Menülist',
-    title: 'Ücretsiz QR Menü Oluşturma | Dijital Menü | QR Menülist',
-    description: 'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod ile müşterilerin menüye anında erişsin. Başlangıç planı ücretsiz, kredi kartı gerekmez.',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     url: getSiteUrl(),
     images: [
       {
@@ -88,8 +103,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ücretsiz QR Menü Oluşturma | QR Menülist',
-    description: 'Restoranın için ücretsiz dijital QR menü hazırla. Kayıt yok, kredi kartı yok.',
+    title: SITE_TITLE,
+    description: `Restoranın için QR menü oluştur. ${FREE_OFFER.sentence}`,
     images: ['/qrmenu-logo.png'],
   },
   robots: {
@@ -125,8 +140,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="tr">
+    <html lang="tr" className={workSans.variable}>
       <head>
+        {/*
+          fonts.googleapis.com'a giden iki render-blocking <link> kaldırıldı:
+            1) Work Sans   -> next/font ile self-host ediliyor (yukarı bak)
+            2) Material Symbols Outlined -> inline SVG'ye çevrildi
+               (components/icon.tsx). Ölçülen FCP 2,77 sn'nin ana sebebi buydu:
+               sayfada 70'e yakın ikon span'i vardı ve ikon fontu ~150 KB.
+          Material Symbols yalnızca /panel ve /admin içinde kullanılmaya devam
+          ediyor; stylesheet o layout'ların içinde yükleniyor (ikisi de auth
+          arkasında ve robots.txt'te disallow, yani SEO'yu etkilemiyor).
+        */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-MMDJC2TFFP"
           strategy="afterInteractive"
@@ -141,10 +166,6 @@ export default function RootLayout({
             gtag('config', 'AW-18341719321');
           `}
         </Script>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
       </head>
       <body className={inter.className}>
         <LocaleProvider>

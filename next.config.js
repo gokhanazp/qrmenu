@@ -35,6 +35,16 @@ const nextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        // Ana sayfadaki "Müşterilerimizin Menüleri" ekran görüntüleri.
+        // next/image üzerinden geçirilince Vercel görseli optimize edip
+        // minimumCacheTTL kadar (30 gün) cache'liyor; böylece her ziyarette
+        // üçüncü parti API'ye gidilmiyor ve API düşse bile bölüm boş kalmıyor.
+        protocol: 'https',
+        hostname: 'api.microlink.io',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -52,6 +62,35 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: securityHeaders,
+      },
+    ]
+  },
+  async redirects() {
+    return [
+      {
+        // Google Ads reklamlarının hedef URL'i buraya gidiyor ve 404 dönüyordu
+        // — her tıklama boşa gidiyor, Ads kalite puanı düşüyordu.
+        // ⚠️ Bu yönlendirme sadece eski linkleri kurtarır; Ads panelindeki
+        // "Final URL" alanını da /qr-menu-olusturma yapmak gerekiyor.
+        source: '/qr-menu/olustur',
+        destination: '/qr-menu-olusturma',
+        permanent: true,
+      },
+      {
+        source: '/qr-menu/olustur/:path*',
+        destination: '/qr-menu-olusturma',
+        permanent: true,
+      },
+      // Eski/yanlış yazılmış para sayfası adresleri
+      {
+        source: '/qr-menu-olustur',
+        destination: '/qr-menu-olusturma',
+        permanent: true,
+      },
+      {
+        source: '/ucretsiz-qr-menu-olustur',
+        destination: '/ucretsiz-qr-menu',
+        permanent: true,
       },
     ]
   },

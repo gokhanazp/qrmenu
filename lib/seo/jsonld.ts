@@ -1,3 +1,8 @@
+import { FREE_OFFER } from '@/lib/offer'
+import { TESTIMONIALS, aggregateRating } from '@/lib/testimonials'
+import { COMPANY, socialLinks } from '@/lib/company'
+import { CONTACT_WHATSAPP_NUMBER } from '@/lib/contact'
+
 export function getSiteUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
@@ -175,15 +180,39 @@ export function breadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
   }
 }
 
+/**
+ * Adres bilgisi TODO placeholder içeriyorsa schema'ya HİÇ konmaz —
+ * "TODO: İl" gibi bir değer yayınlanmış PostalAddress'ten daha kötüdür.
+ */
+function postalAddressOrUndefined() {
+  const a = COMPANY.address
+  const filled = [a.street, a.district, a.city].every(
+    (v) => v && !v.startsWith('TODO'),
+  )
+  if (!filled) return undefined
+  return {
+    '@type': 'PostalAddress',
+    streetAddress: a.street,
+    addressLocality: a.district,
+    addressRegion: a.city,
+    postalCode: a.postalCode.startsWith('TODO') ? undefined : a.postalCode,
+    addressCountry: a.countryCode,
+  }
+}
+
 export function organizationJsonLd() {
   const siteUrl = getSiteUrl()
+  const email = COMPANY.email.startsWith('TODO') ? undefined : COMPANY.email
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${siteUrl}#organization`,
     name: 'QR Menülist',
-    alternateName: ['QR Menü', 'QR Menülist - Ücretsiz QR Menü Oluşturma'],
+    legalName: COMPANY.legalName.startsWith('TODO') ? undefined : COMPANY.legalName,
+    alternateName: ['QR Menü', 'QR Menülist — QR Menü Oluşturma'],
     url: siteUrl,
+    foundingDate: COMPANY.foundedYear,
     logo: {
       '@type': 'ImageObject',
       url: `${siteUrl}/qrmenu-logo.png`,
@@ -191,16 +220,78 @@ export function organizationJsonLd() {
       height: 512,
     },
     description:
-      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü ve online menü yönetim sistemi.',
+      'QR menü oluşturma platformu. Restoranlar, kafeler ve oteller için dijital menü, QR kod menü ve online menü yönetim sistemi.',
+    address: postalAddressOrUndefined(),
+    email,
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+90-537-510-20-84',
+      telephone: `+${CONTACT_WHATSAPP_NUMBER}`,
+      email,
       contactType: 'customer support',
-      contactOption: 'TollFree',
       areaServed: 'TR',
       availableLanguage: ['Turkish', 'English'],
     },
-    sameAs: [],
+    // sameAs yalnızca gerçekten doldurulmuş sosyal profilleri içerir
+    sameAs: socialLinks().map((l) => l.url),
+  }
+}
+
+/**
+ * /iletisim sayfası için LocalBusiness. Adres/e-posta doldurulmadıysa
+ * (COMPANY içindeki TODO alanları) schema üretilmez — eksik veriyle
+ * yayınlanmış LocalBusiness marka varlığına katkı sağlamaz.
+ */
+export function localBusinessJsonLd() {
+  const siteUrl = getSiteUrl()
+  const address = postalAddressOrUndefined()
+  if (!address) return null
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    '@id': `${siteUrl}/iletisim#localbusiness`,
+    name: COMPANY.brand,
+    legalName: COMPANY.legalName,
+    url: `${siteUrl}/iletisim`,
+    image: `${siteUrl}/qrmenu-logo.png`,
+    telephone: `+${CONTACT_WHATSAPP_NUMBER}`,
+    email: COMPANY.email.startsWith('TODO') ? undefined : COMPANY.email,
+    address,
+    openingHours: COMPANY.openingHours.schema,
+    areaServed: 'TR',
+    parentOrganization: { '@id': `${siteUrl}#organization` },
+  }
+}
+
+/**
+ * Adım adım rehberler için HowTo. /qr-menu-olusturma'da kullanılıyor —
+ * o sorgunun SERP'i bilgilendirici (video paketi + adım adım rehberler).
+ */
+export function howToJsonLd(input: {
+  name: string
+  description: string
+  url: string
+  totalMinutes: number
+  steps: Array<{ name: string; text: string; anchor: string }>
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: input.name,
+    description: input.description,
+    totalTime: `PT${input.totalMinutes}M`,
+    estimatedCost: {
+      '@type': 'MonetaryAmount',
+      currency: 'TRY',
+      value: '0',
+    },
+    step: input.steps.map((step, idx) => ({
+      '@type': 'HowToStep',
+      position: idx + 1,
+      name: step.name,
+      text: step.text,
+      url: `${input.url}#${step.anchor}`,
+    })),
   }
 }
 
@@ -212,9 +303,9 @@ export function websiteJsonLd() {
     '@id': `${siteUrl}#website`,
     url: siteUrl,
     name: 'QR Menülist',
-    alternateName: 'Ücretsiz QR Menü Oluşturma',
+    alternateName: 'QR Menü Oluşturma',
     description:
-      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. QR kod menü oluşturma platformu.',
+      'Restoranın için QR menü oluştur, dijital menü hazırla. QR kod menü oluşturma platformu.',
     publisher: { '@id': `${siteUrl}#organization` },
     inLanguage: ['tr-TR', 'en-US'],
     potentialAction: {
@@ -230,25 +321,27 @@ export function websiteJsonLd() {
 
 export function softwareApplicationJsonLd() {
   const siteUrl = getSiteUrl()
+  const rating = aggregateRating()
+
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'QR Menülist - Ücretsiz QR Menü Oluşturma',
+    name: 'QR Menülist - QR Menü Oluşturma',
     applicationCategory: 'BusinessApplication',
     applicationSubCategory: 'Restaurant Menu Software',
     operatingSystem: 'Web Browser',
     url: siteUrl,
     description:
-      'Ücretsiz QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, yapay zeka destekli çeviri, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
+      'QR menü oluşturma platformu. Restoranlar ve kafeler için dijital menü, QR kod menü, yapay zeka destekli çeviri, çoklu dil desteği, müşteri istatistikleri ve özelleştirilebilir tasarım.',
     offers: [
       {
         '@type': 'Offer',
-        name: 'Başlangıç Planı',
+        name: 'Ücretsiz Deneme',
         category: 'Free',
         price: '0',
         priceCurrency: 'TRY',
         availability: 'https://schema.org/InStock',
-        description: 'Ücretsiz başlangıç planı — denemek için ideal',
+        description: FREE_OFFER.sentence,
       },
       {
         '@type': 'Offer',
@@ -259,14 +352,34 @@ export function softwareApplicationJsonLd() {
         description: 'Gelişmiş özellikler ve yüksek kapasite için Pro plan',
       },
     ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      bestRating: '5',
-      ratingCount: '500',
-    },
+    // aggregateRating YALNIZCA sayfada gerçekten listelenen yorumlardan
+    // hesaplanır. Eskiden sabit `4.9 / ratingCount 500` yazıyordu ama sayfadaki
+    // üç yorum uydurmaydı — Google'ın yapılandırılmış veri politikası, sayfada
+    // doğrulanabilir karşılığı olmayan puan işaretlemesini manuel işlem sebebi
+    // sayıyor. lib/testimonials.ts boşken bu alan hiç üretilmez.
+    ...(rating
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: rating.ratingValue,
+            bestRating: '5',
+            worstRating: '1',
+            reviewCount: String(rating.reviewCount),
+          },
+          review: TESTIMONIALS.map((t) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: t.name },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: String(t.rating),
+              bestRating: '5',
+            },
+            reviewBody: t.text,
+          })),
+        }
+      : {}),
     featureList: [
-      'Ücretsiz QR menü oluşturma',
+      'QR menü oluşturma',
       'QR kod ile menü erişimi',
       'Dijital menü yönetimi',
       'Yapay zeka destekli menü çevirisi',

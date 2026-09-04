@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -177,7 +178,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             className="mb-12 rounded-2xl border border-white/10 bg-white/[0.03] p-6"
           >
             <p className="font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-violet-400 text-xl">list</span>
+              <Icon name="list" className="text-violet-400 text-xl" />
               İçindekiler
             </p>
             <ol className="space-y-2">
@@ -251,9 +252,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                   className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:border-blue-500/30 transition-colors"
                 >
                   <h3 className="text-base font-semibold mb-3 flex items-start gap-3">
-                    <span className="material-symbols-outlined text-blue-400 text-xl flex-shrink-0">
-                      help_outline
-                    </span>
+                    <Icon name="help_outline" className="text-blue-400 text-xl flex-shrink-0" />
                     {item.q}
                   </h3>
                   <p className="text-gray-400 leading-relaxed pl-8">{item.a}</p>
@@ -274,9 +273,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                     className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 hover:border-violet-500/40 transition-all"
                   >
                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                      <span className="material-symbols-outlined text-violet-400 text-base">
-                        {item.icon}
-                      </span>
+                      <Icon name={item.icon} className="text-violet-400 text-base" />
                       {item.category}
                     </div>
                     <p className="font-semibold leading-snug group-hover:text-violet-300 transition-colors">
@@ -294,7 +291,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               href="/blog"
               className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 transition-colors"
             >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
+              <Icon name="arrow_back" className="text-base" />
               Tüm yazılara dön
             </Link>
           </div>

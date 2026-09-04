@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import Link from "next/link"
 import type { Block } from "@/lib/blog/posts"
 
@@ -78,9 +79,7 @@ export function BlockRenderer({ block }: { block: Block }) {
         <ul className="space-y-3 mb-6">
           {block.items.map((item, i) => (
             <li key={i} className="flex items-start gap-3 text-gray-300 leading-relaxed">
-              <span className="material-symbols-outlined text-emerald-400 text-xl flex-shrink-0 mt-0.5">
-                check_circle
-              </span>
+              <Icon name="check_circle" className="text-emerald-400 text-xl flex-shrink-0 mt-0.5" />
               <span>
                 <Inline text={item} />
               </span>
@@ -109,7 +108,7 @@ export function BlockRenderer({ block }: { block: Block }) {
       return (
         <aside className="mb-6 rounded-2xl border border-violet-500/30 bg-violet-500/[0.07] p-5">
           <p className="flex items-center gap-2 font-semibold text-violet-300 mb-2">
-            <span className="material-symbols-outlined text-lg">lightbulb</span>
+            <Icon name="lightbulb" className="text-lg" />
             {block.title}
           </p>
           <p className="text-gray-300 leading-relaxed">

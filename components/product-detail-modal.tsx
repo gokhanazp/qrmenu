@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useEffect } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
@@ -80,7 +81,7 @@ export function ProductDetailModal({
             color: textColor
           }}
         >
-          <span className="material-symbols-outlined">close</span>
+          <Icon name="close" />
         </button>
 
         {/* Product Image */}
@@ -110,7 +111,7 @@ export function ProductDetailModal({
                   color: primaryColor
                 }}
               >
-                <span className="material-symbols-outlined text-sm mr-1">star</span>
+                <Icon name="star" className="text-sm mr-1" />
                 {t.featured}
               </span>
             )}
@@ -178,9 +179,7 @@ export function ProductDetailModal({
                   color: textColor
                 }}
               >
-                <span className="material-symbols-outlined text-sm mr-2" style={{ color: primaryColor }}>
-                  restaurant
-                </span>
+                <Icon name="restaurant" className="text-sm mr-2" style={{ color: primaryColor }} />
                 {isEnglish && product.categories.name_en ? product.categories.name_en : product.categories.name}
               </span>
             </div>

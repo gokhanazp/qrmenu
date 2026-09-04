@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon"
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -20,9 +21,7 @@ export default function NotFound() {
           <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-700" />
           <div className="relative w-32 h-32 bg-[#0f0f1a] border border-white/10 rounded-full flex items-center justify-center shadow-2xl overflow-hidden">
              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-             <span className="material-symbols-outlined text-5xl text-white/80" style={{ animation: 'bounce 3s infinite' }}>
-                restaurant_menu
-             </span>
+             <Icon name="restaurant_menu" className="text-5xl text-white/80" style={{ animation: 'bounce 3s infinite' }} />
           </div>
         </div>
         
@@ -47,13 +46,13 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-5 justify-center w-full sm:w-auto">
           <Link href="/">
             <Button size="lg" className="h-14 px-8 text-base bg-white text-black hover:bg-gray-200 hover:text-black rounded-full font-semibold transition-all hover:scale-105 w-full sm:w-auto">
-              <span className="material-symbols-outlined mr-2 text-lg">arrow_back</span>
+              <Icon name="arrow_back" className="mr-2 text-lg" />
               Ana Sayfaya Dön
             </Button>
           </Link>
           <Link href="/auth/login">
             <Button size="lg" variant="outline" className="h-14 px-8 text-base border-white/20 bg-white/5 text-white hover:bg-white/15 hover:text-white rounded-full font-semibold backdrop-blur-md transition-all w-full sm:w-auto">
-              <span className="material-symbols-outlined mr-2 text-lg">login</span>
+              <Icon name="login" className="mr-2 text-lg" />
               Yönetici Girişi
             </Button>
           </Link>

@@ -45,6 +45,7 @@ export default function DijitalMenuPage() {
       badge="MODERN ÇÖZÜM"
       h1="Dijital Menü Sistemi"
       h1Highlight="Müşteri Deneyimi"
+      breadcrumbName="Dijital Menü"
       subtitle="Klasik basılı menüye veda et. Modern, hızlı, sürekli güncel kalan dijital menü ile müşterilerine fark yarat."
       intro="Dijital menü, restoranların basılı menü kartı yerine müşterilerine QR kod aracılığıyla sunduğu mobil uyumlu, online menü çözümüdür. QR Menülist ile sıfırdan tasarlanmış, hızlı yüklenen, yapay zeka destekli çeviri ile çoklu dil sunan, müşteri istatistiklerini takip eden tam donanımlı bir dijital menü platformuna sahip olursun."
       features={[

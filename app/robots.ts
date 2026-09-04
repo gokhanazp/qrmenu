@@ -13,23 +13,36 @@ function getSiteUrl(): string {
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getSiteUrl()
 
+  /*
+   * Kategori sayfaları (/restorant/*\/category/*) robots.txt ile ENGELLENMEZ.
+   *
+   * Onlara meta robots ile `noindex, follow` veriyoruz. Fark önemli:
+   * robots.txt ile engellenirse Google sayfayı hiç indiremez, dolayısıyla
+   * `noindex`'i de göremez ve o sayfalardaki linkleri (ana restoran sayfasına
+   * ve QR Menülist'e giden) hiç değerlendirmez. `noindex, follow` ile hem
+   * indeksten çıkarlar hem linkleri sayılmaya devam eder.
+   */
+  const sharedDisallow = [
+    '/panel/',
+    '/admin/',
+    '/api/',
+    '/auth/callback',
+    '/auth/reset-password',
+    '/auth/update-password',
+    '/_next/',
+    '/error',
+    '*?*lang=', // duplicate dil parametresi crawl edilmesin
+  ]
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: ['/', '/restorant/', '/auth/register', '/auth/login'],
-        disallow: [
-          '/panel/',
-          '/admin/',
-          '/api/',
-          '/auth/callback',
-          '/auth/reset-password',
-          '/auth/update-password',
-          '/_next/',
-          '/error',
-          '*?*lang=', // duplicate dil parametresi crawl edilmesin
-        ],
+        disallow: sharedDisallow,
       },
+      // AI botları bilinçli olarak açık: ChatGPT / Claude / Perplexity
+      // yanıtlarında görünürlük için.
       {
         userAgent: 'GPTBot',
         allow: ['/', '/restorant/'],
@@ -60,6 +73,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    // `host` Yandex direktifi; Google yok sayar. www/https kanonikleştirmesi
+    // Vercel domain ayarlarındaki 301'lerle yapılıyor.
     host: baseUrl,
   }
 }

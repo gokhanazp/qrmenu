@@ -130,17 +130,19 @@ export const en: TranslationKeys = {
     },
     hero: {
       badge: 'Digital Menu System',
-      title1: 'Take Your',
-      title2: 'Menu',
-      title3: 'Digital',
-      subtitle: 'Provide your customers with a modern menu experience via QR code.',
+      title1: 'A QR Menu For',
+      title2: 'Your Restaurant',
+      tagline: 'Take your menu digital',
+      subtitle: 'Put the QR code on the table and your guests open the menu on their phone. When a price changes, it is one click — not a reprint.',
       cta: 'Start Free',
       ctaSecondary: 'Explore',
+      // ⚠️ lib/offer.ts (FREE_OFFER) ile AYNI teklifi söylemeli.
+      // subscription.ts içindeki TRIAL_DAYS değişirse buradaki metin de değişmeli.
       trialNote: 'First 2 months free · No credit card required',
       stats: {
         restaurants: 'Restaurants',
-        views: 'Views',
-        rating: 'Rating',
+        views: 'Menu Views',
+        scans: 'QR Scans',
       },
     },
     showcase: {
@@ -248,8 +250,8 @@ export const en: TranslationKeys = {
           a: 'You can make unlimited updates anytime. Price changes, new products, or stock status are reflected instantly.',
         },
         {
-          q: 'How long is the free plan valid?',
-          a: 'The free plan is valid indefinitely. You can start with basic features and upgrade to Pro or Business plan as your business grows.',
+          q: 'Is the QR menu really free, and for how long?',
+          a: 'Your menu stays live and fully featured for the first 2 months (60 days) on a new account, and we never ask for a credit card at sign-up. After 2 months you need a Pro plan to keep the menu public — your menu, categories and products are not deleted, and the menu goes live again the moment you upgrade.',
         },
         {
           q: 'Can I get technical support?',
@@ -266,7 +268,7 @@ export const en: TranslationKeys = {
       buttonSecondary: 'Watch Demo',
       features: {
         noCard: 'No credit card required',
-        freeTrial: '14 days free',
+        freeTrial: 'First 2 months free',
         cancelAnytime: 'Cancel anytime',
       },
     },
@@ -303,7 +305,7 @@ export const en: TranslationKeys = {
         cookies: 'Cookie Policy',
       },
       sslSecure: 'SSL Secure',
-      copyright: '© 2024 QR Menu. All rights reserved.',
+      copyright: 'All rights reserved.',
     },
   },
   panel: {

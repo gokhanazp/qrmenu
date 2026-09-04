@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useState } from 'react'
 import Image from 'next/image'
 
@@ -80,9 +81,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
         }}
         aria-label={t.menu}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
-          menu
-        </span>
+        <Icon name="menu" style={{ fontSize: '28px' }} />
       </button>
 
       {/* Overlay */}
@@ -135,7 +134,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
               style={{ color: finalIconColor }}
               aria-label={t.close}
             >
-              <span className="material-symbols-outlined">close</span>
+              <Icon name="close" />
             </button>
           </div>
 
@@ -148,7 +147,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                   className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                   style={{ color: textColor }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: finalIconColor }}>info</span>
+                  <Icon name="info" style={{ color: finalIconColor }} />
                   {t.aboutUs}
                 </h3>
                 <p
@@ -166,7 +165,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                 className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                 style={{ color: textColor }}
               >
-                <span className="material-symbols-outlined" style={{ color: finalIconColor }}>contact_phone</span>
+                <Icon name="contact_phone" style={{ color: finalIconColor }} />
                 {t.contact}
               </h3>
               <div className="space-y-3">
@@ -177,7 +176,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-center gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>call</span>
+                    <Icon name="call" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm" style={{ color: textColor }}>{restaurant.phone}</span>
                   </a>
                 ) : (
@@ -185,7 +184,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-center gap-3 p-3 rounded-lg"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>call</span>
+                    <Icon name="call" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>{t.noPhone}</span>
                   </div>
                 )}
@@ -197,7 +196,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-center gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>mail</span>
+                    <Icon name="mail" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm break-all" style={{ color: textColor }}>{restaurant.email}</span>
                   </a>
                 ) : (
@@ -205,7 +204,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-center gap-3 p-3 rounded-lg"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>mail</span>
+                    <Icon name="mail" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm" style={{ color: textColor, opacity: 0.6 }}>{t.noEmail}</span>
                   </div>
                 )}
@@ -219,7 +218,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:opacity-90"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>location_on</span>
+                    <Icon name="location_on" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm flex-1" style={{ color: textColor }}>{restaurant.address}</span>
                   </a>
                 ) : (
@@ -227,7 +226,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                     className="flex items-start gap-3 p-3 rounded-lg"
                     style={{ backgroundColor: surfaceColor }}
                   >
-                    <span className="material-symbols-outlined flex-shrink-0" style={{ color: finalIconColor }}>location_on</span>
+                    <Icon name="location_on" className="flex-shrink-0" style={{ color: finalIconColor }} />
                     <span className="text-sm flex-1" style={{ color: textColor, opacity: 0.6 }}>{t.noAddress}</span>
                   </div>
                 )}
@@ -241,7 +240,7 @@ export function HamburgerMenu({ restaurant, iconColor, hamburgerBgColor, current
                   className="flex items-center gap-2 text-sm font-bold mb-3 uppercase tracking-wide"
                   style={{ color: textColor }}
                 >
-                  <span className="material-symbols-outlined" style={{ color: finalIconColor }}>share</span>
+                  <Icon name="share" style={{ color: finalIconColor }} />
                   {t.socialMedia}
                 </h3>
                 <div className="flex gap-2 flex-wrap">

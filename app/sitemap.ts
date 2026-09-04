@@ -12,6 +12,14 @@ function getSiteUrl(): string {
   return 'http://localhost:3000'
 }
 
+/**
+ * Restoran sayfaları için hreflang alternate'leri.
+ *
+ * Yalnızca restoranın GERÇEKTEN birden fazla dil desteklediği durumda üretilir.
+ * Pazarlama sayfaları (ana sayfa, landing'ler, blog, yasal sayfalar) tek dilli
+ * olduğu için onlara alternate verilmiyor — eskiden tr-TR/en-US/x-default üçü
+ * de aynı URL'e bakıyordu ve Google bunu çelişki olarak okuyordu.
+ */
 function buildLanguageAlternates(url: string, supportedLanguages: string[]) {
   if (supportedLanguages.length < 2) return undefined
   const languages: Record<string, string> = {}
@@ -33,31 +41,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq('is_active', true)
 
   const restaurantList = (restaurants || []) as any[]
-  const restaurantIds = restaurantList.length > 0
-    ? await supabase
-        .from('restaurants')
-        .select('id, slug, supported_languages, updated_at')
-        .eq('is_active', true)
-    : { data: [] as any[] }
-
-  const idMap = new Map<string, { slug: string; supported_languages: string[]; updated_at: string }>()
-  for (const r of (restaurantIds.data || []) as any[]) {
-    idMap.set(r.id, {
-      slug: r.slug,
-      supported_languages: r.supported_languages || ['tr'],
-      updated_at: r.updated_at,
-    })
-  }
-
-  const { data: categories } = idMap.size > 0
-    ? await supabase
-        .from('categories')
-        .select('id, restaurant_id, updated_at')
-        .eq('is_active', true)
-    : { data: [] as any[] }
 
   const restaurantUrls: MetadataRoute.Sitemap = restaurantList.map((restaurant: any) => {
-    const url = `${baseUrl}/restorant/${restaurant.slug}`
+    /*
+     * Slug KÜÇÜK HARFE çevrilerek yayınlanıyor.
+     *
+     * Veritabanında elle girilmiş büyük harfli slug'lar var (ör.
+     * "Hilton-Garden-Inn-Pendik"). Sitemap'in kanonik adresi bildirmesi gerekir:
+     * middleware /restorant/* isteklerini küçük harfe 308'liyor ve arama
+     * `ilike` olduğu için küçük harfli adres kaydı bulur. Büyük harfli URL'i
+     * sitemap'e koymak Google'ı yönlendirme zincirine sokar.
+     *
+     * (supabase/migrations/020 bu slug'ları veritabanında da normalize eder.)
+     */
+    const url = `${baseUrl}/restorant/${String(restaurant.slug).toLowerCase()}`
     const supportedLanguages = restaurant.supported_languages || ['tr']
     return {
       url,
@@ -68,20 +65,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const categoryUrls: MetadataRoute.Sitemap = ((categories || []) as any[])
-    .map((category: any) => {
-      const restaurant = idMap.get(category.restaurant_id)
-      if (!restaurant) return null
-      const url = `${baseUrl}/restorant/${restaurant.slug}/category/${category.id}`
-      return {
-        url,
-        lastModified: new Date(category.updated_at || restaurant.updated_at),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-        alternates: buildLanguageAlternates(url, restaurant.supported_languages),
-      }
-    })
-    .filter(Boolean) as MetadataRoute.Sitemap
+  /*
+   * Kategori URL'leri (/restorant/[slug]/category/[uuid]) BİLEREK sitemap'te yok.
+   *
+   * Üç sebep:
+   *   1. Slug bir UUID — hiçbir aramaya karşılık gelmiyor.
+   *   2. İnce içerik — kategori sayfası, ana restoran sayfasının alt kümesi;
+   *      neredeyse birebir kopya. İndekslenmesi gereken sayfa, tüm ürünleri
+   *      içeren ana restoran sayfası.
+   *   3. Tarama bütçesi — 169 URL'in 71'i (%42) bu sayfalara gidiyordu; yeni
+   *      blog yazıları daha yavaş taranıyordu.
+   *
+   * Sayfalar erişilebilir kalmaya devam ediyor, sadece `noindex, follow`
+   * veriliyor (bkz. app/restorant/[slug]/category/[categoryId]/page.tsx).
+   */
 
   const seoLandingSlugs = [
     'ucretsiz-qr-menu',
@@ -104,6 +101,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
+  // Kurumsal sayfalar — güven (E-E-A-T) sinyali, para sayfalarından sonra gelir
+  const corporateUrls: MetadataRoute.Sitemap = [
+    { slug: 'hakkimizda', priority: 0.5 },
+    { slug: 'iletisim', priority: 0.5 },
+  ].map(({ slug, priority }) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority,
+  }))
+
+  // Yasal sayfalar — index, follow ama düşük öncelikle
+  const legalUrls: MetadataRoute.Sitemap = [
+    'gizlilik-politikasi',
+    'kullanim-sartlari',
+    'kvkk',
+    'cerez-politikasi',
+  ].map((slug) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'yearly' as const,
+    priority: 0.3,
+  }))
+
   const staticUrls: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -119,6 +140,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     ...blogPostUrls,
+    ...corporateUrls,
     {
       url: `${baseUrl}/auth/register`,
       lastModified: new Date(),
@@ -131,7 +153,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.4,
     },
+    ...legalUrls,
   ]
 
-  return [...staticUrls, ...restaurantUrls, ...categoryUrls]
+  return [...staticUrls, ...restaurantUrls]
 }

@@ -129,17 +129,22 @@ export const tr = {
     },
     hero: {
       badge: 'Dijital Menü Sistemi',
-      title1: 'Menünüzü',
-      title2: 'Dijitale',
-      title3: 'Taşıyın',
-      subtitle: 'QR kod ile müşterilerinize modern bir menü deneyimi sunun.',
+      // H1'de birincil hedef kelime ("qr menü") geçmeli. Eski H1 "Menünüzü
+      // Dijitale Taşıyın" güzel bir slogandı ama kelimeyi içermiyordu;
+      // slogan artık alt başlıkta duruyor.
+      title1: 'Restoranınız İçin',
+      title2: 'QR Menü',
+      tagline: 'Menünüzü dijitale taşıyın',
+      subtitle: 'QR kodu masaya koyun, müşteriniz menüyü telefonundan açsın. Fiyat değişince baskı değil, tek tık.',
       cta: 'Ücretsiz Başla',
       ctaSecondary: 'Keşfet',
+      // ⚠️ lib/offer.ts (FREE_OFFER) ile AYNI teklifi söylemeli.
+      // subscription.ts içindeki TRIAL_DAYS değişirse buradaki metin de değişmeli.
       trialNote: 'İlk 2 ay ücretsiz · Kredi kartı gerekmez',
       stats: {
         restaurants: 'Restoran',
-        views: 'Görüntüleme',
-        rating: 'Puan',
+        views: 'Menü Görüntüleme',
+        scans: 'QR Tarama',
       },
     },
     showcase: {
@@ -247,8 +252,8 @@ export const tr = {
           a: 'İstediğiniz zaman, sınırsız güncelleme yapabilirsiniz. Fiyat değişiklikleri, yeni ürünler veya stok durumu anında yansır.',
         },
         {
-          q: 'Ücretsiz plan ne kadar süre geçerli?',
-          a: 'Ücretsiz plan süresiz olarak geçerlidir. Temel özelliklerle başlayıp, işletmeniz büyüdükçe Pro veya İşletme planına geçebilirsiniz.',
+          q: 'QR menü gerçekten ücretsiz mi, ne kadar süre?',
+          a: 'Yeni açtığınız hesapta menünüz ilk 2 ay (60 gün) ücretsiz ve tam özellikli olarak yayında kalır; kayıt için kredi kartı bilgisi istemiyoruz. 2 ayın sonunda menünüzü yayında tutmak için Pro plana geçmeniz gerekir — menü, kategori ve ürünleriniz silinmez, Pro\'ya geçtiğiniz anda menü yeniden açılır.',
         },
         {
           q: 'Teknik destek alabilir miyim?',
@@ -265,7 +270,7 @@ export const tr = {
       buttonSecondary: 'Demo İzle',
       features: {
         noCard: 'Kredi kartı gerekmez',
-        freeTrial: '14 gün ücretsiz',
+        freeTrial: 'İlk 2 ay ücretsiz',
         cancelAnytime: 'İstediğiniz zaman iptal',
       },
     },
@@ -302,7 +307,7 @@ export const tr = {
         cookies: 'Çerez Politikası',
       },
       sslSecure: 'SSL Güvenli',
-      copyright: '© 2024 QR Menü. Tüm hakları saklıdır.',
+      copyright: 'Tüm hakları saklıdır.',
     },
   },
   panel: {

@@ -45,6 +45,7 @@ export default function RestoranMenuProgramiPage() {
       badge="PROFESYONEL ÇÖZÜM"
       h1="Restoran Menü Programı"
       h1Highlight="Tam Donanımlı"
+      breadcrumbName="Restoran Menü Programı"
       subtitle="Restoranını profesyonel yönetmek için ihtiyacın olan tüm özellikler tek bir panelde. Menü, kategori, fiyat, görsel, dil ve istatistik yönetimi."
       intro="Restoran menü programı, restoran sahiplerinin menülerini online ortamda yönetmesini sağlayan kapsamlı bir yazılım çözümüdür. QR Menülist, restoranlar ve kafeler için özel olarak tasarlanmış, kategori-ürün hiyerarşisi, çoklu dil yönetimi, görsel yükleme, fiyat takibi, müşteri istatistikleri ve QR kod entegrasyonu sunan profesyonel bir restoran menü programıdır."
       features={[

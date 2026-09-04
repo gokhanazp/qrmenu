@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
 import { SeoLanding } from "@/components/seo-landing"
 import { getSiteUrl } from "@/lib/seo/jsonld"
+import { FREE_OFFER } from "@/lib/offer"
 
 const SLUG = "ucretsiz-qr-menu"
-const TITLE = "Ücretsiz QR Menü Oluştur - Kredi Kartı İstemez | QR Menülist"
+const TITLE = "Ücretsiz QR Menü Oluştur — Kredi Kartı Gerekmez | QR Menülist"
 const DESCRIPTION =
-  "Ücretsiz QR menü oluşturma platformu. Başlangıç planıyla menünü hemen hazırla, dene. İleri özellikler için Pro plana yükselt. Kayıt için kredi kartı gerekmez."
+  `Ücretsiz QR menü oluştur: kayıt ol, ürünlerini ekle, QR kodunu indir. Menün ilk ${FREE_OFFER.months} ay tam özellikli ve ücretsiz yayında, kayıt için kredi kartı istemiyoruz. Türkçe-İngilizce menü desteği.`
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -42,10 +43,11 @@ export default function UcretsizQrMenuPage() {
     <SeoLanding
       slug={SLUG}
       badge="ÜCRETSİZ BAŞLA"
-      h1="Ücretsiz QR Menü Oluştur"
-      h1Highlight="Denemek İçin Bedava"
-      subtitle="Restoranın için ücretsiz hesap aç, QR menünü hazırla ve dene. İleri özellikler için Pro plana dilediğinde yükselt."
-      intro="QR Menülist ile dakikalar içinde ücretsiz hesap açabilir, restoranın için QR menü hazırlayabilir, QR kodunu indirip kullanmaya başlayabilirsin. Başlangıç planı denemek ve küçük restoranlar için ideal — daha fazla özellik istediğinde Pro plana dilediğin zaman yükseltebilirsin."
+      h1="Ücretsiz QR Menü"
+      h1Highlight="Oluştur"
+      breadcrumbName="Ücretsiz QR Menü"
+      subtitle={`Restoranın için ücretsiz hesap aç, QR menünü hazırla, QR kodunu indir. Menün ilk ${FREE_OFFER.months} ay tam özellikli ve ücretsiz yayında — kredi kartı istemiyoruz.`}
+      intro={`QR Menülist ile dakikalar içinde ücretsiz hesap açabilir, restoranın için QR menü hazırlayabilir, QR kodunu indirip masalarına koyabilirsin. Yeni hesaplarda menü ilk ${FREE_OFFER.months} ay (${FREE_OFFER.days} gün) tüm özellikleriyle ücretsiz yayında kalır ve kayıt sırasında kredi kartı bilgisi istemiyoruz. Süre sonunda menüyü yayında tutmak için Pro plana geçmen gerekir; menü, kategori ve ürünlerin silinmez.`}
       features={[
         {
           icon: "rocket_launch",
@@ -55,7 +57,7 @@ export default function UcretsizQrMenuPage() {
         {
           icon: "credit_card_off",
           title: "Kredi Kartı İstemez",
-          description: "Ücretsiz kayıt sırasında kredi kartı bilgisi vermenize gerek yok.",
+          description: `Kayıt sırasında kredi kartı bilgisi vermenize gerek yok. İlk ${FREE_OFFER.months} ay ücretsiz.`,
         },
         {
           icon: "qr_code_2",
@@ -74,45 +76,45 @@ export default function UcretsizQrMenuPage() {
         },
         {
           icon: "trending_up",
-          title: "Pro ile Daha Fazlası",
-          description: "Gelişmiş özelliklere ihtiyacın olduğunda Pro plana yükselt.",
+          title: `${FREE_OFFER.months} Ay Sonrası`,
+          description: `Süre sonunda menüyü yayında tutmak için Pro plana geçilir. Menü ve ürün verilerin silinmez.`,
         },
       ]}
       benefitsTitle="Neden QR Menülist?"
       benefits={[
-        "Ücretsiz hesap aç, kredi kartı bilgisi vermeden başla",
+        `İlk ${FREE_OFFER.months} ay ücretsiz — kredi kartı bilgisi vermeden başla`,
         "İlk QR kodunu 5 dakika içinde oluştur",
         "Türkçe + İngilizce çift dil desteği",
         "Yapay zeka destekli menü çevirisi",
         "QR kodunu PNG olarak yüksek çözünürlükte indir",
         "Mobil cihazlarda mükemmel görünen menü tasarımı",
         "Renk, logo ve düzen özelleştirmesi",
-        "İhtiyacın büyüdükçe Pro plana yükselt",
+        "Süre sonunda geçiş yaparken QR kodunu yeniden bastırmana gerek yok",
       ]}
       faq={[
         {
-          q: "QR menüyü ücretsiz deneyebilir miyim?",
-          a: "Evet, QR Menülist'te ücretsiz hesap açıp menünü hazırlayabilir, QR kodunu indirip kullanmaya başlayabilirsin. İleri özellikler için Pro plan da mevcuttur.",
+          q: "QR menü gerçekten ücretsiz mi, ne kadar süre?",
+          a: FREE_OFFER.faqAnswer,
         },
         {
           q: "Kredi kartı bilgisi vermem gerekecek mi?",
           a: "Hayır. Ücretsiz hesap açarken yalnızca e-posta, telefon ve restoran adı istiyoruz. Kredi kartı bilgisi gerekmiyor.",
         },
         {
-          q: "Pro plan neler sunar?",
-          a: "Pro plan, gelişmiş istatistikler, ek özelleştirme ve daha yüksek kapasite gibi ileri özellikler içerir. Detaylı bilgi için WhatsApp üzerinden bize ulaşabilirsin.",
+          q: `${FREE_OFFER.months} ayın sonunda ne oluyor?`,
+          a: `Menünün herkese açık görüntülenmesi durur; panelinize erişiminiz devam eder. Menü, kategori ve ürün verileriniz silinmez — Pro plana geçtiğiniz anda menü aynı adresten ve aynı QR kodla yeniden yayına girer. Yani masadaki QR kodunu tekrar bastırmanız gerekmez.`,
         },
         {
           q: "QR kodumu nasıl indiririm?",
           a: "Kayıt olduktan sonra panelden 'QR Kod' bölümüne gir, indir butonuna bas. QR kodu yüksek çözünürlükte PNG olarak inecek, baskıya hazır.",
         },
         {
-          q: "İngilizce menü desteği başlangıç planında var mı?",
-          a: "Evet. Türkçe-İngilizce çift dilli menü ve yapay zeka destekli çeviri özelliği başlangıç planında kullanıma açıktır.",
+          q: "İngilizce menü desteği ücretsiz sürede var mı?",
+          a: "Evet. Türkçe-İngilizce çift dilli menü ve yapay zeka destekli çeviri, ücretsiz süre boyunca da kullanıma açıktır.",
         },
       ]}
       ctaTitle="Restoranını Hemen Dijitalleştir"
-      ctaSubtitle="Ücretsiz hesap aç, ilk QR menünü 5 dakikada hazırla."
+      ctaSubtitle={`Ücretsiz hesap aç, ilk QR menünü 5 dakikada hazırla. ${FREE_OFFER.short}.`}
     />
   )
 }

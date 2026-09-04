@@ -1,5 +1,6 @@
 'use client'
 
+import { Icon } from "@/components/icon"
 import { useState } from 'react'
 import { submitReview } from '@/app/actions/reviews'
 
@@ -140,7 +141,7 @@ export function ReviewModal({
             className="text-white/90 hover:text-white transition-colors"
             aria-label={t.close}
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -150,9 +151,7 @@ export function ReviewModal({
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: `${primaryColor}20` }}
             >
-              <span className="material-symbols-outlined text-3xl" style={{ color: primaryColor }}>
-                check_circle
-              </span>
+              <Icon name="check_circle" className="text-3xl" style={{ color: primaryColor }} />
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">{t.thanksTitle}</h3>
             <p className="text-gray-500 mb-6">{t.thanksDesc}</p>
@@ -207,15 +206,12 @@ export function ReviewModal({
                       className="transition-transform hover:scale-110"
                       aria-label={`${star}`}
                     >
-                      <span
-                        className="material-symbols-outlined text-3xl"
-                        style={{
-                          color: filled ? '#f59e0b' : '#d1d5db',
-                          fontVariationSettings: filled ? "'FILL' 1" : "'FILL' 0",
-                        }}
-                      >
-                        star
-                      </span>
+                      <Icon
+                        name="star"
+                        className="text-3xl"
+                        fill={filled}
+                        style={{ color: filled ? '#f59e0b' : '#d1d5db' }}
+                      />
                     </button>
                   )
                 })}

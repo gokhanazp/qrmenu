@@ -1,7 +1,9 @@
 'use client'
 
+import { Star, StarHalf } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
+import { Icon } from '@/components/icon'
 import { ReviewModal } from './review-modal'
 import type { PublicReview } from '@/app/actions/reviews'
 
@@ -24,22 +26,21 @@ interface ReviewsSectionProps {
 
 function Stars({ value, size = 18 }: { value: number; size?: number }) {
   return (
-    <div className="flex" style={{ gap: 1 }}>
+    <div className="flex" style={{ gap: 1 }} aria-label={`${value} / 5 puan`}>
       {[1, 2, 3, 4, 5].map((s) => {
         const filled = value >= s
         const half = !filled && value >= s - 0.5
+        const color = filled || half ? '#f59e0b' : '#d1d5db'
+        const Cmp = half ? StarHalf : Star
         return (
-          <span
+          <Cmp
             key={s}
-            className="material-symbols-outlined"
-            style={{
-              fontSize: size,
-              color: filled || half ? '#f59e0b' : '#d1d5db',
-              fontVariationSettings: filled ? "'FILL' 1" : "'FILL' 0",
-            }}
-          >
-            {half ? 'star_half' : 'star'}
-          </span>
+            aria-hidden="true"
+            size={size}
+            color={color}
+            fill={filled || half ? color : 'none'}
+            strokeWidth={1.5}
+          />
         )
       })}
     </div>
@@ -116,9 +117,7 @@ export function ReviewsSection({
           className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
           style={{ backgroundColor: primaryColor }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-            rate_review
-          </span>
+          <Icon name="rate_review" style={{ fontSize: 18 }} />
           {t.write}
         </button>
       </div>
@@ -170,9 +169,7 @@ export function ReviewsSection({
                 style={{ color: primaryColor }}
               >
                 {t.seeAll(count)}
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                  arrow_forward
-                </span>
+                <Icon name="arrow_forward" style={{ fontSize: 18 }} />
               </Link>
             </div>
           )}

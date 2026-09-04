@@ -6,10 +6,24 @@ export async function getPublicRestaurant(slug: string) {
   try {
     const supabase = await createClient()
 
+    /*
+     * Slug araması BÜYÜK/KÜÇÜK HARF DUYARSIZ (`ilike`).
+     *
+     * Neden: veritabanında elle girilmiş büyük harfli slug'lar var
+     * (ör. "Hilton-Garden-Inn-Pendik"). Middleware artık /restorant/* için
+     * URL'i küçük harfe 308'liyor — Google iki farklı adreste aynı içeriği
+     * indekslemesin diye. `eq` ile arasak küçük harfli kanonik URL veritabanı
+     * kaydını bulamaz ve 404 dönerdi.
+     *
+     * `%` ve `_` ilike'ta joker karakter; slug üreticisi bunları hiç
+     * üretmiyor ama dışarıdan gelen path parçasında olabilir — kaçırıyoruz.
+     */
+    const slugPattern = slug.replace(/[\\%_]/g, (m) => `\\${m}`)
+
     const { data: restaurant, error } = await supabase
       .from('restaurants')
       .select('*, subscriptions(plan, status, trial_ends_at)')
-      .eq('slug', slug)
+      .ilike('slug', slugPattern)
       .eq('is_active', true)
       .maybeSingle()
 

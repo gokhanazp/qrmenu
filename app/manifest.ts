@@ -2,10 +2,12 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'QR Menülist - Ücretsiz QR Menü Oluşturma',
+    name: 'QR Menülist — QR Menü Oluşturma',
     short_name: 'QR Menülist',
+    // Metin lib/offer.ts ile aynı teklifi söylemeli — manifest bir statik
+    // dosya olarak üretildiği için değer buraya elle yazılıyor.
     description:
-      'Ücretsiz QR menü oluştur, restoranın için dijital menü hazırla. Başlangıç planı ücretsiz, ileri özellikler için Pro plan mevcut.',
+      'Restoranın için QR menü oluştur, dijital menü hazırla. İlk 2 ay ücretsiz, kredi kartı gerekmez.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0a',

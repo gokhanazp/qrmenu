@@ -2,6 +2,26 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  /*
+   * Restoran URL'lerini küçük harfe normalize et.
+   *
+   * Google için /restorant/Hilton-Garden-Inn-Pendik ve
+   * /restorant/hilton-garden-inn-pendik İKİ FARKLI sayfadır — aynı içerik iki
+   * adreste indekslenir, sinyaller bölünür. Slug üreticisi (lib/utils/slug.ts)
+   * artık `toLowerCase()` uyguluyor ama veritabanında elle girilmiş büyük
+   * harfli slug'lar ve dışarıda paylaşılmış eski linkler var.
+   *
+   * 308 (kalıcı) yönlendirme ile tek doğru adrese indiriyoruz. Supabase
+   * oturum kontrolünden ÖNCE yapıyoruz: menü sayfaları herkese açık, oturum
+   * sorgusuna gerek yok.
+   */
+  const path = request.nextUrl.pathname
+  if (path.startsWith('/restorant/') && /[A-Z]/.test(path)) {
+    const url = request.nextUrl.clone()
+    url.pathname = path.toLowerCase()
+    return NextResponse.redirect(url, 308)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

@@ -30,3 +30,26 @@ export function generateSlug(name: string): string {
   
   return slug || 'restoran'
 }
+/**
+ * "VERNA CAFE BISTRO" -> "Verna Cafe Bistro"
+ *
+ * Restoran adları veritabanına kullanıcının yazdığı gibi giriyor ve bazıları
+ * tamamı büyük harf. Bu hâliyle sayfa title'ında ve SERP'te bağırıyor gibi
+ * görünüyor. Tamamı büyük harf olan adları başlık düzenine çevirir; karışık
+ * yazılmış adlara ("L'amour", "AZP") dokunmaz.
+ */
+export function toTitleCase(name: string): string {
+  if (!name) return name
+  // Zaten küçük harf içeriyorsa kullanıcı bilinçli yazmış — dokunma.
+  if (name !== name.toLocaleUpperCase('tr-TR')) return name
+
+  return name
+    .toLocaleLowerCase('tr-TR')
+    .split(/(\s+|-)/)
+    .map((part) =>
+      /^\s+$|^-$/.test(part)
+        ? part
+        : part.charAt(0).toLocaleUpperCase('tr-TR') + part.slice(1),
+    )
+    .join('')
+}

@@ -16,6 +16,9 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        'work-sans': ['var(--font-work-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         'background-light': '#f8f7f6',
         'background-dark': '#221810',
