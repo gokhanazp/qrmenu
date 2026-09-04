@@ -1,6 +1,6 @@
 import { FREE_OFFER } from '@/lib/offer'
 import { TESTIMONIALS, aggregateRating } from '@/lib/testimonials'
-import { COMPANY, socialLinks } from '@/lib/company'
+import { COMPANY, hasLegalName, socialLinks } from '@/lib/company'
 import { CONTACT_WHATSAPP_NUMBER } from '@/lib/contact'
 
 export function getSiteUrl(): string {
@@ -209,10 +209,10 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     '@id': `${siteUrl}#organization`,
     name: 'QR Menülist',
-    legalName: COMPANY.legalName.startsWith('TODO') ? undefined : COMPANY.legalName,
+    legalName: hasLegalName() ? COMPANY.legalName : undefined,
     alternateName: ['QR Menü', 'QR Menülist — QR Menü Oluşturma'],
     url: siteUrl,
-    foundingDate: COMPANY.foundedYear,
+    foundingDate: COMPANY.foundedYear.startsWith('TODO') ? undefined : COMPANY.foundedYear,
     logo: {
       '@type': 'ImageObject',
       url: `${siteUrl}/qrmenu-logo.png`,
@@ -251,7 +251,7 @@ export function localBusinessJsonLd() {
     '@type': 'ProfessionalService',
     '@id': `${siteUrl}/iletisim#localbusiness`,
     name: COMPANY.brand,
-    legalName: COMPANY.legalName,
+    legalName: hasLegalName() ? COMPANY.legalName : undefined,
     url: `${siteUrl}/iletisim`,
     image: `${siteUrl}/qrmenu-logo.png`,
     telephone: `+${CONTACT_WHATSAPP_NUMBER}`,

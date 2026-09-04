@@ -15,11 +15,22 @@ export const COMPANY = {
   /** Ticari marka / site adı */
   brand: 'QR Menülist',
 
-  /** TODO: Resmî şirket unvanı (ör. "Voidu B.V." veya Türkiye tüzel kişiliği) */
-  legalName: 'Voidu B.V.',
+  /**
+   * TODO: Resmî şirket unvanı (tüzel kişilik adı).
+   *
+   * Doldurulmadığı sürece yasal metinlerde ve schema'da marka adı
+   * ("QR Menülist") kullanılır — bkz. `legalEntity()`. Yanlış veya
+   * doğrulanamayan bir unvan yayınlamak, hiç yayınlamamaktan kötüdür.
+   */
+  legalName: 'TODO: Resmî şirket unvanı',
 
-  /** TODO: Şirketin kuruluş yılı */
-  foundedYear: '2024',
+  /**
+   * TODO: Şirketin kuruluş yılı (ör. '2025').
+   *
+   * Doldurulmadığı sürece /hakkimizda'da ve Organization schema'sında
+   * gösterilmez — uydurma bir kuruluş yılı yayınlamıyoruz.
+   */
+  foundedYear: 'TODO',
 
   /** TODO: Açık adres (cadde, no, ilçe, il, ülke) */
   address: {
@@ -73,11 +84,32 @@ export function formatLegalDate(iso: string): string {
   })
 }
 
+/** Unvan doldurulmuş mu? */
+export function hasLegalName(): boolean {
+  return !COMPANY.legalName.startsWith('TODO')
+}
+
+/**
+ * Yasal metinlerde ve schema'da kullanılacak taraf adı.
+ * Unvan girilmediyse marka adına düşer, böylece cümleler
+ * "TODO: ..." ya da boş görünmez.
+ */
+export function legalEntity(): string {
+  return hasLegalName() ? COMPANY.legalName : COMPANY.brand
+}
+
 /** Adresi tek satırlık okunabilir metne çevirir; TODO alanlarını atlar. */
 export function addressLine(): string {
   const a = COMPANY.address
+  const filled = (v: string) => Boolean(v) && !v.startsWith('TODO')
+
+  // Ülke tek başına adres sayılmaz. `country` TODO olmadığı için filtreden
+  // geçiyor ve adres alanı "Türkiye" olarak görünüyordu; en azından ilçe veya
+  // il girilmediyse hiç adres göstermiyoruz.
+  if (!filled(a.district) && !filled(a.city)) return ''
+
   return [a.street, a.district, a.city, a.postalCode, a.country]
-    .filter((part) => part && !part.startsWith('TODO'))
+    .filter(filled)
     .join(', ')
 }
 

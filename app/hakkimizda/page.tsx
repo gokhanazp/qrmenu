@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Bullets, ContentPage, Section } from "@/components/content-page"
 import { getSiteUrl } from "@/lib/seo/jsonld"
-import { COMPANY, addressLine } from "@/lib/company"
+import { COMPANY, addressLine, hasLegalName } from "@/lib/company"
 import { FREE_OFFER } from "@/lib/offer"
 import { REFERENCE_CUSTOMERS } from "@/lib/testimonials"
 
@@ -91,10 +91,15 @@ export default function HakkimizdaPage() {
       </Section>
 
       <Section heading="Bizi kullanan işletmeler">
+        {/*
+          Metin, aşağıda ADI GEÇEN referanslarla sınırlı kalmalı. Burada
+          "otel restoranına kadar" yazıyordu ama listede otel yok; adı
+          anılmayan bir segmenti referans gibi ima etmemek için kaldırıldı.
+          REFERENCE_CUSTOMERS'a yeni segment eklenirse bu cümle de güncellenmeli.
+        */}
         <p>
-          Kafeden dönercisine, bistrodan otel restoranına kadar farklı ölçekte
-          işletmelerle çalışıyoruz. Menülerimiz herkese açık — hepsini
-          inceleyebilirsiniz:
+          Kafeden dönercisine, burgerciden bistroya farklı ölçekte işletmelerle
+          çalışıyoruz. Menüleri herkese açık — inceleyebilirsiniz:
         </p>
         <ul className="grid sm:grid-cols-2 gap-3 pt-1">
           {REFERENCE_CUSTOMERS.map((customer) => (
@@ -129,13 +134,13 @@ export default function HakkimizdaPage() {
             <>
               <strong className="text-white">Marka:</strong> {COMPANY.brand}
             </>,
-            ...(COMPANY.legalName.startsWith("TODO")
-              ? []
-              : [
+            ...(hasLegalName()
+              ? [
                   <>
                     <strong className="text-white">Unvan:</strong> {COMPANY.legalName}
                   </>,
-                ]),
+                ]
+              : []),
             ...(COMPANY.foundedYear.startsWith("TODO")
               ? []
               : [

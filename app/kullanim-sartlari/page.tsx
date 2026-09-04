@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Bullets, ContentPage, Section } from "@/components/content-page"
 import { getSiteUrl } from "@/lib/seo/jsonld"
-import { COMPANY } from "@/lib/company"
+import { hasLegalName, legalEntity } from "@/lib/company"
 import { FREE_OFFER } from "@/lib/offer"
 
 const SLUG = "kullanim-sartlari"
@@ -36,8 +36,9 @@ export default function KullanimSartlariPage() {
       <Section heading="1. Taraflar ve konu">
         <p>
           Bu şartlar, bir tarafta{" "}
-          <strong className="text-white">{COMPANY.legalName}</strong> (&quot;QR
-          Menülist&quot;), diğer tarafta hesap açan işletme veya kişi
+          <strong className="text-white">{legalEntity()}</strong>
+          {hasLegalName() ? ' ("QR Menülist")' : ''}, diğer tarafta hesap açan
+          işletme veya kişi
           (&quot;Kullanıcı&quot;) arasındaki hizmet ilişkisini düzenler. Konu, QR
           kod ile erişilen dijital menü oluşturma ve yönetme hizmetidir.
         </p>

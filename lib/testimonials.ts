@@ -19,9 +19,10 @@
  *   3. Dizi boş olmadığı anda hem yorumlar bölümü hem `AggregateRating` +
  *      `Review` schema'sı otomatik geri gelir; reviewCount gerçek sayı olur.
  *
- * Gerçek müşteriler (referans olarak kullanılabilecekler): L'amour Chocolate &
- * Coffee, Çebi Döner, Riverside Burgers, Verna Cafe & Bistro, Hilton Garden
- * Inn Pendik, Sea Soul Beach Hotel, Ciğerci Atilla Usta, Terass Restorant.
+ * Yorum isteyebileceğin müşteriler: REFERENCE_CUSTOMERS listesindekiler
+ * (aşağıda). Sitede /restorant/* altında başka menüler de indeksli ama
+ * hepsiyle referans olarak anılma konusunda anlaşılmış değil — listeye
+ * eklemeden önce müşteriden onay al.
  */
 
 export type Testimonial = {
@@ -62,15 +63,18 @@ export function aggregateRating(): { ratingValue: string; reviewCount: number } 
 }
 
 /**
- * Ana sayfada "Güvenilir markalar tarafından tercih ediliyor" bölümünde
- * gösterilen GERÇEK müşteriler. Eskiden burada Pizza House / Sushi Master /
- * Cafe Mocha gibi uydurma isimler vardı; artık her biri sitedeki canlı
- * menüsüne link — yani hem doğrulanabilir hem iç link.
+ * Ana sayfada "Güvenilir markalar tarafından tercih ediliyor" bölümünde ve
+ * /hakkimizda'da gösterilen müşteriler. Eskiden burada Pizza House / Sushi
+ * Master / Cafe Mocha gibi uydurma isimler vardı; artık her biri sitedeki
+ * canlı menüsüne link — yani hem doğrulanabilir hem iç link.
+ *
+ * ⚠️ Buraya SADECE referans olarak anılmasında anlaşılmış müşteriler girer.
+ * Menüsünün sitede indeksli olması, adının referans olarak kullanılabileceği
+ * anlamına gelmiyor.
  */
 export const REFERENCE_CUSTOMERS: Array<{ name: string; slug: string; icon: string }> = [
   { name: "L'amour Chocolate & Coffee", slug: 'lamour-chocolate-coffee', icon: 'local_cafe' },
   { name: 'Çebi Döner', slug: 'cebi-doner', icon: 'kebab_dining' },
   { name: 'Riverside Burgers', slug: 'riverside-burgers', icon: 'lunch_dining' },
   { name: 'Verna Cafe & Bistro', slug: 'verna-cafe-bistro', icon: 'local_cafe' },
-  { name: 'Terass Restorant', slug: 'terass-restorant', icon: 'restaurant' },
 ]

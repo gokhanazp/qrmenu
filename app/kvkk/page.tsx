@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Bullets, ContentPage, Section } from "@/components/content-page"
 import { getSiteUrl } from "@/lib/seo/jsonld"
-import { COMPANY, addressLine } from "@/lib/company"
+import { COMPANY, addressLine, hasLegalName, legalEntity } from "@/lib/company"
 import { CONTACT_WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact"
 
 const SLUG = "kvkk"
@@ -38,14 +38,20 @@ export default function KvkkPage() {
     >
       <Section heading="1. Veri sorumlusunun kimliği">
         <p>
-          Veri sorumlusu <strong className="text-white">{COMPANY.legalName}</strong>{" "}
-          (&quot;QR Menülist&quot;) şirketidir.
+          Kişisel verilerinizin veri sorumlusu{" "}
+          <strong className="text-white">{legalEntity()}</strong>&apos;tir.
         </p>
         <Bullets
           items={[
-            <>
-              <strong className="text-white">Unvan:</strong> {COMPANY.legalName}
-            </>,
+            // Unvan yalnızca lib/company.ts'te doldurulduğunda gösterilir;
+            // doğrulanamayan bir tüzel kişilik adı yayınlamıyoruz.
+            ...(hasLegalName()
+              ? [
+                  <>
+                    <strong className="text-white">Unvan:</strong> {COMPANY.legalName}
+                  </>,
+                ]
+              : []),
             ...(address
               ? [
                   <>

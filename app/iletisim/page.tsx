@@ -5,7 +5,7 @@ import { Icon } from "@/components/icon"
 import { JsonLd } from "@/components/json-ld"
 import { WhatsAppIcon } from "@/components/whatsapp-icon"
 import { getSiteUrl, localBusinessJsonLd } from "@/lib/seo/jsonld"
-import { COMPANY, addressLine } from "@/lib/company"
+import { COMPANY, addressLine, legalEntity } from "@/lib/company"
 import { CONTACT_WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact"
 
 const SLUG = "iletisim"
@@ -97,7 +97,7 @@ export default function IletisimPage() {
       {address && (
         <Section heading="Adres">
           <p>
-            <strong className="text-white">{COMPANY.legalName}</strong>
+            <strong className="text-white">{legalEntity()}</strong>
             <br />
             {address}
           </p>

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Bullets, ContentPage, Section } from "@/components/content-page"
 import { getSiteUrl } from "@/lib/seo/jsonld"
-import { COMPANY, addressLine } from "@/lib/company"
+import { COMPANY, addressLine, hasLegalName, legalEntity } from "@/lib/company"
 
 const SLUG = "gizlilik-politikasi"
 const TITLE = "Gizlilik Politikası"
@@ -37,8 +37,8 @@ export default function GizlilikPolitikasiPage() {
       <Section heading="1. Veri sorumlusu">
         <p>
           Bu politikanın konusu olan kişisel verilerin veri sorumlusu{" "}
-          <strong className="text-white">{COMPANY.legalName}</strong> (&quot;QR
-          Menülist&quot;, &quot;biz&quot;) şirketidir.
+          <strong className="text-white">{legalEntity()}</strong>
+          {hasLegalName() ? ' ("QR Menülist", "biz")' : ' ("biz")'} şirketidir.
           {address ? ` Adres: ${address}.` : ""}
           {!COMPANY.email.startsWith("TODO")
             ? ` İletişim: ${COMPANY.email}.`
