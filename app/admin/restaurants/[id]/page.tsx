@@ -154,6 +154,17 @@ export default async function AdminRestaurantDetailPage({
                   {rest.layout_style === 'grid' ? '2\'li Grid' : 'Tekli Liste'}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-slate-600">WhatsApp Sipariş</p>
+                {rest.ordering_enabled ? (
+                  <span className="inline-flex items-center gap-1 mt-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>shopping_cart</span>
+                    Açık{rest.whatsapp ? '' : ' (numara eksik!)'}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center mt-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Kapalı</span>
+                )}
+              </div>
             </div>
           </div>
 

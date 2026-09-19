@@ -27,6 +27,7 @@ export default function NewRestaurantPage() {
     hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
     header_bg_color: '#ffffff', footer_bg_color: '#ffffff',
     plan: 'free' as 'free' | 'pro',
+    ordering_enabled: false,
     supported_languages: ['tr'] as string[]
   })
 
@@ -322,6 +323,13 @@ export default function NewRestaurantPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div><Label htmlFor="whatsapp">WhatsApp</Label><Input id="whatsapp" value={formData.whatsapp} onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))} placeholder="+90 555 123 45 67" /><p className="text-xs text-gray-500 mt-1">Ülke kodu ile birlikte girin</p></div>
+                <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.ordering_enabled ? 'bg-green-50 border-green-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="checkbox" checked={formData.ordering_enabled} onChange={(e) => setFormData(prev => ({ ...prev, ordering_enabled: e.target.checked }))} className="w-4 h-4 mt-1 rounded border-gray-300" />
+                  <div>
+                    <p className="font-medium text-slate-900">Sepet ve WhatsApp ile sipariş aktif</p>
+                    <p className="text-sm text-slate-600 mt-1">Menüde &quot;Sepete Ekle&quot; butonları çıkar; sipariş yukarıdaki WhatsApp numarasına hazır mesaj olarak gider. Numara girilmesi zorunludur.</p>
+                  </div>
+                </label>
                 <div><Label htmlFor="instagram">Instagram</Label><Input id="instagram" value={formData.instagram} onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/restoraniniz" /></div>
                 <div><Label htmlFor="facebook">Facebook</Label><Input id="facebook" value={formData.facebook} onChange={(e) => setFormData(prev => ({ ...prev, facebook: e.target.value }))} placeholder="https://facebook.com/restoraniniz" /></div>
                 <div><Label htmlFor="twitter">Twitter / X</Label><Input id="twitter" value={formData.twitter} onChange={(e) => setFormData(prev => ({ ...prev, twitter: e.target.value }))} placeholder="https://twitter.com/restoraniniz" /></div>

@@ -13,6 +13,8 @@ import { HamburgerMenu } from '@/components/hamburger-menu'
 import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
+import { CartProvider } from '@/components/cart/cart-context'
+import { CartBar } from '@/components/cart/cart-bar'
 import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { ScanTracker } from '@/components/scan-tracker'
 import { JsonLd } from '@/components/json-ld'
@@ -145,7 +147,16 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     { name: rest.name, url: `${siteUrl}/restorant/${slug}` },
   ])
 
+  // WhatsApp sipariş: admin panelden açılır; numara girilmemişse kapalı sayılır.
+  const orderingEnabled = Boolean(rest.ordering_enabled) && Boolean(String(rest.whatsapp || '').trim())
+
   return (
+    <CartProvider
+      enabled={orderingEnabled}
+      restaurant={{ slug, name: rest.name, whatsapp: rest.whatsapp || '' }}
+      theme={{ primaryColor, priceColor, backgroundColor, surfaceColor, textColor, borderColor }}
+      isEnglish={isEnglish}
+    >
     <div
       className="font-work-sans antialiased transition-colors duration-200"
       lang={currentLang}
@@ -430,6 +441,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           isEnglish={isEnglish}
         />
 
+        <CartBar />
+
         <PublicMenuBottomNav
           restaurant={rest}
           primaryColor={primaryColor}
@@ -441,6 +454,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           footerBgColor={footerBgColor}
         />
     </div>
+    </CartProvider>
   )
 }
 

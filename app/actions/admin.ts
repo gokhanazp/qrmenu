@@ -221,6 +221,7 @@ interface CreateRestaurantInput {
   footer_bg_color?: string
   plan?: 'free' | 'pro'
   supported_languages?: string[]
+  ordering_enabled?: boolean
 }
 
 export async function createRestaurantWithUser(input: CreateRestaurantInput) {
@@ -230,6 +231,11 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
   const { isAdmin: userIsAdmin } = await isAdmin()
   if (!userIsAdmin) {
     return { success: false, error: 'Unauthorized' }
+  }
+
+  // WhatsApp sipariş numarasız çalışmaz
+  if (input.ordering_enabled && !String(input.whatsapp || '').trim()) {
+    return { success: false, error: 'WhatsApp sipariş özelliği için WhatsApp numarası girilmelidir' }
   }
 
   // Check if slug is unique
@@ -294,6 +300,7 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
       header_bg_color: input.header_bg_color || input.background_color || '#ffffff',
       footer_bg_color: input.footer_bg_color || input.background_color || '#ffffff',
       supported_languages: input.supported_languages || ['tr'],
+      ordering_enabled: input.ordering_enabled ?? false,
       owner_user_id: newUser.user.id,
       is_active: true
     } as never)
@@ -357,6 +364,7 @@ interface UpdateRestaurantByAdminInput {
   footer_bg_color?: string
   is_active?: boolean
   supported_languages?: string[]
+  ordering_enabled?: boolean
 }
 
 export async function updateRestaurantByAdmin(input: UpdateRestaurantByAdminInput) {
@@ -384,10 +392,28 @@ export async function updateRestaurantByAdmin(input: UpdateRestaurantByAdminInpu
     }
   }
 
-  const { error } = await supabase
+  // WhatsApp sipariş numarasız çalışmaz: açılırken numara zorunlu.
+  if (updateData.ordering_enabled === true) {
+    let whatsapp = updateData.whatsapp
+    if (whatsapp === undefined) {
+      const { data: current } = await supabase
+        .from('restaurants')
+        .select('whatsapp')
+        .eq('id', restaurantId)
+        .maybeSingle()
+      whatsapp = (current as any)?.whatsapp ?? ''
+    }
+    if (!String(whatsapp || '').trim()) {
+      return { success: false, error: 'WhatsApp sipariş özelliği için önce WhatsApp numarası girilmelidir' }
+    }
+  }
+
+  const { data: updated, error } = await supabase
     .from('restaurants')
     .update(updateData as never)
     .eq('id', restaurantId)
+    .select('slug')
+    .maybeSingle()
 
   if (error) {
     return { success: false, error: error.message }
@@ -396,6 +422,14 @@ export async function updateRestaurantByAdmin(input: UpdateRestaurantByAdminInpu
   revalidatePath('/admin')
   revalidatePath(`/admin/restaurants/${restaurantId}`)
   revalidatePath(`/admin/restaurants/${restaurantId}/edit`)
+
+  // Herkese açık menü ISR ile önbellekli (60 sn / 300 sn). Sipariş anahtarı,
+  // renk veya numara değişikliği bir dakika beklemesin.
+  const slug = (updated as any)?.slug || updateData.slug
+  if (slug) {
+    revalidatePath(`/restorant/${slug}`)
+    revalidatePath('/restorant/[slug]/category/[categoryId]', 'page')
+  }
   return { success: true }
 }
 

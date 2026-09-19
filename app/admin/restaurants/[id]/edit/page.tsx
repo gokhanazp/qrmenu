@@ -28,6 +28,7 @@ export default function EditRestaurantPage() {
     text_color: '#111827', primary_color: '#FF6B35', price_color: '#ef4444',
     icon_color: '#111827', hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
     is_active: true,
+    ordering_enabled: false,
     supported_languages: ['tr'] as string[],
     header_bg_color: '#ffffff',
     footer_bg_color: '#ffffff'
@@ -145,6 +146,7 @@ export default function EditRestaurantPage() {
           hamburger_bg_color: r.hamburger_bg_color || '#ffffff',
           qr_logo_bg_color: r.qr_logo_bg_color || '#FFFFFF',
           is_active: r.is_active ?? true,
+          ordering_enabled: r.ordering_enabled ?? false,
           supported_languages: r.supported_languages || ['tr'],
           header_bg_color: r.header_bg_color || r.background_color || '#ffffff',
           footer_bg_color: r.footer_bg_color || r.background_color || '#ffffff'
@@ -446,6 +448,31 @@ export default function EditRestaurantPage() {
                 <div><Label htmlFor="instagram">Instagram</Label><Input id="instagram" value={formData.instagram} onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))} placeholder="https://instagram.com/restoraniniz" /></div>
                 <div><Label htmlFor="facebook">Facebook</Label><Input id="facebook" value={formData.facebook} onChange={(e) => setFormData(prev => ({ ...prev, facebook: e.target.value }))} placeholder="https://facebook.com/restoraniniz" /></div>
                 <div><Label htmlFor="twitter">Twitter / X</Label><Input id="twitter" value={formData.twitter} onChange={(e) => setFormData(prev => ({ ...prev, twitter: e.target.value }))} placeholder="https://twitter.com/restoraniniz" /></div>
+              </div>
+            </div>
+
+            {/* WhatsApp Sipariş */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">shopping_cart</span>
+                  <div><h2 className="text-lg font-bold">WhatsApp Sipariş</h2><p className="text-sm text-green-100">Sepet ve sipariş gönderimi</p></div>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.ordering_enabled ? 'bg-green-50 border-green-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="checkbox" checked={formData.ordering_enabled} onChange={(e) => setFormData(prev => ({ ...prev, ordering_enabled: e.target.checked }))} className="w-4 h-4 mt-1 rounded border-gray-300" />
+                  <div>
+                    <p className="font-medium text-slate-900">Sepet ve WhatsApp ile sipariş aktif</p>
+                    <p className="text-sm text-slate-600 mt-1">Açıkken menüde &quot;Sepete Ekle&quot; butonları ve sepet çubuğu görünür. Müşteri &quot;Sepeti Onayla&quot; dediğinde sipariş (ürünler, adetler, toplam, masa no, not) hazır bir WhatsApp mesajı olarak yukarıdaki WhatsApp numarasına gider. WhatsApp Business gerekmez; müşteri mesajı kendi WhatsApp&apos;ından gönderir.</p>
+                  </div>
+                </label>
+                {formData.ordering_enabled && !formData.whatsapp.trim() && (
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-2">
+                    <span className="material-symbols-outlined text-amber-600">warning</span>
+                    <p className="text-sm text-amber-800">WhatsApp numarası boş. Sipariş özelliği numara girilmeden kaydedilemez; &quot;Sosyal Medya&quot; bölümündeki WhatsApp alanını doldurun.</p>
+                  </div>
+                )}
               </div>
             </div>
 

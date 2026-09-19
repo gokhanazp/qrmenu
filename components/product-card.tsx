@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
 import { ProductDetailModal } from './product-detail-modal'
 import { useSearchParams } from 'next/navigation'
+import { useCart } from './cart/cart-context'
+import { AddToCartButton } from './cart/add-to-cart'
 
 interface ProductCardProps {
   product: any
@@ -29,6 +31,7 @@ export function ProductCard({
   variant
 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const cart = useCart()
   const searchParams = useSearchParams()
   const isEnglish = searchParams?.get('lang') === 'en'
 
@@ -86,16 +89,20 @@ export function ProductCard({
               >
                 {formatCurrency(product.price)}
               </p>
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{
-                  backgroundColor,
-                  color: textColor,
-                  opacity: 0.5
-                }}
-              >
-                <Icon name="add" />
-              </div>
+              {cart.enabled ? (
+                <AddToCartButton product={product} />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor,
+                    color: textColor,
+                    opacity: 0.5
+                  }}
+                >
+                  <Icon name="add" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -162,16 +169,20 @@ export function ProductCard({
               {formatCurrency(product.price)}
             </p>
           </div>
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{
-              backgroundColor,
-              color: textColor,
-              opacity: 0.5
-            }}
-          >
-            <Icon name="chevron_right" className="text-lg" />
-          </div>
+          {cart.enabled ? (
+            <AddToCartButton product={product} />
+          ) : (
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{
+                backgroundColor,
+                color: textColor,
+                opacity: 0.5
+              }}
+            >
+              <Icon name="chevron_right" className="text-lg" />
+            </div>
+          )}
         </div>
 
         <ProductDetailModal
@@ -273,8 +284,10 @@ export function ProductCard({
           </p>
         </div>
 
-        {/* Chevron Icon */}
-        {!isDailySpecial && (
+        {/* Sepete Ekle (sipariş açıksa) / Chevron */}
+        {cart.enabled ? (
+          <AddToCartButton product={product} />
+        ) : !isDailySpecial ? (
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center"
             style={{
@@ -285,7 +298,7 @@ export function ProductCard({
           >
             <Icon name="chevron_right" className="text-lg" />
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Product Detail Modal */}

@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
 import { useSearchParams } from 'next/navigation'
+import { AddToCartPanel } from './cart/add-to-cart'
 
 interface ProductDetailModalProps {
   product: any
@@ -186,6 +187,9 @@ export function ProductDetailModal({
           )}
 
         </div>
+
+        {/* WhatsApp sipariş açıksa: adet seçici + Sepete Ekle (yapışkan alt panel) */}
+        <AddToCartPanel product={product} onAdded={onClose} />
       </div>
 
       <style jsx>{`
