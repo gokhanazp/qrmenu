@@ -464,7 +464,7 @@ export default function EditRestaurantPage() {
                   <input type="checkbox" checked={formData.ordering_enabled} onChange={(e) => setFormData(prev => ({ ...prev, ordering_enabled: e.target.checked }))} className="w-4 h-4 mt-1 rounded border-gray-300" />
                   <div>
                     <p className="font-medium text-slate-900">Sepet ve WhatsApp ile sipariş aktif</p>
-                    <p className="text-sm text-slate-600 mt-1">Açıkken menüde &quot;Sepete Ekle&quot; butonları ve sepet çubuğu görünür. Müşteri &quot;Sepeti Onayla&quot; dediğinde sipariş (ürünler, adetler, toplam, masa no, not) hazır bir WhatsApp mesajı olarak yukarıdaki WhatsApp numarasına gider. WhatsApp Business gerekmez; müşteri mesajı kendi WhatsApp&apos;ından gönderir.</p>
+                    <p className="text-sm text-slate-600 mt-1">Açıkken menüde &quot;Sepete Ekle&quot; butonları ve sepet çubuğu görünür. Müşteri &quot;Sepeti Onayla&quot; dediğinde sipariş (ürünler, adetler, toplam, ödeme yöntemi, adres, not) hazır bir WhatsApp mesajı olarak yukarıdaki WhatsApp numarasına gider. WhatsApp Business gerekmez; müşteri mesajı kendi WhatsApp&apos;ından gönderir.</p>
                   </div>
                 </label>
                 {formData.ordering_enabled && !formData.whatsapp.trim() && (

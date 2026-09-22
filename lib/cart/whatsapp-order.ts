@@ -6,6 +6,15 @@ export interface OrderLine {
   qty: number
 }
 
+export type PaymentMethod = 'cash' | 'card'
+
+export const PAYMENT_METHODS: PaymentMethod[] = ['cash', 'card']
+
+export const PAYMENT_LABELS: Record<'tr' | 'en', Record<PaymentMethod, string>> = {
+  tr: { cash: 'Kapıda Nakit Ödeme', card: 'Kapıda Kredi Kartı ile Ödeme' },
+  en: { cash: 'Cash on Delivery', card: 'Card on Delivery' },
+}
+
 /**
  * Restoranın serbest formatta girdiği WhatsApp numarasını wa.me'nin istediği
  * "ülke kodu + numara, sadece rakam" biçimine çevirir.
@@ -29,28 +38,36 @@ export function cartTotal(items: OrderLine[]): number {
 export function buildOrderMessage(input: {
   restaurantName: string
   items: OrderLine[]
-  tableNumber?: string
+  paymentMethod?: PaymentMethod | null
+  address?: string
   note?: string
   isEnglish?: boolean
 }): string {
+  const lang = input.isEnglish ? 'en' : 'tr'
   const t = input.isEnglish
-    ? { title: 'New Order', table: 'Table', total: 'Total', note: 'Note' }
-    : { title: 'Yeni Sipariş', table: 'Masa', total: 'Toplam', note: 'Not' }
+    ? { title: 'New Order', total: 'Total', payment: 'Payment', address: 'Address', note: 'Note' }
+    : { title: 'Yeni Sipariş', total: 'Toplam', payment: 'Ödeme', address: 'Adres', note: 'Not' }
 
   const lines: string[] = []
   lines.push(`🛒 *${t.title}* - ${input.restaurantName}`)
-  const table = input.tableNumber?.trim()
-  if (table) lines.push(`📍 ${t.table}: ${table}`)
   lines.push('')
   for (const item of input.items) {
     lines.push(`• ${item.qty} x ${item.name} - ${formatCurrency(item.price * item.qty)}`)
   }
   lines.push('')
   lines.push(`💰 *${t.total}: ${formatCurrency(cartTotal(input.items))}*`)
+
+  const details: string[] = []
+  if (input.paymentMethod) {
+    details.push(`💳 ${t.payment}: ${PAYMENT_LABELS[lang][input.paymentMethod]}`)
+  }
+  const address = input.address?.trim()
+  if (address) details.push(`📍 ${t.address}: ${address}`)
   const note = input.note?.trim()
-  if (note) {
+  if (note) details.push(`📝 ${t.note}: ${note}`)
+  if (details.length) {
     lines.push('')
-    lines.push(`📝 ${t.note}: ${note}`)
+    lines.push(...details)
   }
   return lines.join('\n')
 }

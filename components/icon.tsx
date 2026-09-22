@@ -106,6 +106,7 @@ const ICONS: Record<string, LucideIcon> = {
   close: X,
   compare_arrows: ArrowLeftRight,
   contact_phone: PhoneCall,
+  credit_card: CreditCard,
   credit_card_off: CreditCard,
   dashboard: LayoutDashboard,
   delete: Trash2,
