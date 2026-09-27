@@ -22,6 +22,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308)
   }
 
+  // Eski panel adresleri: stok ve platform ürünleri "Ürünler" sayfasında birleşti
+  if (path === '/panel/stock' || path === '/panel/products/platform') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/panel/products'
+    url.search = path === '/panel/products/platform' ? '?tab=platform' : ''
+    return NextResponse.redirect(url, 307)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

@@ -1,21 +1,17 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getRestaurant } from '@/app/actions/restaurant'
-import { getProducts } from '@/app/actions/product'
-import { getCategories } from '@/app/actions/category'
-import { ProductsPageClient } from './products-page-client'
+import { getProductsHubData } from '@/app/actions/products-hub'
+import { ProductsHubClient } from './products-hub-client'
 
-export default async function ProductsPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ProductsPage({ searchParams }: { searchParams?: { tab?: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/login')
 
-  if (!user) {
-    redirect('/auth/login')
-  }
-
-  const { restaurant } = await getRestaurant()
-
-  if (!restaurant) {
+  const data = await getProductsHubData()
+  if (data.error === 'Restoran bulunamadı. Lütfen tekrar kayıt olun.' || (!data.restaurantId && data.error)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
@@ -26,9 +22,5 @@ export default async function ProductsPage() {
       </div>
     )
   }
-
-  const { products } = await getProducts((restaurant as any).id)
-  const { categories } = await getCategories((restaurant as any).id)
-
-  return <ProductsPageClient products={products} categories={categories} />
+  return <ProductsHubClient data={data} initialTab={searchParams?.tab === 'platform' ? 'platform' : 'list'} />
 }

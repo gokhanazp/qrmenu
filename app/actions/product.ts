@@ -2,9 +2,18 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { assertRestaurantAccess, assertRestaurantRole } from '@/lib/auth/restaurant-context'
+import { CONTENT_MANAGER_ROLES, OPERATIONS_ROLES } from '@/lib/auth/roles'
+import { syncProductPrice } from '@/lib/inventory/sync'
 
 export async function getProducts(restaurantId: string) {
   const supabase = await createClient()
+
+  // İstemciden gelen restaurant_id'ye güvenme: erişim sunucuda doğrulanır
+  const access = await assertRestaurantAccess(restaurantId)
+  if (!access.ok) {
+    return { products: [], error: access.error }
+  }
 
   const { data: products, error } = await supabase
     .from('products')
@@ -44,6 +53,16 @@ export async function getProduct(id: string) {
   return { product, error: null }
 }
 
+async function getProductRestaurantId(id: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('restaurant_id')
+    .eq('id', id)
+    .maybeSingle()
+  return (data as { restaurant_id: string } | null)?.restaurant_id || null
+}
+
 export async function createProduct(data: {
   restaurant_id: string
   category_id: string | null
@@ -59,6 +78,11 @@ export async function createProduct(data: {
   is_daily_special?: boolean
 }) {
   const supabase = await createClient()
+
+  const access = await assertRestaurantRole(data.restaurant_id, CONTENT_MANAGER_ROLES)
+  if (!access.ok) {
+    return { product: null, error: access.error }
+  }
 
   const { data: product, error } = await supabase
     .from('products')
@@ -103,6 +127,15 @@ export async function updateProduct(id: string, data: {
 }) {
   const supabase = await createClient()
 
+  const restaurantId = await getProductRestaurantId(id)
+  if (!restaurantId) {
+    return { product: null, error: 'Ürün bulunamadı' }
+  }
+  const access = await assertRestaurantRole(restaurantId, OPERATIONS_ROLES)
+  if (!access.ok) {
+    return { product: null, error: access.error }
+  }
+
   const { data: product, error } = await supabase
     .from('products')
     .update(data as never)
@@ -116,11 +149,33 @@ export async function updateProduct(id: string, data: {
   }
 
   revalidatePath('/panel/products')
+  revalidatePath('/panel/products/platform')
+  // Fiyat/durum değişikliği public menüde ISR beklemeden görünsün
+  revalidatePath('/restorant/[slug]', 'page')
+  revalidatePath('/restorant/[slug]/category/[categoryId]', 'page')
+
+  // QR fiyatı değiştiyse "QR fiyatıyla aynı" kanallara gönder (hata akışı kesmez)
+  if (data.price !== undefined) {
+    try {
+      await syncProductPrice(id, { onlyMasterLinked: true })
+    } catch (e) {
+      console.error('price sync error:', e)
+    }
+  }
   return { product, error: null }
 }
 
 export async function deleteProduct(id: string) {
   const supabase = await createClient()
+
+  const restaurantId = await getProductRestaurantId(id)
+  if (!restaurantId) {
+    return { success: false, error: 'Ürün bulunamadı' }
+  }
+  const access = await assertRestaurantRole(restaurantId, CONTENT_MANAGER_ROLES)
+  if (!access.ok) {
+    return { success: false, error: access.error }
+  }
 
   const { error } = await supabase
     .from('products')

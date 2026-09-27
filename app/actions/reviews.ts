@@ -2,19 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
+import { assertRestaurantRole, resolveRestaurantContext } from '@/lib/auth/restaurant-context'
+import { CONTENT_MANAGER_ROLES } from '@/lib/auth/roles'
 
-// Admin impersonation desteği (restaurant.ts ile aynı davranış)
-async function getImpersonatedRestaurantId(): Promise<string | null> {
-  const cookieStore = await cookies()
-  const impersonationCookie = cookieStore.get('impersonating_restaurant')
-  if (!impersonationCookie?.value) return null
-  try {
-    const data = JSON.parse(impersonationCookie.value)
-    return data.restaurantId || null
-  } catch {
-    return null
-  }
+async function getReviewRestaurantId(reviewId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('reviews')
+    .select('restaurant_id')
+    .eq('id', reviewId)
+    .maybeSingle()
+  return (data as { restaurant_id: string } | null)?.restaurant_id || null
 }
 
 const TOPICS = ['oneri', 'sikayet', 'diger'] as const
@@ -115,24 +113,11 @@ export async function getPublicReviews(restaurantId: string): Promise<{
 // OWNER: kendi restoranımın tüm yorumları (contact dahil)
 export async function getMyReviews() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Unauthorized' }
-
-  const impersonatedRestaurantId = await getImpersonatedRestaurantId()
-
-  let restaurantId: string | null = null
-  if (impersonatedRestaurantId) {
-    restaurantId = impersonatedRestaurantId
-  } else {
-    const { data: restaurant } = await supabase
-      .from('restaurants')
-      .select('id')
-      .eq('owner_user_id', user.id)
-      .maybeSingle()
-    restaurantId = (restaurant as { id: string } | null)?.id || null
+  const result = await resolveRestaurantContext()
+  if (!result.ok) {
+    return { error: result.code === 'unauthorized' ? 'Unauthorized' : 'Restoran bulunamadı' }
   }
-
-  if (!restaurantId) return { error: 'Restoran bulunamadı' }
+  const restaurantId = result.ctx.restaurantId
 
   const { data, error } = await supabase
     .from('reviews')
@@ -147,8 +132,10 @@ export async function getMyReviews() {
 // OWNER/ADMIN: yayınla / yayından kaldır
 export async function setReviewPublished(reviewId: string, published: boolean) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: 'Unauthorized' }
+  const restaurantId = await getReviewRestaurantId(reviewId)
+  if (!restaurantId) return { success: false, error: 'Yorum bulunamadı' }
+  const access = await assertRestaurantRole(restaurantId, CONTENT_MANAGER_ROLES)
+  if (!access.ok) return { success: false, error: access.error }
 
   const { error } = await supabase
     .from('reviews')
@@ -164,8 +151,10 @@ export async function setReviewPublished(reviewId: string, published: boolean) {
 // OWNER/ADMIN: sil
 export async function deleteReview(reviewId: string) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: 'Unauthorized' }
+  const restaurantId = await getReviewRestaurantId(reviewId)
+  if (!restaurantId) return { success: false, error: 'Yorum bulunamadı' }
+  const access = await assertRestaurantRole(restaurantId, CONTENT_MANAGER_ROLES)
+  if (!access.ok) return { success: false, error: access.error }
 
   const { error } = await supabase
     .from('reviews')

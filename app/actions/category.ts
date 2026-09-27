@@ -2,9 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { assertRestaurantAccess, assertRestaurantRole } from '@/lib/auth/restaurant-context'
+import { CONTENT_MANAGER_ROLES } from '@/lib/auth/roles'
 
 export async function getCategories(restaurantId: string) {
   const supabase = await createClient()
+
+  // İstemciden gelen restaurant_id'ye güvenme: erişim sunucuda doğrulanır
+  const access = await assertRestaurantAccess(restaurantId)
+  if (!access.ok) {
+    return { categories: [], error: access.error }
+  }
 
   const { data: categories, error } = await supabase
     .from('categories')
@@ -20,6 +28,16 @@ export async function getCategories(restaurantId: string) {
   return { categories: categories || [], error: null }
 }
 
+async function getCategoryRestaurantId(id: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('categories')
+    .select('restaurant_id')
+    .eq('id', id)
+    .maybeSingle()
+  return (data as { restaurant_id: string } | null)?.restaurant_id || null
+}
+
 export async function createCategory(data: {
   restaurant_id: string
   name: string
@@ -28,6 +46,11 @@ export async function createCategory(data: {
   image_url?: string
 }) {
   const supabase = await createClient()
+
+  const access = await assertRestaurantRole(data.restaurant_id, CONTENT_MANAGER_ROLES)
+  if (!access.ok) {
+    return { success: false, error: access.error }
+  }
 
   const { error } = await supabase
     .from('categories')
@@ -58,6 +81,15 @@ export async function updateCategory(id: string, data: {
 }) {
   const supabase = await createClient()
 
+  const restaurantId = await getCategoryRestaurantId(id)
+  if (!restaurantId) {
+    return { success: false, error: 'Kategori bulunamadı' }
+  }
+  const access = await assertRestaurantRole(restaurantId, CONTENT_MANAGER_ROLES)
+  if (!access.ok) {
+    return { success: false, error: access.error }
+  }
+
   const { error } = await supabase
     .from('categories')
     .update({
@@ -80,6 +112,15 @@ export async function updateCategory(id: string, data: {
 
 export async function deleteCategory(id: string) {
   const supabase = await createClient()
+
+  const restaurantId = await getCategoryRestaurantId(id)
+  if (!restaurantId) {
+    return { success: false, error: 'Kategori bulunamadı' }
+  }
+  const access = await assertRestaurantRole(restaurantId, CONTENT_MANAGER_ROLES)
+  if (!access.ok) {
+    return { success: false, error: access.error }
+  }
 
   const { error } = await supabase
     .from('categories')
