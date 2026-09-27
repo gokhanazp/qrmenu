@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
 import { ProductDetailModal } from './product-detail-modal'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface SearchModalProps {
   isOpen: boolean
@@ -146,7 +147,7 @@ export function SearchModal({
               <div className="p-8 text-center" style={{ color: textColor, opacity: 0.5 }}>
                 <Icon name="search_off" className="text-5xl mb-2 block" />
                 <p>Sonuç bulunamadı</p>
-                <p className="text-sm mt-1">"{searchQuery}" için ürün bulunamadı</p>
+                <p className="text-sm mt-1">&quot;{searchQuery}&quot; için ürün bulunamadı</p>
               </div>
             ) : (
               <div className="p-2">
@@ -170,6 +171,7 @@ export function SearchModal({
                       >
                         <Image
                           src={product.image_url}
+              {...imageProps(product.image_url)}
                           alt={product.name}
                           fill
                           className="object-cover"

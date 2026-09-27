@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { DeleteButton } from '@/components/delete-button'
 import { useLocale } from '@/lib/i18n/use-locale'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface Category {
   id: string
@@ -67,6 +68,7 @@ export function CategoriesListClient({ categories }: CategoriesListClientProps) 
                   {category.image_url ? (
                     <Image
                       src={category.image_url}
+              {...imageProps(category.image_url)}
                       alt={category.name}
                       fill
                       className="object-cover"

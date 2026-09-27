@@ -52,16 +52,7 @@ export async function getPublicMenu(restaurantId: string) {
         name_en,
         sort_order,
         image_url,
-        products (
-          id,
-          name,
-          name_en,
-          description,
-          description_en,
-          price,
-          image_url,
-          sort_order
-        )
+        products (*)
       `)
       .eq('restaurant_id', restaurantId)
       .eq('is_active', true)

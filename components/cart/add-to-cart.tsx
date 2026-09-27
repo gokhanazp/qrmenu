@@ -9,6 +9,17 @@ interface CartProduct {
   id: string
   name: string
   price: number | string
+  /** false = TÜKENDİ: görünür ama sepete eklenemez */
+  is_available?: boolean | null
+}
+
+/** Tükendi rozeti (sipariş açık restoranlarda buton yerine). */
+export function SoldOutPill({ isEnglish, className = '' }: { isEnglish?: boolean; className?: string }) {
+  return (
+    <span className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide bg-red-100 text-red-700 ${className}`}>
+      {isEnglish ? 'Sold out' : 'Tükendi'}
+    </span>
+  )
 }
 
 /**
@@ -19,6 +30,7 @@ interface CartProduct {
 export function AddToCartButton({ product }: { product: CartProduct }) {
   const cart = useCart()
   if (!cart.enabled) return null
+  if (product.is_available === false) return <SoldOutPill isEnglish={cart.isEnglish} />
 
   const qty = cart.qtyOf(product.id)
   const { primaryColor } = cart.theme
@@ -92,6 +104,18 @@ export function AddToCartPanel({
   if (!cart.enabled) return null
 
   const { primaryColor, surfaceColor, textColor, borderColor } = cart.theme
+
+  if (product.is_available === false) {
+    return (
+      <div
+        className="sticky bottom-0 left-0 right-0 p-4 flex items-center justify-center gap-2"
+        style={{ backgroundColor: surfaceColor, borderTop: `1px solid ${borderColor}`, color: textColor }}
+      >
+        <SoldOutPill isEnglish={cart.isEnglish} />
+        <span className="text-sm opacity-70">{cart.isEnglish ? 'Temporarily unavailable' : 'Geçici olarak sipariş verilemiyor'}</span>
+      </div>
+    )
+  }
   const price = Number(product.price) || 0
   const label = cart.isEnglish ? 'Add to Cart' : 'Sepete Ekle'
 

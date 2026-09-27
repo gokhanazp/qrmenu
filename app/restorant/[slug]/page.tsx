@@ -1,4 +1,5 @@
 import { Icon } from "@/components/icon"
+import { imageProps } from '@/lib/utils/image-src'
 import { notFound } from 'next/navigation'
 import { 
   getPublicRestaurant, 
@@ -304,6 +305,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
                     {(category.image_url || category.products[0]?.image_url) && (
                       <Image
                         src={category.image_url || category.products[0]?.image_url}
+              {...imageProps(category.image_url || category.products[0]?.image_url)}
                         alt={category.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"

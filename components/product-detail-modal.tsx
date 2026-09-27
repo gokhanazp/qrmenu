@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
 import { useSearchParams } from 'next/navigation'
 import { AddToCartPanel } from './cart/add-to-cart'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface ProductDetailModalProps {
   product: any
@@ -90,6 +91,7 @@ export function ProductDetailModal({
           <div className="relative w-full h-64 sm:h-80 bg-gray-100">
             <Image
               src={product.image_url}
+              {...imageProps(product.image_url)}
               alt={product.name}
               fill
               className="object-cover"

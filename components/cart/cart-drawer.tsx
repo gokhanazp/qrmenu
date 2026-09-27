@@ -9,8 +9,10 @@ import {
   buildWhatsappOrderUrl,
   PAYMENT_LABELS,
   PAYMENT_METHODS,
+  type OrderLine,
   type PaymentMethod,
 } from '@/lib/cart/whatsapp-order'
+import { createQrOrder } from '@/app/actions/orders'
 import { useCart } from './cart-context'
 
 const PAYMENT_ICONS: Record<PaymentMethod, string> = {
@@ -34,6 +36,8 @@ export function CartDrawer() {
   const [address, setAddress] = useState('')
   const [note, setNote] = useState('')
   const [sent, setSent] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [orderNumber, setOrderNumber] = useState<string | null>(null)
   const [showErrors, setShowErrors] = useState(false)
   const [hydrated, setHydrated] = useState(false)
 
@@ -94,6 +98,8 @@ export function CartDrawer() {
         notePlaceholder: 'e.g. Not too spicy',
         total: 'Total',
         confirm: 'Confirm Cart · Send via WhatsApp',
+        sending: 'Saving your order...',
+        orderNo: 'Order No',
         missing: 'Choose a payment method and enter your address to continue.',
         sentHint: 'WhatsApp opened with your order. Tap send there, then you can clear the cart.',
         clear: 'Clear Cart',
@@ -111,6 +117,8 @@ export function CartDrawer() {
         notePlaceholder: 'Örn: Az acılı olsun',
         total: 'Toplam',
         confirm: "Sepeti Onayla · WhatsApp'tan Gönder",
+        sending: 'Siparişiniz kaydediliyor...',
+        orderNo: 'Sipariş No',
         missing: 'Devam etmek için ödeme yöntemi seçin ve adresinizi yazın.',
         sentHint: 'WhatsApp siparişinizle açıldı. Orada gönder tuşuna basın, ardından sepeti temizleyebilirsiniz.',
         clear: 'Sepeti Temizle',
@@ -130,6 +138,57 @@ export function CartDrawer() {
     isEnglish: cart.isEnglish,
   })
   const whatsappUrl = buildWhatsappOrderUrl(restaurant.whatsapp, message)
+
+  /**
+   * Yeni akış: önce sunucuda sipariş kaydı oluşturulur (sipariş numarası),
+   * sonra AYNI WhatsApp mesajı numarayla açılır. Sunucu hata verirse eski
+   * davranış (numarasız mesaj) devam eder; müşteri akışı hiçbir koşulda
+   * kesilmez. Pencere, mobil tarayıcıların popup engeline takılmamak için
+   * tıklama anında senkron açılır, adres sipariş kaydından sonra atanır.
+   */
+  const handleConfirm = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    if (!canSend || submitting) return
+    setSubmitting(true)
+    const popup = window.open('', '_blank')
+    let number: string | null = null
+    let lines: OrderLine[] = cart.items
+    try {
+      const result = await createQrOrder(
+        {
+          slug: restaurant.slug,
+          items: cart.items.map((i) => ({ id: i.id, qty: i.qty })),
+          paymentMethod: payment as PaymentMethod,
+          address,
+          note,
+        },
+        { isEnglish: cart.isEnglish }
+      )
+      if (result.success) {
+        number = result.order.orderNumber
+        lines = result.order.items.map((l) => ({ name: l.name, price: l.unitPrice, qty: l.qty }))
+      }
+    } catch {
+      // sunucuya ulaşılamadı: numarasız mesajla devam
+    }
+    const url = buildWhatsappOrderUrl(
+      restaurant.whatsapp,
+      buildOrderMessage({
+        restaurantName: restaurant.name,
+        items: lines,
+        paymentMethod: payment,
+        address,
+        note,
+        isEnglish: cart.isEnglish,
+        orderNumber: number,
+      })
+    )
+    if (popup) popup.location.href = url
+    else window.location.href = url
+    setOrderNumber(number)
+    setSent(true)
+    setSubmitting(false)
+  }
   const fieldStyle = (invalid: boolean) =>
     ({
       backgroundColor,
@@ -303,12 +362,13 @@ export function CartDrawer() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => setSent(true)}
-                className="w-full h-12 rounded-2xl font-bold text-white flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform"
+                onClick={handleConfirm}
+                aria-busy={submitting}
+                className={`w-full h-12 rounded-2xl font-bold text-white flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform ${submitting ? 'opacity-70 pointer-events-none' : ''}`}
                 style={{ backgroundColor: '#25D366' }}
               >
                 <WhatsAppIcon className="w-5 h-5" />
-                <span>{t.confirm}</span>
+                <span>{submitting ? t.sending : t.confirm}</span>
               </a>
             ) : (
               <button
@@ -326,12 +386,18 @@ export function CartDrawer() {
                 {t.missing}
               </p>
             )}
-            {sent && <p className="text-xs text-center opacity-70">{t.sentHint}</p>}
+            {sent && (
+              <p className="text-xs text-center opacity-70">
+                {orderNumber ? `${t.orderNo}: ${orderNumber} · ` : ''}
+                {t.sentHint}
+              </p>
+            )}
             <button
               type="button"
               onClick={() => {
                 cart.clear()
                 setSent(false)
+                setOrderNumber(null)
                 setShowErrors(false)
               }}
               className="w-full text-sm font-medium opacity-60 hover:opacity-100 py-1"

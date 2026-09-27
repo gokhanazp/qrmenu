@@ -7,7 +7,8 @@ import { formatCurrency } from '@/lib/utils/currency'
 import { ProductDetailModal } from './product-detail-modal'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from './cart/cart-context'
-import { AddToCartButton } from './cart/add-to-cart'
+import { AddToCartButton, SoldOutPill } from './cart/add-to-cart'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface ProductCardProps {
   product: any
@@ -39,6 +40,8 @@ export function ProductCard({
     special: isEnglish ? 'SPECIAL' : 'ÖZEL'
   }
 
+  // Tükendi: sipariş açıksa AddToCartButton rozeti gösterir; QR-only menüde burada gösterilir
+  const showSoldOut = product.is_available === false && !cart.enabled
   const isDailySpecial = variant === 'daily-special'
   const isFeatured = variant === 'featured'
   const isCategoryList = variant === 'category-list'
@@ -60,6 +63,7 @@ export function ProductCard({
             <div className="relative w-full h-56">
               <Image
                 src={product.image_url}
+              {...imageProps(product.image_url)}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -89,6 +93,7 @@ export function ProductCard({
               >
                 {formatCurrency(product.price)}
               </p>
+              {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
               {cart.enabled ? (
                 <AddToCartButton product={product} />
               ) : (
@@ -140,6 +145,7 @@ export function ProductCard({
             >
               <Image
                 src={product.image_url}
+              {...imageProps(product.image_url)}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -168,6 +174,7 @@ export function ProductCard({
             >
               {formatCurrency(product.price)}
             </p>
+            {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
           </div>
           {cart.enabled ? (
             <AddToCartButton product={product} />
@@ -239,6 +246,7 @@ export function ProductCard({
           >
             <Image
               src={product.image_url}
+              {...imageProps(product.image_url)}
               alt={product.name}
               fill
               className="object-cover"
@@ -282,6 +290,7 @@ export function ProductCard({
           >
             {formatCurrency(product.price)}
           </p>
+          {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
         </div>
 
         {/* Sepete Ekle (sipariş açıksa) / Chevron */}

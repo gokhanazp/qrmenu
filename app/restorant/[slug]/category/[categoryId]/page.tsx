@@ -1,4 +1,5 @@
 import { Icon } from "@/components/icon"
+import { imageProps } from '@/lib/utils/image-src'
 import { notFound } from 'next/navigation'
 import { getPublicRestaurant, getCategoryWithProducts, getAllProducts } from '@/app/actions/public'
 import Image from 'next/image'
@@ -203,6 +204,7 @@ export default async function CategoryDetailPage({
               <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={cat.image_url}
+              {...imageProps(cat.image_url)}
                   alt={categoryName}
                   fill
                   className="object-cover"
