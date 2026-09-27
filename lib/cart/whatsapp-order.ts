@@ -42,14 +42,17 @@ export function buildOrderMessage(input: {
   address?: string
   note?: string
   isEnglish?: boolean
+  /** Sunucuda oluşturulan sipariş numarası (varsa mesaja eklenir) */
+  orderNumber?: string | null
 }): string {
   const lang = input.isEnglish ? 'en' : 'tr'
   const t = input.isEnglish
-    ? { title: 'New Order', total: 'Total', payment: 'Payment', address: 'Address', note: 'Note' }
-    : { title: 'Yeni Sipariş', total: 'Toplam', payment: 'Ödeme', address: 'Adres', note: 'Not' }
+    ? { title: 'New Order', total: 'Total', payment: 'Payment', address: 'Address', note: 'Note', orderNo: 'Order No' }
+    : { title: 'Yeni Sipariş', total: 'Toplam', payment: 'Ödeme', address: 'Adres', note: 'Not', orderNo: 'Sipariş No' }
 
   const lines: string[] = []
   lines.push(`🛒 *${t.title}* - ${input.restaurantName}`)
+  if (input.orderNumber) lines.push(`🧾 ${t.orderNo}: *${input.orderNumber}*`)
   lines.push('')
   for (const item of input.items) {
     lines.push(`• ${item.qty} x ${item.name} - ${formatCurrency(item.price * item.qty)}`)

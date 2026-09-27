@@ -315,6 +315,32 @@ export const tr = {
       viewingAs: 'Admin olarak görüntülüyorsunuz:',
       backToAdmin: 'Admin Paneline Dön',
     },
+    branch: {
+      label: 'Şube',
+      select: 'Şube seçin',
+      switching: 'Şube değiştiriliyor...',
+      role: 'Rolünüz',
+    },
+    integrations: {
+      title: 'Entegrasyonlar',
+      subtitle: 'Trendyol Yemek ve Yemeksepeti bağlantılarınızı yönetin',
+    },
+    orders: {
+      title: 'Siparişler',
+      subtitle: 'QR menü ve pazaryerlerinden gelen tüm siparişler tek ekranda',
+    },
+    platformProducts: {
+      title: 'Platform Ürünleri',
+      subtitle: 'Trendyol ve Yemeksepeti ürünlerini içe aktarın, QRMenuList ürünleriyle eşleştirin',
+    },
+    stock: {
+      title: 'Stok',
+      subtitle: 'Merkezi stok, satışta / tükendi ve eşleşen platformlara senkron',
+    },
+    reports: {
+      title: 'Raporlar',
+      subtitle: 'Sipariş ve ciro; platform ve şube bazında',
+    },
     dashboard: {
       title: 'Panel',
       welcome: 'Hoş Geldiniz',

@@ -313,6 +313,32 @@ export const en: TranslationKeys = {
       viewingAs: 'Viewing as admin:',
       backToAdmin: 'Back to Admin Panel',
     },
+    branch: {
+      label: 'Branch',
+      select: 'Select branch',
+      switching: 'Switching branch...',
+      role: 'Your role',
+    },
+    integrations: {
+      title: 'Integrations',
+      subtitle: 'Manage your Trendyol Yemek and Yemeksepeti connections',
+    },
+    orders: {
+      title: 'Orders',
+      subtitle: 'All orders from the QR menu and marketplaces in one screen',
+    },
+    platformProducts: {
+      title: 'Platform Products',
+      subtitle: 'Import Trendyol and Yemeksepeti products and map them to QRMenuList products',
+    },
+    stock: {
+      title: 'Stock',
+      subtitle: 'Central stock, in stock / sold out and sync to mapped platforms',
+    },
+    reports: {
+      title: 'Reports',
+      subtitle: 'Orders and revenue by platform and branch',
+    },
     dashboard: {
       title: 'Dashboard',
       welcome: 'Welcome',
