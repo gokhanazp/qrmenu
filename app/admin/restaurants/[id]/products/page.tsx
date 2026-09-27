@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { getRestaurantById, deleteProductByAdmin } from '@/app/actions/admin'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils/currency'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface Product {
   id: string
@@ -142,6 +143,7 @@ export default function ProductsPage() {
                         {product.image_url ? (
                           <Image
                             src={product.image_url}
+              {...imageProps(product.image_url)}
                             alt={product.name}
                             width={48}
                             height={48}

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { getRestaurantById, deleteCategoryByAdmin } from '@/app/actions/admin'
 import { createClient } from '@/lib/supabase/client'
+import { imageProps } from '@/lib/utils/image-src'
 
 interface Category {
   id: string
@@ -134,6 +135,7 @@ export default function CategoriesPage() {
                       {category.image_url ? (
                         <Image
                           src={category.image_url}
+              {...imageProps(category.image_url)}
                           alt={category.name}
                           width={48}
                           height={48}

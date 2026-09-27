@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
 import { getRestaurantById, updateRestaurantByAdmin, getRestaurantOwnerInfo, adminChangeUserPassword, adminChangeUserEmail } from '@/app/actions/admin'
+import { getRestaurantFeaturesAdmin, updateRestaurantFeatures } from '@/app/actions/tenants'
+import { FEATURE_LABELS, MANAGED_FEATURE_KEYS } from '@/lib/features'
 
 export default function EditRestaurantPage() {
   const params = useParams()
@@ -20,6 +22,9 @@ export default function EditRestaurantPage() {
   const [restaurantName, setRestaurantName] = useState('')
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isUploadingHero, setIsUploadingHero] = useState(false)
+  const [features, setFeatures] = useState<Record<string, boolean>>({})
+  const [featuresReady, setFeaturesReady] = useState(false)
+  const [tenantInfo, setTenantInfo] = useState<{ id: string; name: string } | null>(null)
   
   const [formData, setFormData] = useState({
     name: '', slug: '', slogan: '', phone: '', email: '', address: '', whatsapp: '',
@@ -55,6 +60,17 @@ export default function EditRestaurantPage() {
       }
     }
     loadOwner()
+  }, [restaurantId])
+
+  useEffect(() => {
+    async function loadFeatures() {
+      if (!restaurantId) return
+      const result = await getRestaurantFeaturesAdmin(restaurantId)
+      setFeatures(result.features)
+      setFeaturesReady(result.schemaReady)
+      setTenantInfo(result.tenant)
+    }
+    loadFeatures()
   }, [restaurantId])
 
   const handleEmailSubmit = async () => {
@@ -169,6 +185,13 @@ export default function EditRestaurantPage() {
     try {
       const result = await updateRestaurantByAdmin({ restaurantId, ...formData })
       if (result.success) {
+        if (featuresReady) {
+          const featureResult = await updateRestaurantFeatures({ restaurantId, features })
+          if (!featureResult.success) {
+            setError(featureResult.error || 'Özellikler kaydedilemedi')
+            return
+          }
+        }
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       } else {
@@ -473,6 +496,50 @@ export default function EditRestaurantPage() {
                     <p className="text-sm text-amber-800">WhatsApp numarası boş. Sipariş özelliği numara girilmeden kaydedilemez; &quot;Sosyal Medya&quot; bölümündeki WhatsApp alanını doldurun.</p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Özellikler (Feature) */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                <div className="flex items-center justify-between gap-3 text-white flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-3xl">toggle_on</span>
+                    <div><h2 className="text-lg font-bold">Özellikler</h2><p className="text-sm text-blue-100">Bu restoranda açık olan modüller</p></div>
+                  </div>
+                  {tenantInfo && (
+                    <Link href={`/admin/tenants/${tenantInfo.id}`} className="text-sm bg-white/15 hover:bg-white/25 rounded-lg px-3 py-1.5 flex items-center gap-1">
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>domain</span>
+                      Tenant: {tenantInfo.name}
+                    </Link>
+                  )}
+                </div>
+              </div>
+              <div className="p-6">
+                {!featuresReady ? (
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-2">
+                    <span className="material-symbols-outlined text-amber-600">warning</span>
+                    <p className="text-sm text-amber-800">Özellik tablosu henüz oluşturulmamış. Supabase SQL Editor&apos;de 022 ve 023 migration&apos;larını çalıştırdıktan sonra bu bölüm aktif olur.</p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {MANAGED_FEATURE_KEYS.map((key) => (
+                      <label key={key} className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${features[key] ? 'bg-blue-50 border-blue-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(features[key])}
+                          onChange={(e) => setFeatures(prev => ({ ...prev, [key]: e.target.checked }))}
+                          className="w-4 h-4 mt-1 rounded border-gray-300"
+                        />
+                        <div>
+                          <p className="font-medium text-slate-900">{FEATURE_LABELS[key].label}</p>
+                          <p className="text-sm text-slate-600 mt-1">{FEATURE_LABELS[key].description}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-slate-500 mt-4">QR menü her zaman açıktır. WhatsApp sipariş, yukarıdaki &quot;WhatsApp Sipariş&quot; bölümünden yönetilir. Özellik açılmayan restoranın paneli bugünkü sade görünümde kalır.</p>
               </div>
             </div>
 

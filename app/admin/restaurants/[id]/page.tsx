@@ -7,6 +7,7 @@ import { UpdateSubscriptionForm } from './update-subscription-form'
 import { ToggleRestaurantStatus } from './toggle-restaurant-status'
 import { ImpersonateButton } from './impersonate-button'
 import { extractSubscription } from '@/lib/subscription'
+import { FEATURE_LABELS, isFeatureKey, type FeatureKey } from '@/lib/features'
 
 export default async function AdminRestaurantDetailPage({
   params
@@ -34,6 +35,23 @@ export default async function AdminRestaurantDetailPage({
 
   const rest = restaurant as any
   const subscription = extractSubscription(rest.subscriptions)
+
+  // Tenant ve özellikler (migration 022/023 uygulanmamışsa sessizce boş kalır)
+  let tenant: { id: string; name: string } | null = null
+  let enabledFeatures: FeatureKey[] = []
+  if (rest.tenant_id) {
+    const { data: tenantRow } = await supabase.from('tenants').select('id, name').eq('id', rest.tenant_id).maybeSingle()
+    if (tenantRow) tenant = tenantRow as { id: string; name: string }
+  }
+  {
+    const { data: featureRows } = await supabase
+      .from('restaurant_features')
+      .select('feature_key, enabled')
+      .eq('restaurant_id', rest.id)
+    enabledFeatures = ((featureRows || []) as { feature_key: string; enabled: boolean }[])
+      .filter((f) => f.enabled && isFeatureKey(f.feature_key))
+      .map((f) => f.feature_key as FeatureKey)
+  }
   const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/restorant/${rest.slug}`
 
   // Process scan events for chart (last 30 days)
@@ -153,6 +171,25 @@ export default async function AdminRestaurantDetailPage({
                 <p className="text-base font-medium text-slate-900">
                   {rest.layout_style === 'grid' ? '2\'li Grid' : 'Tekli Liste'}
                 </p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Tenant</p>
+                {tenant ? (
+                  <Link href={`/admin/tenants/${tenant.id}`} className="text-base font-medium text-blue-600 hover:text-blue-700">
+                    {tenant.name}
+                  </Link>
+                ) : (
+                  <p className="text-base font-medium text-slate-400">-</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Özellikler</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {enabledFeatures.length === 0 && <span className="text-sm text-slate-400">Sadece QR Menü</span>}
+                  {enabledFeatures.map((f) => (
+                    <span key={f} className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">{FEATURE_LABELS[f].label}</span>
+                  ))}
+                </div>
               </div>
               <div>
                 <p className="text-sm text-slate-600">WhatsApp Sipariş</p>

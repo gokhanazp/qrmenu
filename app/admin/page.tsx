@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getAllRestaurants } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import DeleteRestaurantButton from './delete-restaurant-button'
+import { getAdminOverview } from '@/app/actions/admin-monitoring'
+import { formatCurrency } from '@/lib/utils/currency'
+import { ORDER_SOURCE_LABELS, type OrderSource } from '@/lib/orders/types'
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient()
@@ -20,6 +23,7 @@ export default async function AdminDashboardPage() {
   }
 
   const { restaurants, error } = await getAllRestaurants()
+  const overview = await getAdminOverview()
 
   if (error) {
     return (
@@ -143,6 +147,43 @@ export default async function AdminDashboardPage() {
           <p className="text-sm text-slate-500">Pro Plan</p>
         </div>
       </div>
+
+      {/* SaaS Özeti */}
+      {overview.schemaReady && (
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+            <h2 className="text-xl font-bold text-slate-900">SaaS Özeti · Bugün</h2>
+            <div className="flex gap-3 text-sm">
+              <Link href="/admin/tenants" className="text-blue-600 hover:text-blue-800 font-semibold">Tenant&apos;lar</Link>
+              <Link href="/admin/integrations" className="text-blue-600 hover:text-blue-800 font-semibold">Entegrasyon İzleme</Link>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { label: 'Tenant', value: String(overview.tenants) },
+              { label: 'Restoran', value: String(overview.restaurants) },
+              { label: 'Aktif entegrasyon', value: String(overview.integrations), warn: overview.integrationErrors ? `${overview.integrationErrors} hatalı` : undefined },
+              { label: 'Bugünkü sipariş', value: String(overview.ordersToday) },
+              { label: 'Bugünkü ciro', value: formatCurrency(overview.revenueToday) },
+            ].map((c) => (
+              <div key={c.label} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-xs uppercase tracking-wider text-slate-500">{c.label}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{c.value}</p>
+                {c.warn && <p className="text-xs text-red-600 mt-1">{c.warn}</p>}
+              </div>
+            ))}
+          </div>
+          {overview.ordersTodayBySource.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {overview.ordersTodayBySource.map((s) => (
+                <span key={s.source} className="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm">
+                  {ORDER_SOURCE_LABELS[s.source as OrderSource] || s.source}: {s.orders} sipariş · {formatCurrency(s.revenue)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Restaurants Table */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">

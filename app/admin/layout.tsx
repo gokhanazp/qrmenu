@@ -12,6 +12,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: 'dashboard' },
     { name: 'Restoranlar', href: '/admin/restaurants', icon: 'store' },
+    { name: 'Müşteriler (Tenant)', href: '/admin/tenants', icon: 'domain' },
+    { name: 'Entegrasyon İzleme', href: '/admin/integrations', icon: 'monitor_heart' },
   ]
 
   const handleLogout = async () => {

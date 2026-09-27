@@ -1,18 +1,26 @@
-
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+export const dynamic = 'force-dynamic'
+
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/image-upload'
 import { createRestaurantWithUser } from '@/app/actions/admin'
+import { getTenantOptions, type TenantOption } from '@/app/actions/tenants'
 import { generateSlug } from '@/lib/utils/slug'
 
 export default function NewRestaurantPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const presetTenantId = searchParams?.get('tenant') || ''
+  const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
+  const [tenantsReady, setTenantsReady] = useState(false)
+  const [tenantId, setTenantId] = useState(presetTenantId)
+  const [ownerMode, setOwnerMode] = useState<'existing' | 'new'>(presetTenantId ? 'existing' : 'new')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
@@ -31,6 +39,16 @@ export default function NewRestaurantPage() {
     supported_languages: ['tr'] as string[]
   })
 
+  useEffect(() => {
+    getTenantOptions().then((result) => {
+      setTenantOptions(result.tenants)
+      setTenantsReady(result.schemaReady)
+    })
+  }, [])
+
+  const selectedTenant = tenantOptions.find((t) => t.id === tenantId) || null
+  const useExistingOwner = Boolean(tenantId && ownerMode === 'existing' && selectedTenant?.ownerUserId)
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value
     setFormData(prev => ({ ...prev, name, slug: generateSlug(name) }))
@@ -45,9 +63,13 @@ export default function NewRestaurantPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const result = await createRestaurantWithUser(formData)
+      const result = await createRestaurantWithUser({
+        ...formData,
+        tenant_id: tenantId || null,
+        owner_user_id: useExistingOwner ? selectedTenant?.ownerUserId || null : null,
+      })
       if (result.success) {
-        router.push('/admin/restaurants')
+        router.push(tenantId ? `/admin/tenants/${tenantId}` : '/admin/restaurants')
       } else {
         setError(result.error || 'Bir hata oluştu')
       }
@@ -79,8 +101,8 @@ export default function NewRestaurantPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Yeni Restoran Ekle</h1>
-              <p className="text-sm text-slate-600">Yeni bir restoran ve kullanıcı hesabı oluşturun</p>
+              <h1 className="text-2xl font-bold text-slate-900">{tenantId ? 'Yeni Şube Ekle' : 'Yeni Restoran Ekle'}</h1>
+              <p className="text-sm text-slate-600">{tenantId && selectedTenant ? `${selectedTenant.name} tenant'ına yeni şube` : 'Yeni bir restoran ve kullanıcı hesabı oluşturun'}</p>
             </div>
           </div>
         </div>
@@ -96,7 +118,54 @@ export default function NewRestaurantPage() {
               </div>
             )}
 
+            {/* Tenant / Şube */}
+            {tenantsReady && (
+              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div className="bg-gradient-to-r from-slate-700 to-slate-900 px-6 py-4">
+                  <div className="flex items-center gap-3 text-white">
+                    <span className="material-symbols-outlined text-3xl">domain</span>
+                    <div><h2 className="text-lg font-bold">Tenant / Şube</h2><p className="text-sm text-slate-300">Bağımsız restoran mı, mevcut müşterinin şubesi mi?</p></div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <Label htmlFor="tenant_id">Tenant</Label>
+                    <select
+                      id="tenant_id"
+                      value={tenantId}
+                      onChange={(e) => { setTenantId(e.target.value); setOwnerMode(e.target.value ? 'existing' : 'new') }}
+                      className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 text-sm bg-white"
+                    >
+                      <option value="">Bağımsız restoran (yeni tenant otomatik oluşturulur)</option>
+                      {tenantOptions.map((t) => (
+                        <option key={t.id} value={t.id}>{t.name}{t.ownerEmail ? ` — ${t.ownerEmail}` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {tenantId && (
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${ownerMode === 'existing' ? 'bg-orange-50 border-orange-500' : 'border-gray-200 hover:border-gray-300'} ${!selectedTenant?.ownerUserId ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input type="radio" name="owner_mode" checked={ownerMode === 'existing'} disabled={!selectedTenant?.ownerUserId} onChange={() => setOwnerMode('existing')} className="mt-1" />
+                        <div>
+                          <p className="font-medium text-slate-900">Tenant sahibinin hesabı kullanılsın</p>
+                          <p className="text-sm text-slate-600 mt-1">{selectedTenant?.ownerEmail || 'Tenant sahibi bulunamadı'} bu şubeyi de aynı panelden yönetir (şube seçici görünür).</p>
+                        </div>
+                      </label>
+                      <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${ownerMode === 'new' ? 'bg-orange-50 border-orange-500' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <input type="radio" name="owner_mode" checked={ownerMode === 'new'} onChange={() => setOwnerMode('new')} className="mt-1" />
+                        <div>
+                          <p className="font-medium text-slate-900">Şube için yeni kullanıcı oluştur</p>
+                          <p className="text-sm text-slate-600 mt-1">Aşağıda e-posta ve şifre girilir; bu kullanıcı yalnızca bu şubeyi görür.</p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Kullanıcı Hesabı */}
+            {!useExistingOwner && (
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                 <div className="flex items-center gap-3 text-white">
@@ -109,6 +178,7 @@ export default function NewRestaurantPage() {
                 <div><Label htmlFor="password">Şifre *</Label><Input id="password" type="password" value={formData.password} onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))} placeholder="En az 6 karakter" minLength={6} required /></div>
               </div>
             </div>
+            )}
 
             {/* Temel Bilgiler */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">

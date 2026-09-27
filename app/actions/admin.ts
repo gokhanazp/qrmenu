@@ -222,6 +222,10 @@ interface CreateRestaurantInput {
   plan?: 'free' | 'pro'
   supported_languages?: string[]
   ordering_enabled?: boolean
+  /** Şube: mevcut tenant'a bağla (boşsa trigger yeni tenant oluşturur) */
+  tenant_id?: string | null
+  /** Şube: mevcut kullanıcı sahip olsun (boşsa email/password ile yeni kullanıcı) */
+  owner_user_id?: string | null
 }
 
 export async function createRestaurantWithUser(input: CreateRestaurantInput) {
@@ -261,15 +265,31 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
     }
   )
 
-  // Create user
-  const { data: newUser, error: userError } = await supabaseAdmin.auth.admin.createUser({
-    email: input.email,
-    password: input.password,
-    email_confirm: true
-  })
+  // Sahip: mevcut kullanıcı (tenant'a şube ekleme) veya yeni kullanıcı
+  let ownerUserId: string
+  let createdUserId: string | null = null
 
-  if (userError) {
-    return { success: false, error: `Kullanıcı oluşturulamadı: ${userError.message}` }
+  if (input.owner_user_id) {
+    const { data: existingUser, error: existingError } = await supabaseAdmin.auth.admin.getUserById(input.owner_user_id)
+    if (existingError || !existingUser?.user) {
+      return { success: false, error: 'Seçilen sahip kullanıcı bulunamadı' }
+    }
+    ownerUserId = existingUser.user.id
+  } else {
+    if (!input.email || !input.password) {
+      return { success: false, error: 'Yeni kullanıcı için e-posta ve şifre gereklidir' }
+    }
+    const { data: newUser, error: userError } = await supabaseAdmin.auth.admin.createUser({
+      email: input.email,
+      password: input.password,
+      email_confirm: true
+    })
+
+    if (userError || !newUser?.user) {
+      return { success: false, error: `Kullanıcı oluşturulamadı: ${userError?.message || 'bilinmeyen hata'}` }
+    }
+    ownerUserId = newUser.user.id
+    createdUserId = ownerUserId
   }
 
   // Create restaurant with all fields
@@ -301,15 +321,17 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
       footer_bg_color: input.footer_bg_color || input.background_color || '#ffffff',
       supported_languages: input.supported_languages || ['tr'],
       ordering_enabled: input.ordering_enabled ?? false,
-      owner_user_id: newUser.user.id,
+      owner_user_id: ownerUserId,
+      // tenant_id yalnızca verildiğinde gönderilir (migration 022 öncesi kolon yok)
+      ...(input.tenant_id ? { tenant_id: input.tenant_id } : {}),
       is_active: true
     } as never)
     .select()
     .single()
 
   if (restaurantError) {
-    // Rollback: delete user if restaurant creation fails
-    await supabaseAdmin.auth.admin.deleteUser(newUser.user.id)
+    // Rollback: delete user if restaurant creation fails (yalnızca bu istekte oluşturulduysa)
+    if (createdUserId) await supabaseAdmin.auth.admin.deleteUser(createdUserId)
     return { success: false, error: `Restoran oluşturulamadı: ${restaurantError.message}` }
   }
 
