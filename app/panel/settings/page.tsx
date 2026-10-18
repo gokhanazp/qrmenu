@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
+import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
 import { useRouter } from 'next/navigation'
 import { getRestaurant, updateRestaurant } from '@/app/actions/restaurant'
 import { changePassword, getUser } from '@/app/actions/auth'
@@ -28,6 +29,8 @@ export default function SettingsPage() {
     slogan: '',
     logo_url: '',
     hero_url: '',
+    header_bg_url: '',
+    currency: 'TRY',
     is_active: true,
     layout_style: 'grid' as 'grid' | 'list',
     background_color: '#ffffff',
@@ -52,6 +55,7 @@ export default function SettingsPage() {
 
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isUploadingHero, setIsUploadingHero] = useState(false)
+  const [isUploadingHeader, setIsUploadingHeader] = useState(false)
 
   const [userEmail, setUserEmail] = useState('')
   const [passwordForm, setPasswordForm] = useState({
@@ -123,6 +127,8 @@ export default function SettingsPage() {
           slogan: rest.slogan || '',
           logo_url: rest.logo_url || '',
           hero_url: rest.hero_url || '',
+          header_bg_url: rest.header_bg_url || '',
+          currency: rest.currency || 'TRY',
           is_active: rest.is_active ?? true,
           layout_style: rest.layout_style || 'grid',
           background_color: rest.background_color || '#ffffff',
@@ -155,7 +161,7 @@ export default function SettingsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     
-    if (isUploadingLogo || isUploadingHero) {
+    if (isUploadingLogo || isUploadingHero || isUploadingHeader) {
       setError(t.panel.settings.waitForUpload)
       return
     }
@@ -362,6 +368,43 @@ export default function SettingsPage() {
             </div>
             <div className="p-6">
               <ImageUpload id="hero-upload" currentImageUrl={formData.hero_url} onUploadComplete={(url: string) => { setFormData({ ...formData, hero_url: url }); setIsUploadingHero(false) }} bucket="restaurant-images" path="heroes" onUploadStart={() => setIsUploadingHero(true)} />
+            </div>
+          </div>
+
+          {/* Header Arka Plan Görseli */}
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-4">
+              <div className="flex items-center gap-3 text-white">
+                <span className="material-symbols-outlined text-3xl">wallpaper</span>
+                <div>
+                  <h2 className="text-lg font-bold">{t.panel.settings.headerBgImage}</h2>
+                  <p className="text-sm text-rose-100">{t.panel.settings.headerBgImageSubtitle}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-3">
+              <ImageUpload id="header-bg-upload" currentImageUrl={formData.header_bg_url} onUploadComplete={(url: string) => { setFormData({ ...formData, header_bg_url: url }); setIsUploadingHeader(false) }} bucket="restaurant-images" path="headers" onUploadStart={() => setIsUploadingHeader(true)} />
+              {formData.header_bg_url && (
+                <button type="button" onClick={() => setFormData({ ...formData, header_bg_url: '' })} className="text-sm text-red-600 hover:underline">{t.common.delete}</button>
+              )}
+            </div>
+          </div>
+
+          {/* Para Birimi */}
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
+              <div className="flex items-center gap-3 text-white">
+                <span className="material-symbols-outlined text-3xl">payments</span>
+                <div>
+                  <h2 className="text-lg font-bold">{t.panel.settings.currency}</h2>
+                  <p className="text-sm text-emerald-100">{t.panel.settings.currencyHelp}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <select id="currency" value={formData.currency} onChange={(e) => setFormData({ ...formData, currency: e.target.value })} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
+                {SUPPORTED_CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code} · {c.label}</option>)}
+              </select>
             </div>
           </div>
 
@@ -643,7 +686,7 @@ export default function SettingsPage() {
                 <span className="material-symbols-outlined text-lg mr-2">close</span>
                 {t.common.cancel}
               </Button>
-              <Button type="submit" disabled={saving || isUploadingLogo || isUploadingHero} className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+              <Button type="submit" disabled={saving || isUploadingLogo || isUploadingHero || isUploadingHeader} className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
                 {saving ? (<><span className="material-symbols-outlined text-lg mr-2 animate-spin">progress_activity</span>{t.panel.settings.saving}</>) : (<><span className="material-symbols-outlined text-lg mr-2">save</span>{t.common.save}</>)}
               </Button>
             </div>

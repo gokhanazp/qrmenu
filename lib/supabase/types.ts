@@ -18,6 +18,8 @@ export interface Database {
           slug: string
           logo_url: string | null
           hero_url: string | null
+          header_bg_url: string | null
+          currency: string
           slogan: string | null
           is_active: boolean
           whatsapp: string | null
@@ -35,6 +37,8 @@ export interface Database {
           whatsapp?: string | null
           ordering_enabled?: boolean
           hero_url?: string | null
+          header_bg_url?: string | null
+          currency?: string
           slogan?: string | null
           is_active?: boolean
           created_at?: string
@@ -50,6 +54,8 @@ export interface Database {
           whatsapp?: string | null
           ordering_enabled?: boolean
           hero_url?: string | null
+          header_bg_url?: string | null
+          currency?: string
           slogan?: string | null
           is_active?: boolean
           created_at?: string

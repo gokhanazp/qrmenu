@@ -4,6 +4,7 @@ import { Icon } from "@/components/icon"
 import { useEffect } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
+import { useCurrency } from '@/lib/utils/currency-context'
 import { useSearchParams } from 'next/navigation'
 import { AddToCartPanel } from './cart/add-to-cart'
 import { imageProps } from '@/lib/utils/image-src'
@@ -44,6 +45,8 @@ export function ProductDetailModal({
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
+
+  const currency = useCurrency()
 
   const searchParams = useSearchParams()
   const isEnglish = searchParams?.get('lang') === 'en'
@@ -145,7 +148,7 @@ export function ProductDetailModal({
             className="text-3xl font-bold mb-4"
             style={{ color: priceColor || primaryColor }}
           >
-            {formatCurrency(product.price)}
+            {formatCurrency(product.price, currency)}
           </p>
 
           {/* Description */}

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { DeleteButton } from '@/components/delete-button'
 import { useLocale } from '@/lib/i18n/use-locale'
 import { formatCurrency } from '@/lib/utils/currency'
+import { CurrencyProvider, useCurrency } from '@/lib/utils/currency-context'
 import { INVENTORY_TX_LABELS } from '@/lib/inventory/types'
 import type { ChannelSyncResult } from '@/lib/inventory/sync'
 import type { MarketplacePlatform } from '@/lib/integrations/types'
@@ -73,6 +74,7 @@ function ProductRow({ product, data, bulkMode, selected, onSelect }: { product: 
   const router = useRouter()
   const { t, locale } = useLocale()
   const [pending, start] = useTransition()
+  const currency = useCurrency()
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sync, setSync] = useState<ChannelSyncResult[]>([])
@@ -125,7 +127,7 @@ function ProductRow({ product, data, bulkMode, selected, onSelect }: { product: 
               return (
                 <button key={p.platform} type="button" onClick={() => setOpen(true)} title={ch ? `${p.label}: ${ch.externalName}` : `${p.label}: eşleştirilmemiş`} className={`inline-flex items-center gap-1 pl-1 pr-2 py-0.5 rounded-full text-[11px] border ${ch ? (err ? 'bg-red-50 border-red-200 text-red-700' : 'bg-white border-gray-200 text-gray-700') : 'bg-gray-50 border-dashed border-gray-300 text-gray-400'}`}>
                   <span className={`w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center ${PLATFORM_COLOR[p.platform]} ${ch ? '' : 'opacity-40'}`}>{PLATFORM_SHORT[p.platform]}</span>
-                  {ch ? (ch.useMasterPrice ? formatCurrency(product.price) : ch.priceOverride !== null ? formatCurrency(ch.priceOverride) : ch.externalPrice !== null ? formatCurrency(ch.externalPrice) : '✓') : 'eşleştir'}
+                  {ch ? (ch.useMasterPrice ? formatCurrency(product.price, currency) : ch.priceOverride !== null ? formatCurrency(ch.priceOverride, currency) : ch.externalPrice !== null ? formatCurrency(ch.externalPrice, currency) : '✓') : 'eşleştir'}
                 </button>
               )
             })}
@@ -306,6 +308,7 @@ export function ProductsHubClient({ data, initialTab }: { data: ProductsHubData;
   ]
 
   return (
+    <CurrencyProvider currency={data.currency}>
     <div className="space-y-4">
       {/* Başlık */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
@@ -427,5 +430,6 @@ export function ProductsHubClient({ data, initialTab }: { data: ProductsHubData;
         </>
       )}
     </div>
+    </CurrencyProvider>
   )
 }

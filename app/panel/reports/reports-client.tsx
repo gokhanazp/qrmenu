@@ -12,6 +12,7 @@ function Bar({ value, max, color }: { value: number; max: number; color: string 
 }
 
 export function ReportsClient({ data }: { data: ReportsData }) {
+  const currency = data.currency
   const router = useRouter()
   const { t, locale } = useLocale()
   const lang: 'tr' | 'en' = locale === 'en' ? 'en' : 'tr'
@@ -66,8 +67,8 @@ export function ReportsClient({ data }: { data: ReportsData }) {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: `${periodLabel} · ${lang === 'en' ? 'Orders' : 'Sipariş'}`, value: String(s.orders), icon: 'receipt_long' },
-              { label: `${periodLabel} · ${lang === 'en' ? 'Revenue' : 'Ciro'}`, value: formatCurrency(s.revenue), icon: 'payments' },
-              { label: lang === 'en' ? 'Average order' : 'Ortalama sipariş', value: formatCurrency(s.averageOrder), icon: 'functions' },
+              { label: `${periodLabel} · ${lang === 'en' ? 'Revenue' : 'Ciro'}`, value: formatCurrency(s.revenue, currency), icon: 'payments' },
+              { label: lang === 'en' ? 'Average order' : 'Ortalama sipariş', value: formatCurrency(s.averageOrder, currency), icon: 'functions' },
               { label: lang === 'en' ? 'Cancelled' : 'İptal', value: String(s.cancelled), icon: 'cancel' },
             ].map((c) => (
               <div key={c.label} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
@@ -83,7 +84,7 @@ export function ReportsClient({ data }: { data: ReportsData }) {
               {s.bySource.length === 0 && <p className="text-sm text-gray-400">{lang === 'en' ? 'No orders' : 'Sipariş yok'}</p>}
               {s.bySource.map((x) => (
                 <div key={x.source} className="space-y-1">
-                  <div className="flex justify-between text-sm"><span className="font-medium text-gray-800">{ORDER_SOURCE_LABELS[x.source]}</span><span className="tabular-nums text-gray-600">{x.orders} {lang === 'en' ? 'orders' : 'sipariş'} · {formatCurrency(x.revenue)}{x.cancelled ? ` · ${x.cancelled} ${lang === 'en' ? 'cancelled' : 'iptal'}` : ''}</span></div>
+                  <div className="flex justify-between text-sm"><span className="font-medium text-gray-800">{ORDER_SOURCE_LABELS[x.source]}</span><span className="tabular-nums text-gray-600">{x.orders} {lang === 'en' ? 'orders' : 'sipariş'} · {formatCurrency(x.revenue, currency)}{x.cancelled ? ` · ${x.cancelled} ${lang === 'en' ? 'cancelled' : 'iptal'}` : ''}</span></div>
                   <Bar value={x.revenue} max={maxSource} color="bg-gradient-to-r from-orange-400 to-orange-600" />
                 </div>
               ))}
@@ -93,7 +94,7 @@ export function ReportsClient({ data }: { data: ReportsData }) {
               {s.byDay.length === 0 && <p className="text-sm text-gray-400">{lang === 'en' ? 'No orders' : 'Sipariş yok'}</p>}
               {s.byDay.map((d) => (
                 <div key={d.day} className="space-y-1">
-                  <div className="flex justify-between text-sm"><span className="text-gray-800">{new Date(d.day + 'T12:00:00Z').toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', { day: '2-digit', month: 'short' })}</span><span className="tabular-nums text-gray-600">{d.orders} · {formatCurrency(d.revenue)}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-gray-800">{new Date(d.day + 'T12:00:00Z').toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', { day: '2-digit', month: 'short' })}</span><span className="tabular-nums text-gray-600">{d.orders} · {formatCurrency(d.revenue, currency)}</span></div>
                   <Bar value={d.revenue} max={maxDay} color="bg-gradient-to-r from-blue-400 to-blue-600" />
                 </div>
               ))}
@@ -106,7 +107,7 @@ export function ReportsClient({ data }: { data: ReportsData }) {
               {s.topProducts.length === 0 && <p className="text-sm text-gray-400">{lang === 'en' ? 'No data' : 'Veri yok'}</p>}
               <ol className="space-y-1.5 text-sm">
                 {s.topProducts.map((p, i) => (
-                  <li key={p.name} className="flex justify-between gap-3"><span className="text-gray-800 truncate"><span className="text-gray-400 mr-2">{i + 1}.</span>{p.name}</span><span className="tabular-nums text-gray-600 shrink-0">{p.quantity} {lang === 'en' ? 'pcs' : 'adet'} · {formatCurrency(p.revenue)}</span></li>
+                  <li key={p.name} className="flex justify-between gap-3"><span className="text-gray-800 truncate"><span className="text-gray-400 mr-2">{i + 1}.</span>{p.name}</span><span className="tabular-nums text-gray-600 shrink-0">{p.quantity} {lang === 'en' ? 'pcs' : 'adet'} · {formatCurrency(p.revenue, currency)}</span></li>
                 ))}
               </ol>
             </div>
@@ -115,7 +116,7 @@ export function ReportsClient({ data }: { data: ReportsData }) {
                 <h2 className="font-bold text-gray-900 mb-3">{lang === 'en' ? 'By branch' : 'Şube bazında'}</h2>
                 <ul className="space-y-1.5 text-sm">
                   {s.byRestaurant.map((r) => (
-                    <li key={r.restaurantId} className="flex justify-between gap-3"><span className="text-gray-800">{restaurantName(r.restaurantId)}</span><span className="tabular-nums text-gray-600">{r.orders} · {formatCurrency(r.revenue)}</span></li>
+                    <li key={r.restaurantId} className="flex justify-between gap-3"><span className="text-gray-800">{restaurantName(r.restaurantId)}</span><span className="tabular-nums text-gray-600">{r.orders} · {formatCurrency(r.revenue, currency)}</span></li>
                   ))}
                 </ul>
               </div>

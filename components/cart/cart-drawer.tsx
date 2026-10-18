@@ -14,6 +14,7 @@ import {
 } from '@/lib/cart/whatsapp-order'
 import { createQrOrder } from '@/app/actions/orders'
 import { useCart } from './cart-context'
+import { useCurrency } from '@/lib/utils/currency-context'
 
 const PAYMENT_ICONS: Record<PaymentMethod, string> = {
   cash: 'payments',
@@ -32,6 +33,7 @@ const customerKey = (slug: string) => `qrmenu-cart-customer:${slug.toLowerCase()
  */
 export function CartDrawer() {
   const cart = useCart()
+  const currency = useCurrency()
   const [payment, setPayment] = useState<PaymentMethod | null>(null)
   const [address, setAddress] = useState('')
   const [note, setNote] = useState('')
@@ -129,7 +131,7 @@ export function CartDrawer() {
   const empty = cart.items.length === 0
   const addressOk = address.trim().length > 0
   const canSend = payment !== null && addressOk
-  const message = buildOrderMessage({
+  const message = buildOrderMessage({ currency,
     restaurantName: restaurant.name,
     items: cart.items,
     paymentMethod: payment,
@@ -173,7 +175,7 @@ export function CartDrawer() {
     }
     const url = buildWhatsappOrderUrl(
       restaurant.whatsapp,
-      buildOrderMessage({
+      buildOrderMessage({ currency,
         restaurantName: restaurant.name,
         items: lines,
         paymentMethod: payment,
@@ -246,7 +248,7 @@ export function CartDrawer() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate">{item.name}</p>
                     <p className="text-sm font-bold" style={{ color: priceColor || primaryColor }}>
-                      {formatCurrency(item.price * item.qty)}
+                      {formatCurrency(item.price * item.qty, currency)}
                     </p>
                   </div>
                   <div
@@ -353,7 +355,7 @@ export function CartDrawer() {
             <div className="flex items-center justify-between">
               <span className="font-semibold opacity-80">{t.total}</span>
               <span className="text-2xl font-bold tabular-nums" style={{ color: priceColor || primaryColor }}>
-                {formatCurrency(cart.total)}
+                {formatCurrency(cart.total, currency)}
               </span>
             </div>
 

@@ -5,6 +5,7 @@
  * Özellik kapalıysa ilgili alanlar boş gelir ve arayüz o sütunları çizmez.
  */
 import { createClient } from '@/lib/supabase/server'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { resolveRestaurantContext } from '@/lib/auth/restaurant-context'
 import { CONTENT_MANAGER_ROLES, OPERATIONS_ROLES, roleIn } from '@/lib/auth/roles'
 import { hasFeature } from '@/lib/features'
@@ -49,6 +50,7 @@ export interface HubCategory {
 export interface ProductsHubData {
   restaurantId: string | null
   restaurantName: string
+  currency: string
   canManage: boolean
   canOperate: boolean
   stockEnabled: boolean
@@ -64,7 +66,7 @@ export interface ProductsHubData {
 
 export async function getProductsHubData(): Promise<ProductsHubData> {
   const base: ProductsHubData = {
-    restaurantId: null, restaurantName: '', canManage: false, canOperate: false,
+    restaurantId: null, restaurantName: '', currency: 'TRY', canManage: false, canOperate: false,
     stockEnabled: false, marketplaceEnabled: false, stockSchemaReady: true, marketplaceSchemaReady: true,
     products: [], categories: [], platforms: [], external: [],
   }
@@ -73,6 +75,7 @@ export async function getProductsHubData(): Promise<ProductsHubData> {
   const { ctx } = result
   base.restaurantId = ctx.restaurantId
   base.restaurantName = ctx.restaurant.name
+  base.currency = normalizeCurrency((ctx.restaurant as { currency?: string }).currency)
   base.canManage = roleIn(ctx.role, CONTENT_MANAGER_ROLES)
   base.canOperate = roleIn(ctx.role, OPERATIONS_ROLES)
   base.stockEnabled = hasFeature(ctx.features, 'stock')

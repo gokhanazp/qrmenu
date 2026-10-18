@@ -42,6 +42,7 @@ export default async function AllReviewsPage({
   const textColor = rest.text_color || '#111827'
   const primaryColor = rest.primary_color || '#FF6B35'
   const headerBgColor = rest.header_bg_color || backgroundColor
+  const headerBgUrl: string | null = rest.header_bg_url || null
   const borderColor = textColor + '18'
 
   const menuUrl = currentLang !== 'tr' ? `/restorant/${slug}?lang=${currentLang}` : `/restorant/${slug}`
@@ -51,7 +52,7 @@ export default async function AllReviewsPage({
       {/* Header */}
       <header
         className="sticky top-0 z-40 border-b"
-        style={{ backgroundColor: headerBgColor, borderColor }}
+        style={{ backgroundColor: headerBgColor, borderColor, ...(headerBgUrl ? { backgroundImage: `url(${headerBgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
       >
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link

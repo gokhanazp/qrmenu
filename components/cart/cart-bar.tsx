@@ -3,6 +3,7 @@
 import { Icon } from '@/components/icon'
 import { formatCurrency } from '@/lib/utils/currency'
 import { useCart } from './cart-context'
+import { useCurrency } from '@/lib/utils/currency-context'
 import { CartDrawer } from './cart-drawer'
 
 /**
@@ -11,6 +12,7 @@ import { CartDrawer } from './cart-drawer'
  */
 export function CartBar() {
   const cart = useCart()
+  const currency = useCurrency()
   if (!cart.enabled || cart.count === 0) return null
 
   const { primaryColor } = cart.theme
@@ -43,7 +45,7 @@ export function CartBar() {
             </span>
             <span className="font-bold">{label}</span>
           </span>
-          <span className="font-bold tabular-nums">{formatCurrency(cart.total)}</span>
+          <span className="font-bold tabular-nums">{formatCurrency(cart.total, currency)}</span>
         </button>
       </div>
 

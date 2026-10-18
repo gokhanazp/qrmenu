@@ -15,6 +15,8 @@ import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { CartProvider } from '@/components/cart/cart-context'
+import { CurrencyProvider } from '@/lib/utils/currency-context'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { CartBar } from '@/components/cart/cart-bar'
 import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { ScanTracker } from '@/components/scan-tracker'
@@ -88,6 +90,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   const borderColor = textColor + '20' // 20% opacity
   const supportedLanguages = rest.supported_languages || ['tr']
   const headerBgColor = rest.header_bg_color || backgroundColor
+  const headerBgUrl: string | null = rest.header_bg_url || null
+  const currency = normalizeCurrency(rest.currency)
   const footerBgColor = rest.footer_bg_color || backgroundColor
   
   // Dil seçimi - URL parametresinden veya varsayılan
@@ -140,6 +144,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
     twitter: rest.twitter,
     whatsapp: rest.whatsapp,
     supported_languages: supportedLanguages,
+    currency,
   }
   const restaurantSchema = restaurantJsonLd(restaurantData, allProducts || [])
   const menuSchema = menuJsonLd(restaurantData, categories as any)
@@ -158,6 +163,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
       theme={{ primaryColor, priceColor, backgroundColor, surfaceColor, textColor, borderColor }}
       isEnglish={isEnglish}
     >
+    <CurrencyProvider currency={currency}>
     <div
       className="font-work-sans antialiased transition-colors duration-200"
       lang={currentLang}
@@ -177,7 +183,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           <header
             className="sticky top-0 z-[60] backdrop-blur-md transition-colors duration-200"
             style={{
-              backgroundColor: `${headerBgColor}e6`,
+              backgroundColor: headerBgUrl ? headerBgColor : `${headerBgColor}e6`,
+              ...(headerBgUrl ? { backgroundImage: `url(${headerBgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
               borderBottom: `1px solid ${borderColor}`
             }}
           >
@@ -456,6 +463,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
           footerBgColor={footerBgColor}
         />
     </div>
+    </CurrencyProvider>
     </CartProvider>
   )
 }

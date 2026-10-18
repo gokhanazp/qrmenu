@@ -4,6 +4,7 @@ import { Icon } from "@/components/icon"
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
+import { useCurrency } from '@/lib/utils/currency-context'
 import { ProductDetailModal } from './product-detail-modal'
 import { imageProps } from '@/lib/utils/image-src'
 
@@ -32,6 +33,7 @@ export function SearchModal({
   textColor,
   borderColor
 }: SearchModalProps) {
+  const currency = useCurrency()
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredProducts, setFilteredProducts] = useState<any[]>([])
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
@@ -198,7 +200,7 @@ export function SearchModal({
                         className="text-sm font-bold mt-0.5"
                         style={{ color: priceColor || primaryColor }}
                       >
-                        {formatCurrency(product.price)}
+                        {formatCurrency(product.price, currency)}
                       </p>
                     </div>
                     <Icon name="chevron_right" className="text-lg ml-2" style={{ color: textColor, opacity: 0.3 }} />

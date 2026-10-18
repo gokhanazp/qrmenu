@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
@@ -208,6 +209,8 @@ interface CreateRestaurantInput {
   about_us?: string
   logo_url?: string
   hero_url?: string
+  header_bg_url?: string
+  currency?: string
   layout_style?: string
   background_color?: string
   surface_color?: string
@@ -308,6 +311,8 @@ export async function createRestaurantWithUser(input: CreateRestaurantInput) {
       about_us: input.about_us || null,
       logo_url: input.logo_url || null,
       hero_url: input.hero_url || null,
+      ...(input.header_bg_url ? { header_bg_url: input.header_bg_url } : {}),
+      ...(input.currency ? { currency: normalizeCurrency(input.currency) } : {}),
       layout_style: input.layout_style || 'grid',
       background_color: input.background_color || '#ffffff',
       surface_color: input.surface_color || '#f9fafb',
@@ -373,6 +378,8 @@ interface UpdateRestaurantByAdminInput {
   about_us?: string
   logo_url?: string
   hero_url?: string
+  header_bg_url?: string
+  currency?: string
   layout_style?: string
   background_color?: string
   surface_color?: string
@@ -398,7 +405,8 @@ export async function updateRestaurantByAdmin(input: UpdateRestaurantByAdminInpu
     return { success: false, error: 'Unauthorized' }
   }
 
-  const { restaurantId, ...updateData } = input
+  const { restaurantId, ...rest } = input
+  const updateData = { ...rest, ...(rest.currency !== undefined ? { currency: normalizeCurrency(rest.currency) } : {}) }
 
   // If slug is being updated, check if it's unique
   if (updateData.slug) {

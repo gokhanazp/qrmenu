@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { formatCurrency } from '@/lib/utils/currency'
+import { currencySymbol, formatCurrency } from '@/lib/utils/currency'
+import { useCurrency } from '@/lib/utils/currency-context'
 import { PLATFORM_LABELS, type MarketplacePlatform } from '@/lib/integrations/types'
 import type { ExactMatchPair } from '@/lib/integrations/matching'
 import {
@@ -180,6 +181,7 @@ export function PlatformCard({ p, canManage }: { p: PlatformSummary; canManage: 
 }
 
 export function UnmappedRow({ item, locals, categories, canManage }: { item: ExternalProductView; locals: LocalProductView[]; categories: { id: string; name: string }[]; canManage: boolean }) {
+  const currency = useCurrency()
   const router = useRouter()
   const [pending, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -216,13 +218,13 @@ export function UnmappedRow({ item, locals, categories, canManage }: { item: Ext
             <p className="font-medium text-gray-900">{item.name}</p>
             {!item.available && <span className="text-[11px] text-red-600">platformda kapalı</span>}
           </div>
-          <p className="text-xs text-gray-500">{item.price !== null ? formatCurrency(item.price) : 'fiyat yok'}{item.category ? ` · ${item.category}` : ''}</p>
+          <p className="text-xs text-gray-500">{item.price !== null ? formatCurrency(item.price, currency) : 'fiyat yok'}{item.category ? ` · ${item.category}` : ''}</p>
         </div>
         {canManage && (
           <div className="flex flex-wrap gap-2 items-center">
             <select value={pick} onChange={(e) => setPick(e.target.value)} className="h-9 rounded-md border border-gray-300 px-2 text-sm bg-white max-w-[220px]">
               <option value="">Mevcut ürünle eşleştir…</option>
-              {locals.filter((l) => !l.channels[item.platform]).map((l) => <option key={l.id} value={l.id}>{l.name} · {formatCurrency(l.price)}</option>)}
+              {locals.filter((l) => !l.channels[item.platform]).map((l) => <option key={l.id} value={l.id}>{l.name} · {formatCurrency(l.price, currency)}</option>)}
             </select>
             <Button size="sm" variant="outline" className="h-9" disabled={!pick || pending} onClick={() => link(pick)}>Eşleştir</Button>
             <Button size="sm" variant="outline" className="h-9" disabled={pending} onClick={() => setCreateOpen((v) => !v)}>{createOpen ? 'Vazgeç' : 'QR menüye ekle'}</Button>
@@ -234,7 +236,7 @@ export function UnmappedRow({ item, locals, categories, canManage }: { item: Ext
           <span className="text-xs text-gray-500">Öneri:</span>
           {item.suggestions.map((s) => (
             <button key={s.localProductId} type="button" disabled={pending} onClick={() => link(s.localProductId)} title={s.reason === 'sku' ? 'SKU eşleşmesi' : s.reason === 'exact' ? 'İsim birebir' : 'İsim benzerliği'} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-green-200 bg-green-50 text-green-800 text-xs hover:bg-green-100">
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>link</span>{s.localName} · {formatCurrency(s.localPrice)} · %{Math.round(s.score * 100)}
+              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>link</span>{s.localName} · {formatCurrency(s.localPrice, currency)} · %{Math.round(s.score * 100)}
             </button>
           ))}
         </div>
@@ -255,6 +257,7 @@ export function UnmappedRow({ item, locals, categories, canManage }: { item: Ext
 }
 
 export function ChannelCell({ local, platform, external, canManage }: { local: LocalProductView; platform: MarketplacePlatform; external: ExternalProductView[]; canManage: boolean }) {
+  const currency = useCurrency()
   const router = useRouter()
   const [pending, start] = useTransition()
   const [open, setOpen] = useState<'link' | 'price' | null>(null)
@@ -271,7 +274,7 @@ export function ChannelCell({ local, platform, external, canManage }: { local: L
           <div className="flex items-center gap-1">
             <select value={pick} onChange={(e) => setPick(e.target.value)} className="h-8 rounded-md border border-gray-300 px-1 text-xs bg-white max-w-[180px]">
               <option value="">Platform ürünü seç…</option>
-              {candidates.map((e) => <option key={e.id} value={e.id}>{e.name}{e.price !== null ? ` · ${formatCurrency(e.price)}` : ''}</option>)}
+              {candidates.map((e) => <option key={e.id} value={e.id}>{e.name}{e.price !== null ? ` · ${formatCurrency(e.price, currency)}` : ''}</option>)}
             </select>
             <Button size="sm" className="h-8" disabled={!pick || pending} onClick={() => start(async () => { const r = await linkProduct({ localProductId: local.id, externalRowId: pick }); if (!r.success) alert(r.error || 'Hata'); setOpen(null); router.refresh() })}>Bağla</Button>
             <button type="button" onClick={() => setOpen(null)} className="text-xs text-gray-400">iptal</button>
@@ -290,7 +293,7 @@ export function ChannelCell({ local, platform, external, canManage }: { local: L
     <div className="text-sm">
       <div className="flex items-center gap-2">
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${ch.available ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-500 border border-gray-200'}`} title={`${ch.externalName} · ${priceMode}${syncTitle ? ' · ' + syncTitle : ''}`}>
-          ✓ {effective !== null ? formatCurrency(effective) : 'fiyat yok'}
+          ✓ {effective !== null ? formatCurrency(effective, currency) : 'fiyat yok'}
           <span className="opacity-60">· {priceMode}</span>
           {ch.lastPriceSyncOk === false && <span className="text-red-600">✕</span>}
           {!ch.available ? ' · kapalı' : ''}
@@ -306,7 +309,7 @@ export function ChannelCell({ local, platform, external, canManage }: { local: L
       {open === 'price' && (
         <div className="mt-1 bg-gray-50 rounded-lg p-2 text-xs space-y-1.5">
           <p className="font-semibold text-gray-700">{shortLabel(platform)} fiyatı</p>
-          <label className="flex items-center gap-1"><input type="radio" name={`pm-${ch.linkId}`} checked={useMaster} onChange={() => setUseMaster(true)} /> QR fiyatıyla aynı ({formatCurrency(local.price)})</label>
+          <label className="flex items-center gap-1"><input type="radio" name={`pm-${ch.linkId}`} checked={useMaster} onChange={() => setUseMaster(true)} /> QR fiyatıyla aynı ({formatCurrency(local.price, currency)})</label>
           <label className="flex items-center gap-1"><input type="radio" name={`pm-${ch.linkId}`} checked={!useMaster} onChange={() => setUseMaster(false)} /> Özel:
             <Input type="number" step="0.01" min="0" value={override} onChange={(e) => { setOverride(e.target.value); setUseMaster(false) }} placeholder={ch.externalPrice !== null ? String(ch.externalPrice) : 'fiyat'} className="h-7 w-24" />
           </label>
@@ -325,16 +328,17 @@ export function ChannelCell({ local, platform, external, canManage }: { local: L
 }
 
 export function MasterPrice({ product, canManage }: { product: LocalProductView; canManage: boolean }) {
+  const currency = useCurrency()
   const router = useRouter()
   const [pending, start] = useTransition()
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(String(product.price))
   const [msg, setMsg] = useState<string | null>(null)
-  if (!canManage) return <span>{formatCurrency(product.price)}</span>
+  if (!canManage) return <span>{formatCurrency(product.price, currency)}</span>
   if (!editing) {
     return (
       <button type="button" onClick={() => { setValue(String(product.price)); setEditing(true) }} className="inline-flex items-center gap-1 text-orange-600 hover:underline" title="QR menü fiyatını düzenle">
-        {formatCurrency(product.price)}<span className="material-symbols-outlined" style={{ fontSize: '14px' }}>edit</span>
+        {formatCurrency(product.price, currency)}<span className="material-symbols-outlined" style={{ fontSize: '14px' }}>edit</span>
         {msg && <span className="text-[11px] text-gray-500 ml-1">{msg}</span>}
       </button>
     )
@@ -358,7 +362,7 @@ export function MasterPrice({ product, canManage }: { product: LocalProductView;
   }
   return (
     <span className="inline-flex items-center gap-1">
-      <span className="text-orange-600 font-bold">₺</span>
+      <span className="text-orange-600 font-bold">{currencySymbol(currency)}</span>
       <input type="number" step="0.01" min="0" value={value} onChange={(e) => setValue(e.target.value)} onBlur={save} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }} autoFocus disabled={pending} className="w-20 h-6 px-1 text-xs border border-orange-300 rounded" />
     </span>
   )

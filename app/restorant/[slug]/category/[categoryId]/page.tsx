@@ -9,6 +9,8 @@ import { ProductCard } from '@/components/product-card'
 import { PublicMenuClient } from '@/components/public-menu-client'
 import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { CartProvider } from '@/components/cart/cart-context'
+import { CurrencyProvider } from '@/lib/utils/currency-context'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { CartBar } from '@/components/cart/cart-bar'
 import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { JsonLd } from '@/components/json-ld'
@@ -73,6 +75,8 @@ export default async function CategoryDetailPage({
   const borderColor = textColor + '20' // 20% opacity
   const supportedLanguages = rest.supported_languages || ['tr']
   const headerBgColor = rest.header_bg_color || backgroundColor
+  const headerBgUrl: string | null = rest.header_bg_url || null
+  const currency = normalizeCurrency(rest.currency)
   const footerBgColor = rest.footer_bg_color || backgroundColor
   
   // Dil seçimi - URL parametresinden veya varsayılan
@@ -106,6 +110,7 @@ export default async function CategoryDetailPage({
       name: rest.name,
       slug,
       supported_languages: supportedLanguages,
+      currency,
     },
     { id: categoryId, name: cat.name, name_en: cat.name_en, image_url: cat.image_url },
     products,
@@ -127,6 +132,7 @@ export default async function CategoryDetailPage({
       theme={{ primaryColor, priceColor, backgroundColor, surfaceColor, textColor, borderColor }}
       isEnglish={isEnglish}
     >
+    <CurrencyProvider currency={currency}>
     <div
       className="font-work-sans antialiased transition-colors duration-200"
       lang={currentLang}
@@ -144,7 +150,8 @@ export default async function CategoryDetailPage({
           <header
             className="sticky top-0 z-[60] backdrop-blur-md transition-colors duration-200"
             style={{
-              backgroundColor: `${headerBgColor}e6`,
+              backgroundColor: headerBgUrl ? headerBgColor : `${headerBgColor}e6`,
+              ...(headerBgUrl ? { backgroundImage: `url(${headerBgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
               borderBottom: `1px solid ${borderColor}`
             }}
           >
@@ -201,13 +208,15 @@ export default async function CategoryDetailPage({
           {/* Category Header */}
           {cat.image_url && (
             <div className="px-4 pt-6 pb-2">
-              <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-lg">
+              {/* Görsel kendi oranında, kırpılmadan gösterilir (sabit yükseklik üst/alt kısmı kesiyordu) */}
+              <div className="relative w-full rounded-xl overflow-hidden shadow-lg bg-gray-100">
                 <Image
                   src={cat.image_url}
-              {...imageProps(cat.image_url)}
+                  {...imageProps(cat.image_url)}
                   alt={categoryName}
-                  fill
-                  className="object-cover"
+                  width={1200}
+                  height={900}
+                  className="w-full h-auto block"
                   priority
                   sizes="(max-width: 768px) 100vw, 448px"
                 />
@@ -324,6 +333,7 @@ export default async function CategoryDetailPage({
           footerBgColor={footerBgColor}
         />
     </div>
+    </CurrencyProvider>
     </CartProvider>
   )
 }

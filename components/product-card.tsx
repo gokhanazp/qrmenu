@@ -4,6 +4,7 @@ import { Icon } from "@/components/icon"
 import { useState } from 'react'
 import Image from 'next/image'
 import { formatCurrency } from '@/lib/utils/currency'
+import { useCurrency } from '@/lib/utils/currency-context'
 import { ProductDetailModal } from './product-detail-modal'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from './cart/cart-context'
@@ -33,6 +34,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const cart = useCart()
+  const currency = useCurrency()
   const searchParams = useSearchParams()
   const isEnglish = searchParams?.get('lang') === 'en'
 
@@ -91,7 +93,7 @@ export function ProductCard({
                 className="text-xl font-bold"
                 style={{ color: priceColor || primaryColor }}
               >
-                {formatCurrency(product.price)}
+                {formatCurrency(product.price, currency)}
               </p>
               {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
               {cart.enabled ? (
@@ -172,7 +174,7 @@ export function ProductCard({
               className="text-sm font-medium mt-1"
               style={{ color: priceColor || primaryColor }}
             >
-              {formatCurrency(product.price)}
+              {formatCurrency(product.price, currency)}
             </p>
             {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
           </div>
@@ -288,7 +290,7 @@ export function ProductCard({
             className={`${isDailySpecial ? 'text-lg' : 'text-base'} font-bold mt-1`}
             style={{ color: priceColor || primaryColor }}
           >
-            {formatCurrency(product.price)}
+            {formatCurrency(product.price, currency)}
           </p>
           {showSoldOut && <SoldOutPill isEnglish={isEnglish} className="mt-1" />}
         </div>

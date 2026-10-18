@@ -14,6 +14,7 @@ export function getSiteUrl(): string {
 }
 
 type Restaurant = {
+  currency?: string | null
   id: string
   name: string
   slug: string
@@ -126,7 +127,7 @@ export function menuJsonLd(
         offers: {
           '@type': 'Offer',
           price: Number(p.price).toFixed(2),
-          priceCurrency: 'TRY',
+          priceCurrency: r.currency || 'TRY',
           availability: 'https://schema.org/InStock',
         },
       })),
@@ -160,7 +161,7 @@ export function menuSectionJsonLd(
       offers: {
         '@type': 'Offer',
         price: Number(p.price).toFixed(2),
-        priceCurrency: 'TRY',
+        priceCurrency: r.currency || 'TRY',
         availability: 'https://schema.org/InStock',
       },
     })),

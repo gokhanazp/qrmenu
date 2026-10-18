@@ -214,7 +214,7 @@ export default function NewProductPage() {
               )}
               
               <div>
-                <Label htmlFor="price">Fiyat (₺) *</Label>
+                <Label htmlFor="price">Fiyat *</Label>
                 <Input
                   id="price"
                   type="number"

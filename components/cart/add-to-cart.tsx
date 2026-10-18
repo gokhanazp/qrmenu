@@ -4,6 +4,7 @@ import { useState, type MouseEvent } from 'react'
 import { Icon } from '@/components/icon'
 import { formatCurrency } from '@/lib/utils/currency'
 import { useCart } from './cart-context'
+import { useCurrency } from '@/lib/utils/currency-context'
 
 interface CartProduct {
   id: string
@@ -100,6 +101,7 @@ export function AddToCartPanel({
   onAdded?: () => void
 }) {
   const cart = useCart()
+  const currency = useCurrency()
   const [qty, setQty] = useState(1)
   if (!cart.enabled) return null
 
@@ -157,7 +159,7 @@ export function AddToCartPanel({
       >
         <Icon name="shopping_cart" className="text-lg" />
         <span>
-          {label} · {formatCurrency(price * qty)}
+          {label} · {formatCurrency(price * qty, currency)}
         </span>
       </button>
     </div>

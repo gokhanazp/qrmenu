@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -22,13 +23,14 @@ export default function EditRestaurantPage() {
   const [restaurantName, setRestaurantName] = useState('')
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isUploadingHero, setIsUploadingHero] = useState(false)
+  const [isUploadingHeader, setIsUploadingHeader] = useState(false)
   const [features, setFeatures] = useState<Record<string, boolean>>({})
   const [featuresReady, setFeaturesReady] = useState(false)
   const [tenantInfo, setTenantInfo] = useState<{ id: string; name: string } | null>(null)
   
   const [formData, setFormData] = useState({
     name: '', slug: '', slogan: '', phone: '', email: '', address: '', whatsapp: '',
-    instagram: '', facebook: '', twitter: '', about_us: '', logo_url: '', hero_url: '',
+    instagram: '', facebook: '', twitter: '', about_us: '', logo_url: '', hero_url: '', header_bg_url: '', currency: 'TRY',
     layout_style: 'grid', background_color: '#ffffff', surface_color: '#f9fafb',
     text_color: '#111827', primary_color: '#FF6B35', price_color: '#ef4444',
     icon_color: '#111827', hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
@@ -152,7 +154,7 @@ export default function EditRestaurantPage() {
           whatsapp: r.whatsapp || '', instagram: r.instagram || '',
           facebook: r.facebook || '', twitter: r.twitter || '',
           about_us: r.about_us || '', logo_url: r.logo_url || '',
-          hero_url: r.hero_url || '', layout_style: r.layout_style || 'grid',
+          hero_url: r.hero_url || '', header_bg_url: r.header_bg_url || '', currency: r.currency || 'TRY', layout_style: r.layout_style || 'grid',
           background_color: r.background_color || '#ffffff',
           surface_color: r.surface_color || '#f9fafb',
           text_color: r.text_color || '#111827',
@@ -175,7 +177,7 @@ export default function EditRestaurantPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isUploadingLogo || isUploadingHero) {
+    if (isUploadingLogo || isUploadingHero || isUploadingHeader) {
       setError('Lütfen görsellerin yüklenmesini bekleyin')
       return
     }
@@ -376,6 +378,35 @@ export default function EditRestaurantPage() {
               </div>
               <div className="p-6">
                 <ImageUpload id="hero-upload" currentImageUrl={formData.hero_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, hero_url: url })); setIsUploadingHero(false) }} bucket="restaurant-images" path="heroes" onUploadStart={() => setIsUploadingHero(true)} />
+              </div>
+            </div>
+
+            {/* Header Arka Plan Görseli */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">wallpaper</span>
+                  <div><h2 className="text-lg font-bold">Header Arka Plan Görseli</h2><p className="text-sm text-rose-100">Üst başlığın arkasında görünür (isteğe bağlı)</p></div>
+                </div>
+              </div>
+              <div className="p-6 space-y-3">
+                <ImageUpload id="header-bg-upload" currentImageUrl={formData.header_bg_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, header_bg_url: url })); setIsUploadingHeader(false) }} bucket="restaurant-images" path="headers" onUploadStart={() => setIsUploadingHeader(true)} />
+                {formData.header_bg_url && <button type="button" onClick={() => setFormData(prev => ({ ...prev, header_bg_url: '' }))} className="text-sm text-red-600 hover:underline">Görseli kaldır</button>}
+              </div>
+            </div>
+
+            {/* Para Birimi */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">payments</span>
+                  <div><h2 className="text-lg font-bold">Para Birimi</h2><p className="text-sm text-emerald-100">Menüdeki tüm fiyatlar bu para birimiyle gösterilir</p></div>
+                </div>
+              </div>
+              <div className="p-6">
+                <select value={formData.currency} onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
+                  {SUPPORTED_CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code} · {c.label}</option>)}
+                </select>
               </div>
             </div>
 
@@ -654,7 +685,7 @@ export default function EditRestaurantPage() {
               <Link href={`/admin/restaurants/${restaurantId}`}>
                 <Button type="button" variant="outline">İptal</Button>
               </Link>
-              <Button type="submit" disabled={isSaving || isUploadingLogo || isUploadingHero} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+              <Button type="submit" disabled={isSaving || isUploadingLogo || isUploadingHero || isUploadingHeader} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
                 {isSaving ? (<><span className="material-symbols-outlined animate-spin mr-2">sync</span>Kaydediliyor...</>) : (<><span className="material-symbols-outlined mr-2">save</span>Kaydet</>)}
               </Button>
             </div>

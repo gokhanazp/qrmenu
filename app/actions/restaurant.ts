@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { cookies } from 'next/headers'
 import {
   ACTIVE_RESTAURANT_COOKIE,
@@ -76,6 +77,8 @@ interface UpdateRestaurantInput {
   slogan?: string
   logo_url?: string
   hero_url?: string
+  header_bg_url?: string
+  currency?: string
   is_active?: boolean
   layout_style?: string
   background_color?: string
@@ -126,9 +129,10 @@ export async function updateRestaurant(input: UpdateRestaurantInput) {
     }
   }
 
+  const payload = { ...input, ...(input.currency !== undefined ? { currency: normalizeCurrency(input.currency) } : {}) }
   const { error } = await supabase
     .from('restaurants')
-    .update(input as never)
+    .update(payload as never)
     .eq('id', restaurantId)
 
   if (error) {

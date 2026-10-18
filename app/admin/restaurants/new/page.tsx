@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
+import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -25,11 +26,12 @@ export default function NewRestaurantPage() {
   const [error, setError] = useState<string | null>(null)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isUploadingHero, setIsUploadingHero] = useState(false)
+  const [isUploadingHeader, setIsUploadingHeader] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '', slug: '', email: '', password: '', slogan: '', phone: '', address: '',
     whatsapp: '', instagram: '', facebook: '', twitter: '', about_us: '',
-    logo_url: '', hero_url: '', layout_style: 'grid',
+    logo_url: '', hero_url: '', header_bg_url: '', currency: 'TRY', layout_style: 'grid',
     background_color: '#ffffff', surface_color: '#f9fafb', text_color: '#111827',
     primary_color: '#FF6B35', price_color: '#ef4444', icon_color: '#111827',
     hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
@@ -56,7 +58,7 @@ export default function NewRestaurantPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isUploadingLogo || isUploadingHero) {
+    if (isUploadingLogo || isUploadingHero || isUploadingHeader) {
       setError('Lütfen görsellerin yüklenmesini bekleyin')
       return
     }
@@ -305,6 +307,35 @@ export default function NewRestaurantPage() {
               </div>
             </div>
 
+            {/* Header Arka Plan Görseli */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">wallpaper</span>
+                  <div><h2 className="text-lg font-bold">Header Arka Plan Görseli</h2><p className="text-sm text-rose-100">Üst başlığın arkasında görünür (isteğe bağlı)</p></div>
+                </div>
+              </div>
+              <div className="p-6 space-y-3">
+                <ImageUpload id="header-bg-upload" currentImageUrl={formData.header_bg_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, header_bg_url: url })); setIsUploadingHeader(false) }} bucket="restaurant-images" path="headers" onUploadStart={() => setIsUploadingHeader(true)} />
+                {formData.header_bg_url && <button type="button" onClick={() => setFormData(prev => ({ ...prev, header_bg_url: '' }))} className="text-sm text-red-600 hover:underline">Görseli kaldır</button>}
+              </div>
+            </div>
+
+            {/* Para Birimi */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
+                <div className="flex items-center gap-3 text-white">
+                  <span className="material-symbols-outlined text-3xl">payments</span>
+                  <div><h2 className="text-lg font-bold">Para Birimi</h2><p className="text-sm text-emerald-100">Menüdeki tüm fiyatlar bu para birimiyle gösterilir</p></div>
+                </div>
+              </div>
+              <div className="p-6">
+                <select value={formData.currency} onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
+                  {SUPPORTED_CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code} · {c.label}</option>)}
+                </select>
+              </div>
+            </div>
+
             {/* Menü Düzeni */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
@@ -411,7 +442,7 @@ export default function NewRestaurantPage() {
               <Link href="/admin/restaurants">
                 <Button type="button" variant="outline">İptal</Button>
               </Link>
-              <Button type="submit" disabled={isLoading || isUploadingLogo || isUploadingHero} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
+              <Button type="submit" disabled={isLoading || isUploadingLogo || isUploadingHero || isUploadingHeader} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
                 {isLoading ? (<><span className="material-symbols-outlined animate-spin mr-2">sync</span>Oluşturuluyor...</>) : (<><span className="material-symbols-outlined mr-2">add</span>Restoran Oluştur</>)}
               </Button>
             </div>

@@ -29,6 +29,7 @@ export default function ProductsPage() {
   const restaurantId = params.id as string
   const [products, setProducts] = useState<Product[]>([])
   const [restaurantName, setRestaurantName] = useState('')
+  const [currency, setCurrency] = useState('TRY')
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -38,6 +39,7 @@ export default function ProductsPage() {
       const restResult = await getRestaurantById(restaurantId) as any
       if (restResult.restaurant) {
         setRestaurantName(restResult.restaurant.name)
+        setCurrency((restResult.restaurant as { currency?: string }).currency || 'TRY')
       }
 
       // Get products
@@ -167,7 +169,7 @@ export default function ProductsPage() {
                         {product.categories?.name || '-'}
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-900">
-                        {formatCurrency(product.price)}
+                        {formatCurrency(product.price, currency)}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

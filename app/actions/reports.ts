@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { normalizeCurrency } from '@/lib/utils/currency'
 import { resolveRestaurantContext } from '@/lib/auth/restaurant-context'
 import { REPORT_ROLES, roleIn } from '@/lib/auth/roles'
 import { hasFeature } from '@/lib/features'
@@ -17,6 +18,7 @@ export interface ReportsFilter {
 
 export interface ReportsData {
   restaurantName: string
+  currency: string
   featureEnabled: boolean
   canViewAllBranches: boolean
   restaurants: { id: string; name: string }[]
@@ -36,11 +38,12 @@ function istanbulStart(daysBack: number): string {
 export async function getReports(filter: ReportsFilter = {}): Promise<ReportsData> {
   const days = filter.days && [1, 7, 30].includes(filter.days) ? filter.days : 1
   const scope = filter.scope === 'all' ? 'all' : 'current'
-  const base: ReportsData = { restaurantName: '', featureEnabled: false, canViewAllBranches: false, restaurants: [], days, scope, summary: null }
+  const base: ReportsData = { restaurantName: '', currency: 'TRY', featureEnabled: false, canViewAllBranches: false, restaurants: [], days, scope, summary: null }
   const result = await resolveRestaurantContext()
   if (!result.ok) return { ...base, error: result.error }
   const { ctx } = result
   base.restaurantName = ctx.restaurant.name
+  base.currency = normalizeCurrency((ctx.restaurant as { currency?: string }).currency)
   base.featureEnabled = hasFeature(ctx.features, 'reports')
   base.restaurants = ctx.restaurants.map((r) => ({ id: r.id, name: r.name }))
   base.canViewAllBranches = ctx.restaurants.length > 1

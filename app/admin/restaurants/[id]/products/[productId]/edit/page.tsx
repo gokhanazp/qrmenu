@@ -222,7 +222,7 @@ export default function EditProductPage() {
               )}
               
               <div>
-                <Label htmlFor="price">Fiyat (₺) *</Label>
+                <Label htmlFor="price">Fiyat *</Label>
                 <Input
                   id="price"
                   type="number"

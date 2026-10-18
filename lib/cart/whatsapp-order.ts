@@ -44,6 +44,8 @@ export function buildOrderMessage(input: {
   isEnglish?: boolean
   /** Sunucuda oluşturulan sipariş numarası (varsa mesaja eklenir) */
   orderNumber?: string | null
+  /** Restoranın para birimi (varsayılan TRY) */
+  currency?: string
 }): string {
   const lang = input.isEnglish ? 'en' : 'tr'
   const t = input.isEnglish
@@ -55,10 +57,10 @@ export function buildOrderMessage(input: {
   if (input.orderNumber) lines.push(`🧾 ${t.orderNo}: *${input.orderNumber}*`)
   lines.push('')
   for (const item of input.items) {
-    lines.push(`• ${item.qty} x ${item.name} - ${formatCurrency(item.price * item.qty)}`)
+    lines.push(`• ${item.qty} x ${item.name} - ${formatCurrency(item.price * item.qty, input.currency)}`)
   }
   lines.push('')
-  lines.push(`💰 *${t.total}: ${formatCurrency(cartTotal(input.items))}*`)
+  lines.push(`💰 *${t.total}: ${formatCurrency(cartTotal(input.items), input.currency)}*`)
 
   const details: string[] = []
   if (input.paymentMethod) {
