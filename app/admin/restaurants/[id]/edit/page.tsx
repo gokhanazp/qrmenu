@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
-import { LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS } from '@/lib/utils/logo-size'
+import { LOGO_CUSTOM_LIMITS, LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS, clampLogoBox, isCustomLogoSize, logoBox } from '@/lib/utils/logo-size'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -366,11 +366,23 @@ export default function EditRestaurantPage() {
               </div>
               <div className="p-6">
                 <ImageUpload id="logo-upload" currentImageUrl={formData.logo_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, logo_url: url })); setIsUploadingLogo(false) }} bucket="restaurant-images" path="logos" onUploadStart={() => setIsUploadingLogo(true)} />
-                <div className="mt-4 space-y-1">
+                <div className="mt-4 space-y-2">
                   <label className="text-sm font-medium text-gray-700">Logo Boyutu <span className="text-gray-400 font-normal">(menü başlığındaki kutu)</span></label>
-                  <select value={formData.logo_size} onChange={(e) => setFormData(prev => ({ ...prev, logo_size: e.target.value }))} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
+                  <select value={isCustomLogoSize(formData.logo_size) ? 'custom' : formData.logo_size} onChange={(e) => setFormData(prev => ({ ...prev, logo_size: e.target.value === 'custom' ? '240x90' : e.target.value }))} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
                     {LOGO_SIZE_KEYS.map((k) => <option key={k} value={k}>{LOGO_SIZE_LABELS.tr[k]} · {LOGO_SIZES[k].width}×{LOGO_SIZES[k].height}px</option>)}
+                    <option value="custom">Özel ölçü (px)</option>
                   </select>
+                  {isCustomLogoSize(formData.logo_size) && (() => {
+                    const box = logoBox(formData.logo_size)
+                    const set = (w: number, h: number) => { const c = clampLogoBox(w, h); setFormData(prev => ({ ...prev, logo_size: `${c.width}x${c.height}` })) }
+                    return (
+                      <div className="flex items-center gap-2 text-sm">
+                        <input type="number" min={LOGO_CUSTOM_LIMITS.minWidth} max={LOGO_CUSTOM_LIMITS.maxWidth} value={box.width} onChange={(e) => set(Number(e.target.value), box.height)} className="h-10 w-24 rounded-md border border-gray-300 px-2" /> ×
+                        <input type="number" min={LOGO_CUSTOM_LIMITS.minHeight} max={LOGO_CUSTOM_LIMITS.maxHeight} value={box.height} onChange={(e) => set(box.width, Number(e.target.value))} className="h-10 w-24 rounded-md border border-gray-300 px-2" /> px
+                        <span className="text-xs text-gray-500">genişlik {LOGO_CUSTOM_LIMITS.minWidth}–{LOGO_CUSTOM_LIMITS.maxWidth}, yükseklik {LOGO_CUSTOM_LIMITS.minHeight}–{LOGO_CUSTOM_LIMITS.maxHeight}</span>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             </div>

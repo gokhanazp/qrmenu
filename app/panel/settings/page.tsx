@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
-import { LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS } from '@/lib/utils/logo-size'
+import { LOGO_CUSTOM_LIMITS, LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS, clampLogoBox, isCustomLogoSize, logoBox } from '@/lib/utils/logo-size'
 import { useRouter } from 'next/navigation'
 import { getRestaurant, updateRestaurant } from '@/app/actions/restaurant'
 import { changePassword, getUser } from '@/app/actions/auth'
@@ -360,7 +360,7 @@ export default function SettingsPage() {
               <div className="mt-6 space-y-2">
                 <Label>{t.panel.settings.logoSize}</Label>
                 <p className="text-xs text-gray-500">{t.panel.settings.logoSizeHelp}</p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {LOGO_SIZE_KEYS.map((key) => {
                     const box = LOGO_SIZES[key]
                     const active = formData.logo_size === key
@@ -378,7 +378,41 @@ export default function SettingsPage() {
                       </button>
                     )
                   })}
+                  {(() => {
+                    const custom = isCustomLogoSize(formData.logo_size)
+                    const box = logoBox(custom ? formData.logo_size : '240x90')
+                    return (
+                      <button type="button" onClick={() => { if (!custom) setFormData({ ...formData, logo_size: '240x90' }) }} className={`rounded-xl border-2 p-2 text-left transition ${custom ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                        <div className="h-20 flex items-center justify-center rounded-lg overflow-hidden" style={{ backgroundColor: formData.header_bg_color || '#ffffff', backgroundImage: formData.header_bg_url ? `url(${formData.header_bg_url})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                          {formData.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={formData.logo_url} alt="" style={{ width: box.width * 0.4, height: box.height * 0.4, objectFit: 'contain' }} />
+                          ) : (
+                            <span className="material-symbols-outlined text-gray-400">tune</span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-gray-800">{LOGO_SIZE_LABELS[locale === 'en' ? 'en' : 'tr'].custom} <span className="font-normal text-gray-500">{custom ? `${box.width}×${box.height}px` : (locale === 'en' ? 'enter px' : 'px gir')}</span></p>
+                      </button>
+                    )
+                  })()}
                 </div>
+                {isCustomLogoSize(formData.logo_size) && (() => {
+                  const box = logoBox(formData.logo_size)
+                  const set = (w: number, h: number) => { const c = clampLogoBox(w, h); setFormData({ ...formData, logo_size: `${c.width}x${c.height}` }) }
+                  return (
+                    <div className="flex items-end gap-3 flex-wrap rounded-xl border border-purple-200 bg-purple-50/50 p-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="logo_w">{locale === 'en' ? 'Width (px)' : 'Genişlik (px)'}</Label>
+                        <Input id="logo_w" type="number" min={LOGO_CUSTOM_LIMITS.minWidth} max={LOGO_CUSTOM_LIMITS.maxWidth} value={box.width} onChange={(e) => set(Number(e.target.value), box.height)} className="w-28" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="logo_h">{locale === 'en' ? 'Height (px)' : 'Yükseklik (px)'}</Label>
+                        <Input id="logo_h" type="number" min={LOGO_CUSTOM_LIMITS.minHeight} max={LOGO_CUSTOM_LIMITS.maxHeight} value={box.height} onChange={(e) => set(box.width, Number(e.target.value))} className="w-28" />
+                      </div>
+                      <p className="text-xs text-gray-500 pb-2">{locale === 'en' ? `Width ${LOGO_CUSTOM_LIMITS.minWidth}–${LOGO_CUSTOM_LIMITS.maxWidth}, height ${LOGO_CUSTOM_LIMITS.minHeight}–${LOGO_CUSTOM_LIMITS.maxHeight}. Category pages use 70%.` : `Genişlik ${LOGO_CUSTOM_LIMITS.minWidth}–${LOGO_CUSTOM_LIMITS.maxWidth}, yükseklik ${LOGO_CUSTOM_LIMITS.minHeight}–${LOGO_CUSTOM_LIMITS.maxHeight}. Kategori sayfalarında %70 ölçeklenir.`}</p>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           </div>
