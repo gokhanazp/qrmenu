@@ -523,6 +523,8 @@ export const en: TranslationKeys = {
       slugHelp: 'Your menu URL: /restorant/',
       logo: 'Logo',
       logoSubtitle: 'Will appear in menu header',
+      logoSize: 'Logo Size',
+      logoSizeHelp: 'Size of the logo box in the menu header; the logo is fitted without distortion',
       heroBanner: 'Hero Banner',
       headerBgImage: 'Header Background Image',
       headerBgImageSubtitle: 'Shown behind the top header (optional)',

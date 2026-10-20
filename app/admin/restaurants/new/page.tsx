@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
+import { LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS } from '@/lib/utils/logo-size'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -31,7 +32,7 @@ export default function NewRestaurantPage() {
   const [formData, setFormData] = useState({
     name: '', slug: '', email: '', password: '', slogan: '', phone: '', address: '',
     whatsapp: '', instagram: '', facebook: '', twitter: '', about_us: '',
-    logo_url: '', hero_url: '', header_bg_url: '', currency: 'TRY', layout_style: 'grid',
+    logo_url: '', hero_url: '', header_bg_url: '', currency: 'TRY', logo_size: 'md', layout_style: 'grid',
     background_color: '#ffffff', surface_color: '#f9fafb', text_color: '#111827',
     primary_color: '#FF6B35', price_color: '#ef4444', icon_color: '#111827',
     hamburger_bg_color: '#ffffff', qr_logo_bg_color: '#FFFFFF',
@@ -291,6 +292,12 @@ export default function NewRestaurantPage() {
               </div>
               <div className="p-6">
                 <ImageUpload id="logo-upload" currentImageUrl={formData.logo_url} onUploadComplete={(url: string) => { setFormData(prev => ({ ...prev, logo_url: url })); setIsUploadingLogo(false) }} bucket="restaurant-images" path="logos" onUploadStart={() => setIsUploadingLogo(true)} />
+                <div className="mt-4 space-y-1">
+                  <label className="text-sm font-medium text-gray-700">Logo Boyutu <span className="text-gray-400 font-normal">(menü başlığındaki kutu)</span></label>
+                  <select value={formData.logo_size} onChange={(e) => setFormData(prev => ({ ...prev, logo_size: e.target.value }))} className="h-10 w-full max-w-xs rounded-md border border-gray-300 px-3 text-sm bg-white">
+                    {LOGO_SIZE_KEYS.map((k) => <option key={k} value={k}>{LOGO_SIZE_LABELS.tr[k]} · {LOGO_SIZES[k].width}×{LOGO_SIZES[k].height}px</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 

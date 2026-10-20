@@ -11,6 +11,7 @@ import { PublicMenuBottomNav } from '@/components/public-menu-bottom-nav'
 import { CartProvider } from '@/components/cart/cart-context'
 import { CurrencyProvider } from '@/lib/utils/currency-context'
 import { normalizeCurrency } from '@/lib/utils/currency'
+import { logoBox } from '@/lib/utils/logo-size'
 import { CartBar } from '@/components/cart/cart-bar'
 import { PoweredByQrMenulist } from '@/components/powered-by-qrmenulist'
 import { JsonLd } from '@/components/json-ld'
@@ -77,6 +78,7 @@ export default async function CategoryDetailPage({
   const headerBgColor = rest.header_bg_color || backgroundColor
   const headerBgUrl: string | null = rest.header_bg_url || null
   const currency = normalizeCurrency(rest.currency)
+  const logo = logoBox(rest.logo_size, 0.7)
   const footerBgColor = rest.footer_bg_color || backgroundColor
   
   // Dil seçimi - URL parametresinden veya varsayılan
@@ -171,14 +173,14 @@ export default async function CategoryDetailPage({
               {/* Orta: Logo */}
               <Link href={`/restorant/${slug}${isEnglish ? '?lang=en' : ''}`} className="flex items-center justify-center flex-1">
                 {rest.logo_url ? (
-                  <div className="relative" style={{ width: '140px', height: '48px' }}>
+                  <div className="relative" style={{ width: `${logo.width}px`, height: `${logo.height}px` }}>
                     <Image
                       src={rest.logo_url}
                       alt={rest.name}
                       fill
                       className="object-contain"
                       priority
-                      sizes="140px"
+                      sizes={`${logo.width}px`}
                     />
                   </div>
                 ) : (

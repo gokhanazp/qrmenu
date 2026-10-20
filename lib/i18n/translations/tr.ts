@@ -525,6 +525,8 @@ export const tr = {
       slugHelp: 'Menü URL\'iniz: /restorant/',
       logo: 'Logo',
       logoSubtitle: 'Menü başlığında görünecek',
+      logoSize: 'Logo Boyutu',
+      logoSizeHelp: 'Menü başlığındaki logo kutusunun büyüklüğü; logo kutuya oranı bozulmadan sığdırılır',
       heroBanner: 'Hero Banner',
       heroBannerSubtitle: 'Menü üst görseli',
       headerBgImage: 'Header Arka Plan Görseli',

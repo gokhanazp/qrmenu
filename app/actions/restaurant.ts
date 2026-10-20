@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { normalizeCurrency } from '@/lib/utils/currency'
+import { normalizeLogoSize } from '@/lib/utils/logo-size'
 import { cookies } from 'next/headers'
 import {
   ACTIVE_RESTAURANT_COOKIE,
@@ -79,6 +80,7 @@ interface UpdateRestaurantInput {
   hero_url?: string
   header_bg_url?: string
   currency?: string
+  logo_size?: string
   is_active?: boolean
   layout_style?: string
   background_color?: string
@@ -129,7 +131,11 @@ export async function updateRestaurant(input: UpdateRestaurantInput) {
     }
   }
 
-  const payload = { ...input, ...(input.currency !== undefined ? { currency: normalizeCurrency(input.currency) } : {}) }
+  const payload = {
+    ...input,
+    ...(input.currency !== undefined ? { currency: normalizeCurrency(input.currency) } : {}),
+    ...(input.logo_size !== undefined ? { logo_size: normalizeLogoSize(input.logo_size) } : {}),
+  }
   const { error } = await supabase
     .from('restaurants')
     .update(payload as never)

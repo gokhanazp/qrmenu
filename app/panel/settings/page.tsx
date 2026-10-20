@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
 import { SUPPORTED_CURRENCIES } from '@/lib/utils/currency'
+import { LOGO_SIZES, LOGO_SIZE_KEYS, LOGO_SIZE_LABELS } from '@/lib/utils/logo-size'
 import { useRouter } from 'next/navigation'
 import { getRestaurant, updateRestaurant } from '@/app/actions/restaurant'
 import { changePassword, getUser } from '@/app/actions/auth'
@@ -17,7 +18,7 @@ import { useLocale } from '@/lib/i18n/use-locale'
 
 export default function SettingsPage() {
   const router = useRouter()
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -31,6 +32,7 @@ export default function SettingsPage() {
     hero_url: '',
     header_bg_url: '',
     currency: 'TRY',
+    logo_size: 'md',
     is_active: true,
     layout_style: 'grid' as 'grid' | 'list',
     background_color: '#ffffff',
@@ -129,6 +131,7 @@ export default function SettingsPage() {
           hero_url: rest.hero_url || '',
           header_bg_url: rest.header_bg_url || '',
           currency: rest.currency || 'TRY',
+          logo_size: rest.logo_size || 'md',
           is_active: rest.is_active ?? true,
           layout_style: rest.layout_style || 'grid',
           background_color: rest.background_color || '#ffffff',
@@ -352,6 +355,31 @@ export default function SettingsPage() {
             </div>
             <div className="p-6">
               <ImageUpload id="logo-upload" currentImageUrl={formData.logo_url} onUploadComplete={(url: string) => { setFormData({ ...formData, logo_url: url }); setIsUploadingLogo(false) }} bucket="restaurant-images" path="logos" onUploadStart={() => setIsUploadingLogo(true)} />
+
+              {/* Logo boyutu: menü başlığındaki kutu */}
+              <div className="mt-6 space-y-2">
+                <Label>{t.panel.settings.logoSize}</Label>
+                <p className="text-xs text-gray-500">{t.panel.settings.logoSizeHelp}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {LOGO_SIZE_KEYS.map((key) => {
+                    const box = LOGO_SIZES[key]
+                    const active = formData.logo_size === key
+                    return (
+                      <button type="button" key={key} onClick={() => setFormData({ ...formData, logo_size: key })} className={`rounded-xl border-2 p-2 text-left transition ${active ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                        <div className="h-20 flex items-center justify-center rounded-lg overflow-hidden" style={{ backgroundColor: formData.header_bg_color || '#ffffff', backgroundImage: formData.header_bg_url ? `url(${formData.header_bg_url})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                          {formData.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={formData.logo_url} alt="" style={{ width: box.width * 0.4, height: box.height * 0.4, objectFit: 'contain' }} />
+                          ) : (
+                            <span className="text-xs text-gray-400">{box.width}×{box.height}</span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-gray-800">{LOGO_SIZE_LABELS[locale === 'en' ? 'en' : 'tr'][key]} <span className="font-normal text-gray-500">{box.width}×{box.height}px</span></p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 

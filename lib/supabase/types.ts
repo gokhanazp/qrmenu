@@ -17,6 +17,7 @@ export interface Database {
           name: string
           slug: string
           logo_url: string | null
+          logo_size: string
           hero_url: string | null
           header_bg_url: string | null
           currency: string
@@ -34,6 +35,7 @@ export interface Database {
           name: string
           slug: string
           logo_url?: string | null
+          logo_size?: string
           whatsapp?: string | null
           ordering_enabled?: boolean
           hero_url?: string | null
@@ -51,6 +53,7 @@ export interface Database {
           name?: string
           slug?: string
           logo_url?: string | null
+          logo_size?: string
           whatsapp?: string | null
           ordering_enabled?: boolean
           hero_url?: string | null
