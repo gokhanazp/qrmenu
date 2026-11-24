@@ -21,7 +21,8 @@ export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }))
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const post = getPostBySlug(params.slug)
   if (!post) return {}
 
@@ -88,10 +89,11 @@ function countWords(post: BlogPost): number {
     texts.push(item.q, item.a)
   }
 
-  return texts.join(" ").split(/\s+/).filter(Boolean).length
+  return texts.join(" ").split(/\s+/).filter(Boolean).length;
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const post = getPostBySlug(params.slug)
   if (!post) notFound()
 

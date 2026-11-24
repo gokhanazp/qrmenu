@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { getCategory, updateCategory } from '@/app/actions/category'
 import { getRestaurant } from '@/app/actions/restaurant'
@@ -12,7 +12,8 @@ import { ImageUpload } from '@/components/image-upload'
 import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/use-locale'
 
-export default function EditCategoryPage({ params }: { params: { id: string } }) {
+export default function EditCategoryPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const { t } = useLocale()
   const [isSubmitting, setIsSubmitting] = useState(false)

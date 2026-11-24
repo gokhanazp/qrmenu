@@ -5,7 +5,8 @@ import { ProductsHubClient } from './products-hub-client'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ProductsPage({ searchParams }: { searchParams?: { tab?: string } }) {
+export default async function ProductsPage(props: { searchParams?: Promise<{ tab?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

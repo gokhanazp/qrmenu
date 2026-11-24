@@ -6,11 +6,12 @@ import { OrdersClient } from './orders-client'
 
 export const dynamic = 'force-dynamic'
 
-export default async function OrdersPage({
-  searchParams,
-}: {
-  searchParams?: { status?: string; source?: string; days?: string }
-}) {
+export default async function OrdersPage(
+  props: {
+    searchParams?: Promise<{ status?: string; source?: string; days?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

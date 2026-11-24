@@ -9,11 +9,12 @@ import { ImpersonateButton } from './impersonate-button'
 import { extractSubscription } from '@/lib/subscription'
 import { FEATURE_LABELS, isFeatureKey, type FeatureKey } from '@/lib/features'
 
-export default async function AdminRestaurantDetailPage({
-  params
-}: {
-  params: { id: string }
-}) {
+export default async function AdminRestaurantDetailPage(
+  props: {
+    params: Promise<{ id: string }>
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -57,7 +58,7 @@ export default async function AdminRestaurantDetailPage({
   // Process scan events for chart (last 30 days)
   const scansByDate: { [key: string]: number} = {}
   const last30Days: string[] = []
-  
+
   for (let i = 0; i < 30; i++) {
     const date = new Date()
     date.setDate(date.getDate() - (29 - i))

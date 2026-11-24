@@ -1,4 +1,6 @@
-# Deployment Guide - Vercel
+# Deployment Guide - Vercel (ESKİ)
+
+> ⚠️ Proje Cloudflare Workers'a taşındı. Güncel rehber: [DEPLOYMENT-CLOUDFLARE.md](./DEPLOYMENT-CLOUDFLARE.md)
 
 Bu dokümanda projenin Vercel'e deploy edilmesi adım adım açıklanmaktadır.
 

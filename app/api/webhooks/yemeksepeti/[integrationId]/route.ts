@@ -27,7 +27,8 @@ export async function GET() {
   return NextResponse.json({ ok: true })
 }
 
-export async function POST(request: Request, { params }: { params: { integrationId: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ integrationId: string }> }) {
+  const params = await props.params;
   const integration = await getResolvedIntegration(params.integrationId).catch(() => null)
   if (!integration || integration.platform !== 'yemeksepeti') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 })

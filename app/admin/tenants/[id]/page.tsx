@@ -8,7 +8,8 @@ import { TenantSettingsForm } from './tenant-settings-form'
 import { TenantMembersClient } from './tenant-members-client'
 import { RestaurantUsersClient } from './restaurant-users-client'
 
-export default async function AdminTenantDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminTenantDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

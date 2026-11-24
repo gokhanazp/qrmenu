@@ -11,13 +11,14 @@ import { isMenuAccessible, extractSubscription } from '@/lib/subscription'
 
 export const revalidate = 60
 
-export default async function AllReviewsPage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string }
-  searchParams: { lang?: string }
-}) {
+export default async function AllReviewsPage(
+  props: {
+    params: Promise<{ slug: string }>
+    searchParams: Promise<{ lang?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { slug } = params
   const { restaurant, error } = await getPublicRestaurant(slug)
 
@@ -97,7 +98,8 @@ export default async function AllReviewsPage({
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const { restaurant } = await getPublicRestaurant(params.slug)
   if (!restaurant) {
     return { title: 'Yorumlar' }

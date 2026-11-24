@@ -5,7 +5,8 @@ import { ReportsClient } from './reports-client'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ReportsPage({ searchParams }: { searchParams?: { days?: string; scope?: string } }) {
+export default async function ReportsPage(props: { searchParams?: Promise<{ days?: string; scope?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

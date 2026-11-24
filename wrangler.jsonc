@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qrmenulist",
+  // OpenNext worker'ını saran özel worker: fetch + cron (scheduled) handler
+  "main": "custom-worker.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "qrmenulist" }
+  ],
+  // next/image optimizasyonu (Cloudflare Images)
+  "images": {
+    "binding": "IMAGES"
+  },
+  // Vercel Cron yerine: entegrasyon işleri her 15 dakikada bir
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
+  // Gizli olmayan çalışma zamanı değişkenleri.
+  // Gizli olanları `npx wrangler secret put <AD>` ile ekle (bkz. docs/DEPLOYMENT-CLOUDFLARE.md)
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://www.qrmenulist.com"
+  }
+}

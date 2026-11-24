@@ -1,0 +1,6 @@
+# Cloudflare statik asset cache başlıkları (eski vercel.json'ın karşılığı)
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

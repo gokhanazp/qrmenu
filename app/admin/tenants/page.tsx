@@ -4,11 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import { getTenants } from '@/app/actions/tenants'
 import { CreateTenantForm } from './create-tenant-form'
 
-export default async function AdminTenantsPage({
-  searchParams,
-}: {
-  searchParams?: { all?: string }
-}) {
+export default async function AdminTenantsPage(
+  props: {
+    searchParams?: Promise<{ all?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')

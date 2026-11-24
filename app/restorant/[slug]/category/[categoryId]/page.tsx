@@ -22,13 +22,14 @@ import { isMenuAccessible, extractSubscription } from '@/lib/subscription'
 // Revalidate every 5 minutes for category pages
 export const revalidate = 300
 
-export default async function CategoryDetailPage({
-  params,
-  searchParams
-}: {
-  params: { slug: string; categoryId: string }
-  searchParams: { lang?: string }
-}) {
+export default async function CategoryDetailPage(
+  props: {
+    params: Promise<{ slug: string; categoryId: string }>
+    searchParams: Promise<{ lang?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { slug, categoryId } = params
 
   // Fetch restaurant
@@ -80,13 +81,13 @@ export default async function CategoryDetailPage({
   const currency = normalizeCurrency(rest.currency)
   const logo = logoBox(rest.logo_size, 0.7)
   const footerBgColor = rest.footer_bg_color || backgroundColor
-  
+
   // Dil seçimi - URL parametresinden veya varsayılan
   const currentLang = searchParams.lang && supportedLanguages.includes(searchParams.lang) 
     ? searchParams.lang 
     : supportedLanguages[0]
   const isEnglish = currentLang === 'en'
-  
+
   // Çeviri metinleri
   const translations = {
     tr: {
@@ -98,9 +99,9 @@ export default async function CategoryDetailPage({
       search: 'Search'
     }
   }
-  
+
   const t = translations[isEnglish ? 'en' : 'tr']
-  
+
   // Kategori ve ürün isimlerini dile göre ayarla
   const categoryName = isEnglish && cat.name_en ? cat.name_en : cat.name
 
@@ -340,7 +341,8 @@ export default async function CategoryDetailPage({
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string; categoryId: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string; categoryId: string }> }) {
+  const params = await props.params;
   const { restaurant } = await getPublicRestaurant(params.slug)
   const { category, products = [] } = await getCategoryWithProducts((restaurant as any)?.id, params.categoryId)
 

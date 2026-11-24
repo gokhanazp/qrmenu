@@ -37,7 +37,11 @@ import { toTitleCase } from '@/lib/utils/slug'
 // Enable Cache (ISR) 
 export const revalidate = 60
 
-export default async function PublicMenuPage({ params, searchParams }: { params: { slug: string }, searchParams: { lang?: string } }) {
+export default async function PublicMenuPage(
+  props: { params: Promise<{ slug: string }>, searchParams: Promise<{ lang?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { slug } = params
 
   // Fetch restaurant
@@ -95,13 +99,13 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   const currency = normalizeCurrency(rest.currency)
   const logo = logoBox(rest.logo_size)
   const footerBgColor = rest.footer_bg_color || backgroundColor
-  
+
   // Dil seçimi - URL parametresinden veya varsayılan
   const currentLang = searchParams.lang && supportedLanguages.includes(searchParams.lang) 
     ? searchParams.lang 
     : supportedLanguages[0]
   const isEnglish = currentLang === 'en'
-  
+
   // Çeviri metinleri
   const translations = {
     tr: {
@@ -125,7 +129,7 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
       search: 'Search'
     }
   }
-  
+
   const t = translations[isEnglish ? 'en' : 'tr']
 
   // JSON-LD structured data
@@ -470,7 +474,8 @@ export default async function PublicMenuPage({ params, searchParams }: { params:
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const { restaurant } = await getPublicRestaurant(params.slug)
 
   if (!restaurant) {

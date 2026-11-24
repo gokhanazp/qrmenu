@@ -37,9 +37,9 @@ const nextConfig = {
       },
       {
         // Ana sayfadaki "Müşterilerimizin Menüleri" ekran görüntüleri.
-        // next/image üzerinden geçirilince Vercel görseli optimize edip
-        // minimumCacheTTL kadar (30 gün) cache'liyor; böylece her ziyarette
-        // üçüncü parti API'ye gidilmiyor ve API düşse bile bölüm boş kalmıyor.
+        // next/image üzerinden geçirilince Cloudflare Images (IMAGES binding)
+        // görseli optimize edip cache'liyor; böylece her ziyarette üçüncü
+        // parti API'ye gidilmiyor ve API düşse bile bölüm boş kalmıyor.
         protocol: 'https',
         hostname: 'api.microlink.io',
         port: '',
@@ -49,6 +49,7 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Not: Cloudflare'de minimumCacheTTL dikkate alınmıyor (Vercel'e özgüydü)
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
   compress: true,
@@ -97,3 +98,8 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+// `next dev` sırasında Cloudflare binding'lerine (R2, D1, Images...) erişim
+if (process.env.NODE_ENV === 'development') {
+  import('@opennextjs/cloudflare').then((m) => m.initOpenNextCloudflareForDev())
+}
